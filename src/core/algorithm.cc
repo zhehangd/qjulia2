@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "algorithm.h"
+#include "qjulia2/core/algorithm.h"
 
 #include <algorithm>
 #include <cmath>

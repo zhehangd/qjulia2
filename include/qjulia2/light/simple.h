@@ -24,69 +24,41 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_CAMERA3D_H_
-#define QJULIA_CAMERA3D_H_
+#ifndef QJULIA_LIGHTS_SIMPLE_H_
+#define QJULIA_LIGHTS_SIMPLE_H_
 
-#include "core/camera.h"
+#include "qjulia2/core/light.h"
 
 namespace qjulia {
 
-class Camera3D : public Camera {
+class SunLight : public Light {
  public:
+  LightRay Li(const Point3f &p) const;
   
-  Camera3D(void);
+  std::string GetImplName(void) const override {return "sun";}
   
-  void LookAt(Vector3f position, Vector3f at, Vector3f up);
-  
-  void CenterAround(Float h, Float v, Float radius);
-  
-  // TODO: what to do if parsed from file?
-  void Update(void);
-  
-  Ray CastRay(Point2f pos) const = 0;
-  
-  Point3f position;
-  Point3f orientation;
-  Point3f up;
-  Point3f right;
-};
-
-/** \brief Standard 3D camera with orthogonal projection
-*/
-class OrthoCamera : public Camera3D {
- public:
-  OrthoCamera(void) {}
-  
-  Ray CastRay(Point2f pos) const;
-  
-  std::string GetImplName(void) const override {return "ortho";};
-  
-  SceneEntity* Clone(void) const override {return new OrthoCamera(*this);}
+  SceneEntity* Clone(void) const override {return new SunLight(*this);}
   
   bool ParseInstruction(const TokenizedStatement instruction, 
                         const ResourceMgr *resource) override;
   
-  Float scale = 1;
+  Spectrum intensity;
+  Vector3f orientation;
 };
 
-/** \brief Standard 3D camera with perspective projection
-*/
-class PerspectiveCamera : public Camera3D {
+class PointLight : public Light {
  public:
-  PerspectiveCamera(void);
+  LightRay Li(const Point3f &p) const;
   
-  Ray CastRay(Point2f pos) const;
+  std::string GetImplName(void) const override {return "point";}
   
-  std::string GetImplName(void) const override {return "perspective";}
-  
-  SceneEntity* Clone(void) const override {return new PerspectiveCamera(*this);}
+  SceneEntity* Clone(void) const override {return new PointLight(*this);}
   
   bool ParseInstruction(const TokenizedStatement instruction, 
                         const ResourceMgr *resource) override;
   
-  std::string GetSummary(void) const;
-  
-  Float focus;
+  Spectrum intensity;
+  Vector3f position;
 };
 
 }

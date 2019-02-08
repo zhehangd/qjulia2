@@ -24,25 +24,39 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_INTEGRATOR_DEFAULT_H_
-#define QJULIA_INTEGRATOR_DEFAULT_H_
+#ifndef QJULIA_PLANE_H_
+#define QJULIA_PLANE_H_
 
-#include "core/integrator.h"
+#include <vector>
+#include <memory>
+
+#include "qjulia2/core/vector.h"
+#include "qjulia2/core/shape.h"
 
 namespace qjulia {
 
-class DefaultIntegrator : public Integrator {
+class PlaneShape : public Shape {
  public:
-  
-  Spectrum Li(const Ray &ray, const Scene &scene);
-
- private:
    
-  Spectrum LiRecursive(const Ray &ray, const Scene &scene, int depth);
+  PlaneShape(void);
+  PlaneShape(Vector3f position, Vector3f orientation);
   
-  Float ray_delta_ = 5e-3; // TODO: Use EFloat to bound the error.
+  void SetPositionAndNormal(Vector3f position, Vector3f orientation);
+  
+  Intersection Intersect(const Ray &ray) const override;
+  
+  std::string GetImplName(void) const override {return "plane";}
+  
+  SceneEntity* Clone(void) const override {return new PlaneShape(*this);}
+  
+  bool ParseInstruction(const TokenizedStatement instruction, 
+                        const ResourceMgr *resource) override;
+  
+  Vector3f normal;
+  float offset;
 };
 
 }
 
 #endif
+ 

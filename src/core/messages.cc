@@ -24,11 +24,11 @@ SOFTWARE.
 
 */
 
-#include "messages.h"
+#include "qjulia2/core/messages.h"
 
 #include <iostream>
 
-#include "tokenizer.h"
+#include "qjulia2/core/tokenizer.h"
 
 namespace qjulia {
 

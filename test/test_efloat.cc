@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <gtest/gtest.h> 
 
-#include "core/efloat.h"
+#include "qjulia2/core/efloat.h"
 
 TEST(EFloat, Regular) {
   qjulia::Float v = 3.14f;

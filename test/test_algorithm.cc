@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <gtest/gtest.h> 
 
-#include "core/algorithm.h"
+#include "qjulia2/core/algorithm.h"
 
 TEST(SolveQuadratic, Q1) {
   qjulia::Float a = 1, b = 5, c = 3;

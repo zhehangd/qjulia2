@@ -24,9 +24,9 @@ SOFTWARE.
 
 */
 
-#include "material.h"
-#include "messages.h"
-#include "resource_mgr.h"
+#include "qjulia2/core/material.h"
+#include "qjulia2/core/messages.h"
+#include "qjulia2/core/resource_mgr.h"
 
 namespace qjulia {
 

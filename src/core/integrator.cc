@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "integrator.h"
+#include "qjulia2/core/integrator.h"
 
 namespace qjulia {
 

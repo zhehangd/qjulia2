@@ -24,13 +24,13 @@ SOFTWARE.
 
 */
 
-#include "object.h"
+#include "qjulia2/core/object.h"
 
-#include "base.h"
-#include "shape.h"
-#include "transform.h"
-#include "material.h"
-#include "resource_mgr.h"
+#include "qjulia2/core/base.h"
+#include "qjulia2/core/shape.h"
+#include "qjulia2/core/transform.h"
+#include "qjulia2/core/material.h"
+#include "qjulia2/core/resource_mgr.h"
 
 namespace qjulia {
 

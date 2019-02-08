@@ -35,25 +35,7 @@ SOFTWARE.
 
 #include <cxxopts.hpp>
 
-#include "core/algorithm.h"
-#include "core/camera.h"
-#include "core/efloat.h"
-#include "core/engine.h"
-#include "core/film.h"
-#include "core/light.h"
-#include "core/vector.h"
-#include "core/scene.h"
-#include "core/object.h"
-#include "core/integrator.h"
-#include "core/resource_mgr.h"
-#include "core/tokenizer.h"
-#include "camera/camera3d.h"
-#include "integrator/default.h"
-#include "integrator/normal.h"
-#include "light/simple.h"
-#include "shape/sphere.h"
-#include "shape/plane.h"
-#include "shape/julia3d.h"
+#include "qjulia2/qjulia2.h"
 
 using namespace qjulia;
 

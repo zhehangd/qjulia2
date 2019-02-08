@@ -24,9 +24,9 @@ SOFTWARE.
 
 */
 
-#include "transform.h"
+#include "qjulia2/core/transform.h"
 
-#include "resource_mgr.h"
+#include "qjulia2/core/resource_mgr.h"
 
 namespace qjulia {
 

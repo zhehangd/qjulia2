@@ -29,9 +29,9 @@ SOFTWARE.
 #include <string>
 
 
-#include "messages.h"
-#include "resource_mgr.h"
-#include "scene.h"
+#include "qjulia2/core/messages.h"
+#include "qjulia2/core/resource_mgr.h"
+#include "qjulia2/core/scene.h"
 
 namespace qjulia {
 

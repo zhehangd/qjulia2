@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(libqjulia_static STATIC
+add_library(qjulia2-core SHARED
   core/algorithm.cc
   core/camera.cc
   core/efloat.cc
@@ -45,17 +45,20 @@ add_library(libqjulia_static STATIC
   shape/julia3d.cc
 )
 
-target_include_directories(libqjulia_static PUBLIC
-  "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(qjulia2-core PUBLIC
+  "${PROJECT_SOURCE_DIR}/include")
+
+set_target_properties(qjulia2-core PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(qjulia2-core PROPERTIES SOVERSION 1)
 
 # -------------------------------- App --------------------------------
 
-add_executable(qjulia
-  app/qjulia.cc
+add_executable(qjulia2-cli
+  cli/qjulia2-cli.cc
 )
 
-target_link_libraries(qjulia
+target_link_libraries(qjulia2-cli
   gflags cxxopts
   ${CMAKE_THREAD_LIBS_INIT}
-  libqjulia_static
+  qjulia2-core
 )

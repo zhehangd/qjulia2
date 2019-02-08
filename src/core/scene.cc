@@ -24,11 +24,11 @@ SOFTWARE.
 
 */
 
-#include "scene.h"
+#include "qjulia2/core/scene.h"
 
-#include "base.h"
-#include "intersection.h"
-#include "resource_mgr.h"
+#include "qjulia2/core/base.h"
+#include "qjulia2/core/intersection.h"
+#include "qjulia2/core/resource_mgr.h"
 
 namespace qjulia {
 

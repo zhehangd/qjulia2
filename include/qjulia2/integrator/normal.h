@@ -24,37 +24,18 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_SPHERE_H_
-#define QJULIA_SPHERE_H_
+#ifndef QJULIA_INTEGRATOR_NORMAL_H_
+#define QJULIA_INTEGRATOR_NORMAL_H_
 
-#include <vector>
-#include <memory>
-
-#include "core/vector.h"
-#include "core/shape.h"
+#include "qjulia2/core/integrator.h"
 
 namespace qjulia {
 
-class SphereShape : public Shape {
+class NormalIntegrator : public Integrator {
  public:
-  SphereShape(void) {}
-  SphereShape(Point3f pos, float radius) : position(pos), radius(radius) {}
-  
-  Intersection Intersect(const Ray &ray) const override;
-  
-  std::string GetImplName(void) const override {return "sphere";}
-  
-  SceneEntity* Clone(void) const override {return new SphereShape(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
-  
-  Point3f position;
-  float radius = 1.0f;
-  
+  Spectrum Li(const Ray &ray, const Scene &scene);
 };
 
 }
 
 #endif
- 

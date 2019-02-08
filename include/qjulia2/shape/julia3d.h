@@ -30,8 +30,8 @@ SOFTWARE.
 #include <vector>
 #include <memory>
 
-#include "core/vector.h"
-#include "core/shape.h"
+#include "qjulia2/core/vector.h"
+#include "qjulia2/core/shape.h"
 
 namespace qjulia {
 

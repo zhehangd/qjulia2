@@ -34,5 +34,5 @@ target_link_libraries(test_all
   gflags glog
   ${GTEST_BOTH_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
-  libqjulia_static
+  qjulia2-core
 )

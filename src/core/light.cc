@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "light.h"
+#include "qjulia2/core/light.h"
 
 namespace qjulia {
 

@@ -24,8 +24,8 @@ SOFTWARE.
 
 */
 
-#include "simple.h"
-#include "core/resource_mgr.h"
+#include "qjulia2/light/simple.h"
+#include "qjulia2/core/resource_mgr.h"
 
 namespace qjulia {
 

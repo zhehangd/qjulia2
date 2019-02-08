@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <gtest/gtest.h> 
 
-#include "core/vector.h"
+#include "qjulia2/core/vector.h"
 
 TEST(BaseVec, Constructors) {
   qjulia::Point2i p1(142, 127);

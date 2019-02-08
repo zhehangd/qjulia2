@@ -24,36 +24,34 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_PLANE_H_
-#define QJULIA_PLANE_H_
+#ifndef QJULIA_SPHERE_H_
+#define QJULIA_SPHERE_H_
 
 #include <vector>
 #include <memory>
 
-#include "core/vector.h"
-#include "core/shape.h"
+#include "qjulia2/core/vector.h"
+#include "qjulia2/core/shape.h"
 
 namespace qjulia {
 
-class PlaneShape : public Shape {
+class SphereShape : public Shape {
  public:
-   
-  PlaneShape(void);
-  PlaneShape(Vector3f position, Vector3f orientation);
-  
-  void SetPositionAndNormal(Vector3f position, Vector3f orientation);
+  SphereShape(void) {}
+  SphereShape(Point3f pos, float radius) : position(pos), radius(radius) {}
   
   Intersection Intersect(const Ray &ray) const override;
   
-  std::string GetImplName(void) const override {return "plane";}
+  std::string GetImplName(void) const override {return "sphere";}
   
-  SceneEntity* Clone(void) const override {return new PlaneShape(*this);}
+  SceneEntity* Clone(void) const override {return new SphereShape(*this);}
   
   bool ParseInstruction(const TokenizedStatement instruction, 
                         const ResourceMgr *resource) override;
   
-  Vector3f normal;
-  float offset;
+  Point3f position;
+  float radius = 1.0f;
+  
 };
 
 }

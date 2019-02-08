@@ -30,7 +30,7 @@ $ make -j4
 ## Usage
 
 ```bash
-./src/qjulia -i ../data/example_scene.txt
+./src/qjulia2-cli -i ../data/example_scene.txt
 ```
 There are a few options can be used:
 * `-i <file>, --scene_file <file>`
@@ -96,5 +96,7 @@ appealing details are lost.
 * Entity management is not complete.
 
 ## Reference
+
 [1] Hart, John C., Daniel J. Sandin, and Louis H. Kauffman. "Ray tracing deterministic 3-D fractals." ACM SIGGRAPH Computer Graphics. Vol. 23. No. 3. ACM, 1989.
+
 [2] https://www.cs.cmu.edu/~kmcrane/Projects/QuaternionJulia/paper.pdf
