@@ -1,4 +1,7 @@
 # qjulia2
+
+![qjulia-title](data/example.jpg)
+
 ## Overview
 This is a ray-tracing program specialized in rendering quaternion julia set,
 completely written in native C++ from the scratch.
