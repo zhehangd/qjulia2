@@ -32,60 +32,9 @@ SOFTWARE.
 
 #include <glog/logging.h>
 
-namespace qjulia {
+#include "core/timer.h"
 
-namespace {
-class Timer {
- public:
-  using ClockType = std::chrono::high_resolution_clock;
-  using TimePoint = std::chrono::time_point<ClockType>;
-  using TimeDuration = TimePoint::duration;
-  using DefualtRepr = Float;
-  static constexpr auto Now = ClockType::now;
-  
-  void Start(void) {srt = Now();}
-  
-  template <typename T = DefualtRepr>
-  T End(void) {
-    auto d = Now() - srt;
-    acc += d;
-    ++count;
-    return Value<T>(d);
-  }
-  
-  template <typename T = DefualtRepr>
-  T Total(void) const {
-    return Value<T>(acc);
-  }
-  
-  template <typename T = DefualtRepr>
-  T Average(void) const {
-    return Value<T>(acc / count);
-  }
-  
-  template <typename T = DefualtRepr>
-  static T Value(TimeDuration v) {
-    return std::chrono::duration<T>(v).count();
-  }
-  
-  Timer& operator+=(const Timer &src) {
-    acc += src.acc;
-    count += src.count;
-    return *this;
-  }
-  
-  // Cast any duration to TimeDuration
-  template <typename T>
-  static TimeDuration MakeDuration(T d) {
-    return std::chrono::duration_cast<TimeDuration>(
-      std::chrono::duration<T>(d));
-  }
-  
-  TimePoint srt = Now();
-  TimeDuration acc = MakeDuration(0);
-  int count = 0;
-};
-}
+namespace qjulia {
   
 Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
   Timer timer;
