@@ -64,7 +64,7 @@ class Film {
   void Relocate(void);
   void Relocate(int x, int y, int w, int h);
   
-  int GetIndex(int r, int c) const {return r * height_ + c;}
+  int GetIndex(int r, int c) const {return r * width_ + c;}
   
   void GenerateCameraCoords(int i, Float *x, Float *y) const;
   void GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const;
