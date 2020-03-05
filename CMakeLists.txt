@@ -20,9 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 
-project(qjulia2 VERSION 1.0.0 LANGUAGES CXX)
+project(qjulia2 VERSION 1.1.0 LANGUAGES CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
   message(WARNING
@@ -31,7 +31,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
@@ -39,13 +39,24 @@ if (CMAKE_COMPILER_IS_GNUCC)
   add_compile_options(-Wall -pedantic -Wextra)
 endif()
 
-find_package(glog)
+set(WITH_GUI OFF CACHE BOOL "Build GUI based on Qt5")
+
+find_package(glog REQUIRED)
 find_package(Threads REQUIRED)
 find_package(GTest)
+
+if (WITH_GUI)
+  message(STATUS "Build with GUI")
+  find_package(Qt5Widgets CONFIG REQUIRED)
+  set(CMAKE_AUTOMOC ON) # Instruct CMake to run moc automatically when needed
+  set(CMAKE_AUTOUIC ON) # Create code from a list of Qt designer ui files
+  find_package(OpenCV REQUIRED) # temp
+endif()
 
 add_subdirectory(3rdparty)
 add_subdirectory(src)
 add_subdirectory(doc)
+
 
 if (${GTest_FOUND})
   add_subdirectory(test)

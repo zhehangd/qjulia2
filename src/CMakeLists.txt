@@ -22,3 +22,7 @@
 
 add_subdirectory(core)
 add_subdirectory(cli)
+
+if (WITH_GUI)
+  add_subdirectory(gui)
+endif()
