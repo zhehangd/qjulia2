@@ -26,12 +26,14 @@ add_executable(test_all
   test_efloat.cc
   test_vector.cc
   test_algorithm.cc
+  $<TARGET_OBJECTS:qjulia2-core>
 )
 
 target_include_directories(test_all PUBLIC ${GTEST_INCLUDE_DIRS})
 
 target_link_libraries(test_all
-  gflags glog
+  qjulia2-core
+  glog
   ${GTEST_BOTH_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   qjulia2-core

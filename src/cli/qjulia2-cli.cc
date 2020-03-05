@@ -35,7 +35,7 @@ SOFTWARE.
 
 #include <cxxopts.hpp>
 
-#include "qjulia2/qjulia2.h"
+#include "core/qjulia2.h"
 
 using namespace qjulia;
 

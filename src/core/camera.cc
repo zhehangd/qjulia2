@@ -24,8 +24,8 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/core/camera.h"
-#include "qjulia2/core/vector.h"
+#include "core/camera.h"
+#include "core/vector.h"
 
 namespace qjulia {
 

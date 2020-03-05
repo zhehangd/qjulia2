@@ -24,7 +24,6 @@ SOFTWARE.
 
 */
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h> 
 
 // Making sure google test is working.
@@ -33,8 +32,6 @@ TEST(Test, GTestWorks) {
 }
 
 int main(int argc, char* argv[]) {
-  
   testing::InitGoogleTest(&argc, argv);
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
   return RUN_ALL_TESTS();
 }

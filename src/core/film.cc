@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/core/film.h"
+#include "core/film.h"
 
 #include <algorithm>
 #include <cmath>

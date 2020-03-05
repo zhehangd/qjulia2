@@ -20,45 +20,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(qjulia2-core SHARED
-  core/algorithm.cc
-  core/camera.cc
-  core/efloat.cc
-  core/engine.cc
-  core/film.cc
-  core/integrator.cc
-  core/vector.cc
-  core/light.cc
-  core/scene.cc
-  core/object.cc
-  core/tokenizer.cc
-  core/transform.cc
-  core/material.cc
-  core/messages.cc
-  core/resource_mgr.cc
-  camera/camera3d.cc
-  integrator/default.cc
-  integrator/normal.cc
-  light/simple.cc
-  shape/sphere.cc
-  shape/plane.cc
-  shape/julia3d.cc
-)
-
-target_include_directories(qjulia2-core PUBLIC
-  "${PROJECT_SOURCE_DIR}/include")
-
-set_target_properties(qjulia2-core PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(qjulia2-core PROPERTIES SOVERSION 1)
-
-# -------------------------------- App --------------------------------
-
-add_executable(qjulia2-cli
-  cli/qjulia2-cli.cc
-)
-
-target_link_libraries(qjulia2-cli
-  gflags cxxopts
-  ${CMAKE_THREAD_LIBS_INIT}
-  qjulia2-core
-)
+add_subdirectory(core)
+add_subdirectory(cli)

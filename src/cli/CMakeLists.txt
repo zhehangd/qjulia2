@@ -20,37 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.1)
+add_executable(qjulia2-cli
+  qjulia2-cli.cc
+  $<TARGET_OBJECTS:qjulia2-core>
+)
 
-project(qjulia2 VERSION 1.0.0 LANGUAGES CXX)
-
-if(NOT CMAKE_BUILD_TYPE)
-  message(WARNING
-    "No build type selected, will use Release by default. "
-    "To use debug mode, configure cmake with -DCMAKE_BUILD_TYPE=Debug.")
-  set(CMAKE_BUILD_TYPE Release)
-endif()
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_compile_options(-Wall -pedantic -Wextra)
-endif()
-
-find_package(glog)
-find_package(Threads REQUIRED)
-find_package(GTest)
-
-add_subdirectory(3rdparty)
-add_subdirectory(src)
-add_subdirectory(doc)
-
-if (${GTest_FOUND})
-  add_subdirectory(test)
-endif()
-
-file(COPY "${PROJECT_SOURCE_DIR}/data"
-  DESTINATION ${PROJECT_BINARY_DIR})
-
+target_link_libraries(qjulia2-cli
+  qjulia2-core
+  glog cxxopts
+  ${CMAKE_THREAD_LIBS_INIT}
+)

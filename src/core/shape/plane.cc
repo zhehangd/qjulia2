@@ -24,15 +24,15 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/shape/plane.h"
+#include "core/shape/plane.h"
 
 #include <vector>
 #include <memory>
 
-#include "qjulia2/core/vector.h"
-#include "qjulia2/core/shape.h"
-#include "qjulia2/core/algorithm.h"
-#include "qjulia2/core/resource_mgr.h"
+#include "core/vector.h"
+#include "core/shape.h"
+#include "core/algorithm.h"
+#include "core/resource_mgr.h"
 
 namespace qjulia {
 

@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/integrator/default.h"
+#include "core/integrator/default.h"
 
 #include <cmath>
 #include <limits>

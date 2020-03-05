@@ -24,44 +24,24 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/shape/sphere.h"
+#include "core/integrator/normal.h"
 
-#include <vector>
-#include <memory>
+#include <cmath>
+#include <limits>
 
-#include "qjulia2/core/vector.h"
-#include "qjulia2/core/shape.h"
-#include "qjulia2/core/algorithm.h"
-#include "qjulia2/core/resource_mgr.h"
+#include <glog/logging.h>
 
 namespace qjulia {
 
-Intersection SphereShape::Intersect(const Ray &ray) const {
+Spectrum NormalIntegrator::Li(const Ray &ray, const Scene &scene) {
   Intersection isect;
-  Float tl, tg;
-  Vector3f start = ray.start - position;
-  bool has_root = IntersectSphere(start, ray.dir, radius, &tl, &tg);
-  if (has_root && tg >= 0) {
-    isect.good = true;
-    isect.dist = tl > 0 ? tl : tg;
-    isect.position = ray.start + ray.dir * isect.dist;
-    isect.normal = Normalize(isect.position - position);
+  const Object* hit_object = scene.Intersect(ray, &isect);
+  if (hit_object == nullptr) {
+    return {};
   }
-  return isect;
+  Spectrum sp = isect.normal + 0.5f;
+  return sp;
 }
 
-bool SphereShape::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "position") {
-    return ParseInstruction_Value<Vector3f>(instruction, resource, &position);
-  } else if (instruction[0] == "radius") {
-    return ParseInstruction_Value<Float>(instruction, resource, &radius);
-  } else {
-    return UnknownInstructionError(instruction);
-  }
 }
 
-
-}

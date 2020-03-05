@@ -24,25 +24,58 @@ SOFTWARE.
 
 */
 
-#include "core/material.h"
-#include "core/messages.h"
+#include "core/light/simple.h"
 #include "core/resource_mgr.h"
 
 namespace qjulia {
 
-bool Material::ParseInstruction(
+LightRay SunLight::Li(const Point3f &p) const {
+  (void)p;
+  LightRay lray;
+  lray.dist = kInf;
+  lray.wi = - Normalize(orientation);
+  lray.spectrum = intensity;
+  return lray;
+}
+
+bool SunLight::ParseInstruction(
     const TokenizedStatement instruction, 
     const ResourceMgr *resource) {
   if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "diffuse") {
-    return ParseInstruction_Value<Vector3f>(instruction, resource, &diffuse);
-  } else if (instruction[0] == "reflection") {
-    return ParseInstruction_Value<Float>(instruction, resource, &reflection);
-  } else if (instruction[0] == "specular") {
-    return ParseInstruction_Value<Float>(instruction, resource, &ks);
+  if (instruction[0] == "intensity") {
+    return ParseInstruction_Value<Spectrum>(instruction, resource, &intensity);
+  } else if (instruction[0] == "orientation") {
+    bool good = ParseInstruction_Value<Vector3f>(
+      instruction, resource, &orientation);
+    orientation = Normalize(orientation);
+    return good;
   } else {
     return UnknownInstructionError(instruction);
   }
 }
+
+
+LightRay PointLight::Li(const Point3f &p) const {
+  LightRay lray;
+  Vector3f path = (position - p);
+  lray.dist = path.Norm();
+  lray.wi = path / lray.dist;
+  lray.spectrum = intensity / (lray.dist * lray.dist);
+  return lray;
+}
+
+bool PointLight::ParseInstruction(
+    const TokenizedStatement instruction, 
+    const ResourceMgr *resource) {
+  if (instruction.size() == 0) {return true;}
+  if (instruction[0] == "intensity") {
+    return ParseInstruction_Value<Spectrum>(instruction, resource, &intensity);
+  } else if (instruction[0] == "position") {
+    return ParseInstruction_Value<Vector3f>(instruction, resource, &position);
+  } else {
+    return UnknownInstructionError(instruction);
+  }
+}
+
 
 }

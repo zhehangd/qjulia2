@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/core/vector.h"
+#include "core/vector.h"
 
 namespace qjulia {
 

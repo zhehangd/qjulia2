@@ -20,37 +20,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.1)
+add_library(qjulia2-core OBJECT
+  algorithm.cc
+  camera.cc
+  efloat.cc
+  engine.cc
+  film.cc
+  integrator.cc
+  vector.cc
+  light.cc
+  scene.cc
+  object.cc
+  tokenizer.cc
+  transform.cc
+  material.cc
+  messages.cc
+  resource_mgr.cc
+  camera/camera3d.cc
+  integrator/default.cc
+  integrator/normal.cc
+  light/simple.cc
+  shape/sphere.cc
+  shape/plane.cc
+  shape/julia3d.cc
+)
 
-project(qjulia2 VERSION 1.0.0 LANGUAGES CXX)
+target_include_directories(qjulia2-core PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/.."
+)
 
-if(NOT CMAKE_BUILD_TYPE)
-  message(WARNING
-    "No build type selected, will use Release by default. "
-    "To use debug mode, configure cmake with -DCMAKE_BUILD_TYPE=Debug.")
-  set(CMAKE_BUILD_TYPE Release)
-endif()
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_compile_options(-Wall -pedantic -Wextra)
-endif()
-
-find_package(glog)
-find_package(Threads REQUIRED)
-find_package(GTest)
-
-add_subdirectory(3rdparty)
-add_subdirectory(src)
-add_subdirectory(doc)
-
-if (${GTest_FOUND})
-  add_subdirectory(test)
-endif()
-
-file(COPY "${PROJECT_SOURCE_DIR}/data"
-  DESTINATION ${PROJECT_BINARY_DIR})
-
+target_link_libraries(qjulia2-core
+  glog
+  ${CMAKE_THREAD_LIBS_INIT}
+)

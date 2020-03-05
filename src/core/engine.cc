@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/core/engine.h"
+#include "core/engine.h"
 
 #include <atomic>
 #include <thread>
@@ -32,15 +32,15 @@ SOFTWARE.
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 
-#include "qjulia2/core/algorithm.h"
-#include "qjulia2/core/camera.h"
-#include "qjulia2/core/efloat.h"
-#include "qjulia2/core/film.h"
-#include "qjulia2/core/light.h"
-#include "qjulia2/core/vector.h"
-#include "qjulia2/core/scene.h"
-#include "qjulia2/core/object.h"
-#include "qjulia2/core/integrator.h"
+#include "core/algorithm.h"
+#include "core/camera.h"
+#include "core/efloat.h"
+#include "core/film.h"
+#include "core/light.h"
+#include "core/vector.h"
+#include "core/scene.h"
+#include "core/object.h"
+#include "core/integrator.h"
 
 namespace qjulia {
 

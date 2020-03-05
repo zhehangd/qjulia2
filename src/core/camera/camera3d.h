@@ -24,41 +24,69 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_LIGHTS_SIMPLE_H_
-#define QJULIA_LIGHTS_SIMPLE_H_
+#ifndef QJULIA_CAMERA3D_H_
+#define QJULIA_CAMERA3D_H_
 
-#include "qjulia2/core/light.h"
+#include "core/camera.h"
 
 namespace qjulia {
 
-class SunLight : public Light {
+class Camera3D : public Camera {
  public:
-  LightRay Li(const Point3f &p) const;
   
-  std::string GetImplName(void) const override {return "sun";}
+  Camera3D(void);
   
-  SceneEntity* Clone(void) const override {return new SunLight(*this);}
+  void LookAt(Vector3f position, Vector3f at, Vector3f up);
   
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  void CenterAround(Float h, Float v, Float radius);
   
-  Spectrum intensity;
-  Vector3f orientation;
+  // TODO: what to do if parsed from file?
+  void Update(void);
+  
+  Ray CastRay(Point2f pos) const = 0;
+  
+  Point3f position;
+  Point3f orientation;
+  Point3f up;
+  Point3f right;
 };
 
-class PointLight : public Light {
+/** \brief Standard 3D camera with orthogonal projection
+*/
+class OrthoCamera : public Camera3D {
  public:
-  LightRay Li(const Point3f &p) const;
+  OrthoCamera(void) {}
   
-  std::string GetImplName(void) const override {return "point";}
+  Ray CastRay(Point2f pos) const;
   
-  SceneEntity* Clone(void) const override {return new PointLight(*this);}
+  std::string GetImplName(void) const override {return "ortho";};
+  
+  SceneEntity* Clone(void) const override {return new OrthoCamera(*this);}
   
   bool ParseInstruction(const TokenizedStatement instruction, 
                         const ResourceMgr *resource) override;
   
-  Spectrum intensity;
-  Vector3f position;
+  Float scale = 1;
+};
+
+/** \brief Standard 3D camera with perspective projection
+*/
+class PerspectiveCamera : public Camera3D {
+ public:
+  PerspectiveCamera(void);
+  
+  Ray CastRay(Point2f pos) const;
+  
+  std::string GetImplName(void) const override {return "perspective";}
+  
+  SceneEntity* Clone(void) const override {return new PerspectiveCamera(*this);}
+  
+  bool ParseInstruction(const TokenizedStatement instruction, 
+                        const ResourceMgr *resource) override;
+  
+  std::string GetSummary(void) const;
+  
+  Float focus;
 };
 
 }

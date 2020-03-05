@@ -24,54 +24,40 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/light/simple.h"
-#include "qjulia2/core/resource_mgr.h"
+#include "core/shape/sphere.h"
+
+#include <vector>
+#include <memory>
+
+#include "core/vector.h"
+#include "core/shape.h"
+#include "core/algorithm.h"
+#include "core/resource_mgr.h"
 
 namespace qjulia {
 
-LightRay SunLight::Li(const Point3f &p) const {
-  (void)p;
-  LightRay lray;
-  lray.dist = kInf;
-  lray.wi = - Normalize(orientation);
-  lray.spectrum = intensity;
-  return lray;
-}
-
-bool SunLight::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "intensity") {
-    return ParseInstruction_Value<Spectrum>(instruction, resource, &intensity);
-  } else if (instruction[0] == "orientation") {
-    bool good = ParseInstruction_Value<Vector3f>(
-      instruction, resource, &orientation);
-    orientation = Normalize(orientation);
-    return good;
-  } else {
-    return UnknownInstructionError(instruction);
+Intersection SphereShape::Intersect(const Ray &ray) const {
+  Intersection isect;
+  Float tl, tg;
+  Vector3f start = ray.start - position;
+  bool has_root = IntersectSphere(start, ray.dir, radius, &tl, &tg);
+  if (has_root && tg >= 0) {
+    isect.good = true;
+    isect.dist = tl > 0 ? tl : tg;
+    isect.position = ray.start + ray.dir * isect.dist;
+    isect.normal = Normalize(isect.position - position);
   }
+  return isect;
 }
 
-
-LightRay PointLight::Li(const Point3f &p) const {
-  LightRay lray;
-  Vector3f path = (position - p);
-  lray.dist = path.Norm();
-  lray.wi = path / lray.dist;
-  lray.spectrum = intensity / (lray.dist * lray.dist);
-  return lray;
-}
-
-bool PointLight::ParseInstruction(
+bool SphereShape::ParseInstruction(
     const TokenizedStatement instruction, 
     const ResourceMgr *resource) {
   if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "intensity") {
-    return ParseInstruction_Value<Spectrum>(instruction, resource, &intensity);
-  } else if (instruction[0] == "position") {
+  if (instruction[0] == "position") {
     return ParseInstruction_Value<Vector3f>(instruction, resource, &position);
+  } else if (instruction[0] == "radius") {
+    return ParseInstruction_Value<Float>(instruction, resource, &radius);
   } else {
     return UnknownInstructionError(instruction);
   }

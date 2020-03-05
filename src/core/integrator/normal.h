@@ -24,23 +24,16 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_INTEGRATOR_DEFAULT_H_
-#define QJULIA_INTEGRATOR_DEFAULT_H_
+#ifndef QJULIA_INTEGRATOR_NORMAL_H_
+#define QJULIA_INTEGRATOR_NORMAL_H_
 
-#include "qjulia2/core/integrator.h"
+#include "core/integrator.h"
 
 namespace qjulia {
 
-class DefaultIntegrator : public Integrator {
+class NormalIntegrator : public Integrator {
  public:
-  
   Spectrum Li(const Ray &ray, const Scene &scene);
-
- private:
-   
-  Spectrum LiRecursive(const Ray &ray, const Scene &scene, int depth);
-  
-  Float ray_delta_ = 5e-3; // TODO: Use EFloat to bound the error.
 };
 
 }

@@ -24,24 +24,25 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/integrator/normal.h"
+#ifndef QJULIA_INTEGRATOR_DEFAULT_H_
+#define QJULIA_INTEGRATOR_DEFAULT_H_
 
-#include <cmath>
-#include <limits>
-
-#include <glog/logging.h>
+#include "core/integrator.h"
 
 namespace qjulia {
 
-Spectrum NormalIntegrator::Li(const Ray &ray, const Scene &scene) {
-  Intersection isect;
-  const Object* hit_object = scene.Intersect(ray, &isect);
-  if (hit_object == nullptr) {
-    return {};
-  }
-  Spectrum sp = isect.normal + 0.5f;
-  return sp;
-}
+class DefaultIntegrator : public Integrator {
+ public:
+  
+  Spectrum Li(const Ray &ray, const Scene &scene);
+
+ private:
+   
+  Spectrum LiRecursive(const Ray &ray, const Scene &scene, int depth);
+  
+  Float ray_delta_ = 5e-3; // TODO: Use EFloat to bound the error.
+};
 
 }
 
+#endif

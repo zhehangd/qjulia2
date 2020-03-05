@@ -24,8 +24,8 @@ SOFTWARE.
 
 */
 
-#include "qjulia2/camera/camera3d.h"
-#include "qjulia2/core/resource_mgr.h"
+#include "core/camera/camera3d.h"
+#include "core/resource_mgr.h"
 
 namespace qjulia {
 
