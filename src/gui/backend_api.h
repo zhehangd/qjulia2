@@ -11,9 +11,9 @@ class RenderEngineInterface {
   
   virtual cv::Size GetSize(void) const = 0;
   
-  virtual cv::Mat& Render(void) = 0;
+  virtual cv::Mat Render(void) = 0;
   
-  virtual cv::Mat& Preview(void) = 0;
+  virtual cv::Mat Preview(void) = 0;
 };
 
 #endif

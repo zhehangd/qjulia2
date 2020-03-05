@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QGraphicsPixmapItem>
+#include <QFuture>
+#include <QtConcurrent>
+#include <QFutureWatcher>
 
 #include <opencv2/opencv.hpp>
 
@@ -29,11 +32,17 @@ class MainWindow : public QMainWindow {
   Ui::MainWindow *ui;
     
   QGraphicsPixmapItem pixmap_;
+  
+  QFutureWatcher<cv::Mat> render_watch_;
     
   RenderEngineInterface *engine_;
+  
+  int value_ = 0;
 
 private slots:
-  void onSliderMoved(int position);
+  void onSliderValueChanged(int position);
+  void onSliderReleased(void);
+  void onRenderFinished(void);
 };
 
 #endif // MAINWINDOW_H

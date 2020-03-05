@@ -21,7 +21,11 @@ void Register(ResourceMgr &mgr) {
 }
 
 void RenderEngine::Init(std::string scene_file) {
-  cache_.create(480, 640, CV_8UC3);
+  
+  size_ = cv::Size(640, 480);
+  preview_size_ = cv::Size(64, 48);
+  cache_.create(size_, CV_8UC3);
+  prev_cache_.create(size_, CV_8UC3);
   
   Register(mgr_);
   mgr_.LoadSceneDescription(scene_file);
@@ -39,13 +43,23 @@ void RenderEngine::SetValue(float v) {
 }
 
 cv::Size RenderEngine::GetSize(void) const {
-  return cache_.size();
+  return size_;
 }
 
-cv::Mat& RenderEngine::Render(void) {
+cv::Mat RenderEngine::Render(void) {
+  Run(size_, cache_);
+  return cache_;
+}
+
+cv::Mat RenderEngine::Preview(void) {
+  Run(preview_size_, prev_cache_);
+  return prev_cache_;
+}
+
+void RenderEngine::Run(cv::Size size, cv::Mat &dst_image) {
   Options option;
-  option.width = 64;
-  option.height = 48;
+  option.width = size.width;
+  option.height = size.height;
   option.antialias = true;
   
   float angle = value_ / 99.0 * 3.1416;
@@ -78,12 +92,7 @@ cv::Mat& RenderEngine::Render(void) {
       }
     }
   }
-  cv::resize(cache_small, cache_, {640, 480});
-  return cache_;
-}
-
-cv::Mat& RenderEngine::Preview(void) {
-  return cache_;
+  cv::resize(cache_small, dst_image, size_);
 }
 
 std::unique_ptr<RenderEngine> CreateDefaultEngine(void) {

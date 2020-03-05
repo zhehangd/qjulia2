@@ -47,7 +47,7 @@ find_package(GTest)
 
 if (WITH_GUI)
   message(STATUS "Build with GUI")
-  find_package(Qt5Widgets CONFIG REQUIRED)
+  find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
   set(CMAKE_AUTOMOC ON) # Instruct CMake to run moc automatically when needed
   set(CMAKE_AUTOUIC ON) # Create code from a list of Qt designer ui files
   find_package(OpenCV REQUIRED) # temp

@@ -16,15 +16,20 @@ class RenderEngine : public RenderEngineInterface {
   
   cv::Size GetSize(void) const override;
   
-  cv::Mat& Render(void) override;
+  cv::Mat Render(void) override;
   
-  cv::Mat& Preview(void) override;
+  cv::Mat Preview(void) override;
   
  private:
    
+  void Run(cv::Size size, cv::Mat &dst);
+   
   float value_ = 0;
   
+  cv::Size size_;
+  cv::Size preview_size_;
   cv::Mat cache_;
+  cv::Mat prev_cache_;
   qjulia::ResourceMgr mgr_;
 };
 
