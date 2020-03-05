@@ -117,18 +117,15 @@ bool Run(int argc, char **argv) {
   RTEngine engine;
   engine.SetNumThreads(num_threads);
   engine.Render(*scene, integrator, option, &film);
-  
+  LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   SaveToPPM(output_file, film, 255);
   return true;
 }
 
 int main(int argc, char **argv) {
+  google::SetStderrLogging(google::GLOG_INFO);
+  google::InitGoogleLogging(argv[0]);
+  
   bool good = Run(argc, argv);
-  if (good) {
-    std::cerr << "completed" << std::endl;
-    return 0;
-  } else {
-    std::cerr << "terminated" << std::endl;
-    return -1;
-  }
+  return good ? 0 : 1;
 }

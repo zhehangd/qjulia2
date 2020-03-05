@@ -35,11 +35,12 @@ SOFTWARE.
 #include "core/camera.h"
 #include "core/efloat.h"
 #include "core/film.h"
-#include "core/light.h"
-#include "core/vector.h"
-#include "core/scene.h"
-#include "core/object.h"
 #include "core/integrator.h"
+#include "core/light.h"
+#include "core/object.h"
+#include "core/scene.h"
+#include "core/timer.h"
+#include "core/vector.h"
 
 namespace qjulia {
 
@@ -75,7 +76,8 @@ void AAFilterSet::Enable(bool enable) {
 void RTEngine::Render(const Scene &scene,
                       Integrator &integrator,
                       const Options &option, Film *film) {
-  
+  Timer timer;
+  timer.Start();
   int w = option.width;
   int h = option.height;
   assert(w > 0);
@@ -94,9 +96,6 @@ void RTEngine::Render(const Scene &scene,
     while(true) {
       int r = row_cursor++;
       if (r >= h) {break;}
-      if (r % 200 == 0) {
-        LOG(INFO) << "progress: " << r << '/' << h;
-      }
       auto *row = film->GetRow(r);
       for (int c = 0; c < film->GetWidth(); ++c) {
         auto &pix = row[c];
@@ -126,9 +125,7 @@ void RTEngine::Render(const Scene &scene,
     }
     for (auto &thread : threads) {thread.join();}
   }
-  LOG(INFO) << "progress: " << h << '/' << h;
-  
-  
+  last_render_time_ = timer.End();
 }
 
 }

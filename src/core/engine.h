@@ -49,6 +49,12 @@ class RTEngine {
   void Render(const Scene &scene, Integrator &integrator,
               const Options &option, Film *film);
   
+  float LastRenderTime(void) const {return (float)last_render_time_;}
+  
+ private:
+  
+  float last_render_time_ = 0;
+  
   int num_threads_ = -1;
 };
 
