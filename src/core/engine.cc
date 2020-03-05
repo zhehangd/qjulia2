@@ -29,7 +29,6 @@ SOFTWARE.
 #include <atomic>
 #include <thread>
 
-#include <gflags/gflags.h>
 #include <glog/logging.h>
 
 #include "core/algorithm.h"
@@ -96,7 +95,7 @@ void RTEngine::Render(const Scene &scene,
       int r = row_cursor++;
       if (r >= h) {break;}
       if (r % 200 == 0) {
-        std::cerr << "progress: " << r << '/' << h << std::endl;
+        LOG(INFO) << "progress: " << r << '/' << h;
       }
       auto *row = film->GetRow(r);
       for (int c = 0; c < film->GetWidth(); ++c) {
@@ -127,6 +126,7 @@ void RTEngine::Render(const Scene &scene,
     }
     for (auto &thread : threads) {thread.join();}
   }
+  LOG(INFO) << "progress: " << h << '/' << h;
   
   
 }

@@ -16,6 +16,7 @@
 #include "camera/camera3d.h"
 #include "integrator/default.h"
 #include "integrator/normal.h"
+#include "integrator/time.h"
 #include "light/simple.h"
 #include "shape/sphere.h"
 #include "shape/plane.h"

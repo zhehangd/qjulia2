@@ -82,7 +82,6 @@ light point bulb {
 # -------------- Cameras -----------------
 
 camera perspective camera_1 {
-  #camera->LookAt({3, 1.5, 2}, {0, 1.5, 0}, {0, 1, 0});
   lookat 2,1.2,5  0,1.4,0  0,1,0
   focus 1.8
 }

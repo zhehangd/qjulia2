@@ -39,6 +39,7 @@ add_library(qjulia2-core OBJECT
   camera/camera3d.cc
   integrator/default.cc
   integrator/normal.cc
+  integrator/time.cc
   light/simple.cc
   shape/sphere.cc
   shape/plane.cc
