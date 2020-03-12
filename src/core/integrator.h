@@ -27,6 +27,8 @@ SOFTWARE.
 #ifndef QJULIA_INTEGRATOR_
 #define QJULIA_INTEGRATOR_
 
+#include "array2d.h"
+#include "base.h"
 #include "spectrum.h"
 #include "vector.h"
 #include "scene.h"
@@ -37,6 +39,17 @@ class Integrator {
  public:
   
   virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
+  
+  void Li2(const Scene &scene, Array2D<Ray> rays, Array2D<Spectrum> &spectrums) {
+    spectrums.Resize(rays.Width(), rays.Height());
+    auto h = rays.Height(), w = rays.Width();
+    for (int r = 0; r < h; ++r) {
+      for (int c = 0; c < w; ++c) {
+        spectrums.At(r, c) = Li(rays.At(r, c), scene);
+      }
+    }
+  }
+  
 };
 
 }

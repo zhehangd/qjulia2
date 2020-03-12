@@ -48,6 +48,8 @@ class RTEngine {
   
   void Render(const Scene &scene, Integrator &integrator,
               const Options &option, Film *film);
+  void Render2(const Scene &scene, Integrator &integrator,
+              const Options &option, Film *film);
   
   float LastRenderTime(void) const {return (float)last_render_time_;}
   

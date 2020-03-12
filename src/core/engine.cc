@@ -129,4 +129,35 @@ void RTEngine::Render(const Scene &scene,
   last_render_time_ = timer.End();
 }
 
+
+void RTEngine::Render2(const Scene &scene,
+                      Integrator &integrator,
+                      const Options &option, Film *film) {
+  // NOTE: no antialias right now
+  Timer timer;
+  timer.Start();
+  int w = option.width;
+  int h = option.height;
+  assert(w > 0);
+  assert(h > 0);
+  film->Create(w, h);
+  const Camera *camera = scene.GetActiveCamera();
+  Array2D<Ray> ray_array(w, h);
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      Float x, y;
+      film->GenerateCameraCoords(r, c, &x, &y);
+      ray_array(r, c) = camera->CastRay(Vector2f(x, y));
+    }
+  }
+  Array2D<Spectrum> spectrums;
+  integrator.Li2(scene, ray_array, spectrums);
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      film->At(r, c).spectrum += spectrums.At(r, c);
+    }
+  }
+  last_render_time_ = timer.End();
+}
+
 }

@@ -116,7 +116,7 @@ bool Run(int argc, char **argv) {
   
   RTEngine engine;
   engine.SetNumThreads(num_threads);
-  engine.Render(*scene, integrator, option, &film);
+  engine.Render2(*scene, integrator, option, &film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   SaveToPPM(output_file, film, 255);
   return true;
