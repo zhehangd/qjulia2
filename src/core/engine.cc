@@ -32,6 +32,7 @@ SOFTWARE.
 #include <glog/logging.h>
 
 #include "core/algorithm.h"
+#include "core/array2d.h"
 #include "core/camera.h"
 #include "core/efloat.h"
 #include "core/film.h"
