@@ -30,6 +30,7 @@ SOFTWARE.
 #include <vector>
 #include <memory>
 
+#include "array2d.h"
 #include "entity.h"
 #include "intersection.h"
 #include "ray.h"
@@ -51,6 +52,8 @@ class Object : public SceneEntity {
   /** \brief Test ray itersection with transformed shape.
   */
   Intersection Intersect(const Ray &ray) const;
+  
+  void Intersect(const Array2D<Ray> &rays, Array2D<Intersection> &isects) const;
   
   SceneEntity* Clone(void) const {return new Object(*this);}
   

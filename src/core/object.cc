@@ -36,6 +36,7 @@ namespace qjulia {
 
 Intersection Object::Intersect(const Ray &ray) const {
   Intersection isect;
+  CHECK_NOTNULL(shape);
   if (shape == nullptr) {return isect;}
   if (transform != nullptr) {
     Ray ray_local = ray;
@@ -49,6 +50,27 @@ Intersection Object::Intersect(const Ray &ray) const {
     isect = shape->Intersect(ray);
   }
   return isect;
+}
+
+void Object::Intersect(const Array2D<Ray> &rays,
+                       Array2D<Intersection> &isects) const {
+  Array2D<Ray> rays_(rays.Width(), rays.Height());
+  CHECK_NOTNULL(shape);
+  CHECK_NOTNULL(transform);
+  for (int i = 0; i < rays.Size(); ++i) {
+    Ray ray = rays(i);
+    ray.start = transform->W2O_Point(ray.start);
+    ray.dir = Normalize(transform->W2O_Vector(ray.dir));
+    rays_(i) = ray;
+  }
+  isects.Resize(rays.Width(), rays.Height());
+  shape->Intersect(rays_, isects);
+  for (int i = 0; i < rays.Size(); ++i) {
+    auto &isect = isects(i);
+    isect.position = transform->O2W_Point(isect.position);
+    isect.normal = transform->O2W_Normal(isect.normal);
+    isect.dist = transform->O2W_Vector(rays(i).dir * isect.dist).Norm();
+  }
 }
 
 bool Object::ParseInstruction(const TokenizedStatement instruction, 

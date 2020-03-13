@@ -45,6 +45,11 @@ namespace qjulia {
 class Object;
 class Light;
 
+struct SceneIsect {
+  const Object *isect_obj = nullptr;
+  Intersection isect;
+};
+
 class Scene : public SceneEntity {
  public:
    
@@ -59,6 +64,8 @@ class Scene : public SceneEntity {
   const Camera* GetActiveCamera(void) const {return active_camera_;}
   
   const Object* Intersect(const Ray &ray, Intersection *isect) const;
+  
+  void Intersect(const Array2D<Ray> &rays, Array2D<SceneIsect> &isects) const;
   
   int NumObjects(void) const {return objects_.size();}
   int NumLights(void) const {return lights_.size();}

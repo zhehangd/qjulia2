@@ -40,7 +40,8 @@ class Integrator {
   
   virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
   
-  void Li2(const Scene &scene, Array2D<Ray> rays, Array2D<Spectrum> &spectrums) {
+  virtual void Li2(const Scene &scene, Array2D<Ray> rays,
+                   Array2D<Spectrum> &spectrums) {
     spectrums.Resize(rays.Width(), rays.Height());
     auto h = rays.Height(), w = rays.Width();
     for (int r = 0; r < h; ++r) {

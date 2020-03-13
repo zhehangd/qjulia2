@@ -30,6 +30,7 @@ SOFTWARE.
 #include <vector>
 #include <memory>
 
+#include "array2d.h"
 #include "entity.h"
 #include "intersection.h"
 #include "vector.h"
@@ -45,6 +46,14 @@ class Shape : public SceneEntity {
   EntityType GetType(void) const final {return kType;}
   
   virtual Intersection Intersect(const Ray &ray) const = 0;
+  
+  virtual void Intersect(const Array2D<Ray> &rays,
+                         Array2D<Intersection> &isects) const {
+    isects.Resize(rays.Width(), rays.Height());
+    for (int i = 0; i < rays.Size(); ++i) {
+      isects(i) = Intersect(rays(i));
+    }
+  }
   
   SceneEntity* Clone(void) const override = 0;
   

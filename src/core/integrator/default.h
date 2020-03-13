@@ -34,7 +34,10 @@ namespace qjulia {
 class DefaultIntegrator : public Integrator {
  public:
   
-  Spectrum Li(const Ray &ray, const Scene &scene);
+  Spectrum Li(const Ray &ray, const Scene &scene) override;
+  
+  void Li2(const Scene &scene, Array2D<Ray> rays,
+           Array2D<Spectrum> &spectrums) override;
 
  private:
    
