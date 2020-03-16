@@ -49,8 +49,7 @@ class Shape : public SceneEntity {
   
   virtual void Intersect(const Array2D<Ray> &rays,
                          Array2D<Intersection> &isects) const {
-    isects.Resize(rays.Width(), rays.Height());
-    for (int i = 0; i < rays.Size(); ++i) {
+    for (int i = 0; i < rays.NumElems(); ++i) {
       isects(i) = Intersect(rays(i));
     }
   }

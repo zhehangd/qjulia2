@@ -29,17 +29,27 @@ SOFTWARE.
 
 #include <vector>
 
+#include "base.h"
+
 namespace qjulia {
+
+class Size {
+ public:
+  Size(void) {}
+  Size(SizeType width, SizeType height) : width(width), height(height) {}
+  SizeType Total(void) const {return width * height;}
+  SizeType width = 0;
+  SizeType height = 0;
+};
+  
 
 template <typename T>
 class Array2D {
  public:
   
-  using SizeType = int;
-  
-  Array2D(void) {}
+  Array2D(Size size, T t = {}) : size_(size), data_(size_.Total(), t) {}
   Array2D(SizeType width, SizeType height, T t = {})
-    : width_(width), height_(height), size_(width * height), data_(size_, t) {}
+    : size_(width, height), data_(size_.Total(), t) {}
   
   template <typename G>
   static Array2D<T> ZeroLike(const Array2D<G> &src) {return Array2D<T>(src.Width(), src.Height(), {});}
@@ -54,19 +64,18 @@ class Array2D {
   T& operator()(SizeType i) {return At(i);}
   const T& operator()(SizeType i) const {return At(i);}
   
-  SizeType GetIndex(SizeType r, SizeType c) const {return width_ * r + c;}
+  SizeType GetIndex(SizeType r, SizeType c) const {return size_.width * r + c;}
   bool IsValidCoords(SizeType r, SizeType c) const;
   
-  void Resize(SizeType width, SizeType height);
+  //void Resize(SizeType width, SizeType height);
   
-  int Width(void) const {return width_;}
-  int Height(void) const {return height_;}
-  SizeType Size() const {return size_;}
+  int Width(void) const {return size_.width;}
+  int Height(void) const {return size_.height;}
+  Size ArraySize(void) const {return size_;}
+  SizeType NumElems() const {return size_.Total();}
   
  private:
-  SizeType width_ = 0;
-  SizeType height_ = 0;
-  SizeType size_ = 0;
+  Size size_;
   std::vector<T> data_; // W x H
 };
 
@@ -92,16 +101,8 @@ const T& Array2D<T>::At(SizeType i) const {
 
 template <typename T>
 bool Array2D<T>::IsValidCoords(SizeType r, SizeType c) const {
-  return GetIndex(r, c) < size_;
+  return GetIndex(r, c) < size_.Total();
 }
-
-template <typename T>
-void Array2D<T>::Resize(SizeType width, SizeType height) {
-  width_ = width;
-  height_ = height;
-  size_ = width * height;
-  data_.resize(size_);
-} 
 
 }
 

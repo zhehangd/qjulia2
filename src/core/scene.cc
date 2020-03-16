@@ -52,13 +52,12 @@ const Object* Scene::Intersect(const Ray &ray, Intersection *isect) const {
 
 void Scene::Intersect(const Array2D<Ray> &rays,
                       Array2D<SceneIsect> &scene_isects) const {
-  scene_isects.Resize(rays.Width(), rays.Height());
   Array2D<Intersection> object_isects(rays.Width(), rays.Height());
   for (int i = 0; i < NumObjects(); ++i) {
     const Object *object = GetObject(i);
     CHECK_NOTNULL(object);
     object->Intersect(rays, object_isects);
-    for (int j = 0; j < rays.Size(); ++j) {
+    for (int j = 0; j < rays.NumElems(); ++j) {
       auto &src = object_isects(j);
       auto &dst = scene_isects(j).isect;
       if (src.good && ((src.dist < dst.dist) || !dst.good)) {

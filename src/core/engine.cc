@@ -150,7 +150,7 @@ void RTEngine::Render2(const Scene &scene,
       ray_array(r, c) = camera->CastRay(Vector2f(x, y));
     }
   }
-  Array2D<Spectrum> spectrums;
+  Array2D<Spectrum> spectrums(Size(w, h));
   integrator.Li2(scene, ray_array, spectrums);
   for (int r = 0; r < h; ++r) {
     for (int c = 0; c < w; ++c) {

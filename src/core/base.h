@@ -35,6 +35,8 @@ SOFTWARE.
 
 namespace qjulia {
 
+typedef int SizeType;
+  
 typedef float Float;
 
 typedef std::numeric_limits<Float> FloatLimits;

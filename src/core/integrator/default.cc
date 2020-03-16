@@ -119,7 +119,6 @@ void DefaultIntegrator::Li2(const Scene &scene, const Array2D<Ray> &rays,
   // TODO: needs a way to tell scene/shape to ignore a ray
   
   int max_depths = 1;
-  spectrums.Resize(rays.Width(), rays.Height());
   auto h = rays.Height(), w = rays.Width();
   Array2D<SceneIsect> scene_isects = Array2D<SceneIsect>::ZeroLike(rays);
   scene.Intersect(rays, scene_isects);
@@ -128,7 +127,7 @@ void DefaultIntegrator::Li2(const Scene &scene, const Array2D<Ray> &rays,
   Array2D<SceneIsect> light_isects = Array2D<SceneIsect>::ZeroLike(rays);
   for (int k = 0; k < scene.NumLights(); ++k) {
     const Light *light = scene.GetLight(k);
-    for (int i = 0; i < rays.Size(); ++i) {
+    for (int i = 0; i < rays.NumElems(); ++i) {
       auto &scene_isect = scene_isects(i);
       auto *object = scene_isect.isect_obj;
       if (object) {
@@ -153,7 +152,7 @@ void DefaultIntegrator::Li2(const Scene &scene, const Array2D<Ray> &rays,
       }
     }
     scene.Intersect(light_rays, light_isects);
-    for (int i = 0; i < rays.Size(); ++i) {
+    for (int i = 0; i < rays.NumElems(); ++i) {
       auto &scene_isect = scene_isects(i);
       auto *object = scene_isect.isect_obj;
       if (object) {
