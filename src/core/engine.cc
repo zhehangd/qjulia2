@@ -143,15 +143,32 @@ void RTEngine::Render2(const Scene &scene,
   film->Create(w, h);
   const Camera *camera = scene.GetActiveCamera();
   Array2D<Ray> ray_array(w, h);
-  for (int r = 0; r < h; ++r) {
-    for (int c = 0; c < w; ++c) {
-      Float x, y;
-      film->GenerateCameraCoords(r, c, &x, &y);
-      ray_array(r, c) = camera->CastRay(Vector2f(x, y));
+  
+  AAFilterSet antialias;
+  antialias.Enable(option.antialias);
+  
+  Array2D<Spectrum> spectrums(Size(w, h));
+  
+  for (int k = 0; k < antialias.NumFilters(); ++k) {
+    const auto &aa = antialias.GetFilter(k);
+    for (int r = 0; r < h; ++r) {
+      for (int c = 0; c < w; ++c) {
+        Float x, y;
+        Float fr = r + aa.offset[0];
+        Float fc = c + aa.offset[1];
+        film->GenerateCameraCoords(fr, fc, &x, &y);
+        ray_array(r, c) = camera->CastRay(Vector2f(x, y));
+      }
+    }
+    
+    Array2D<Spectrum> spectrums_aa(Size(w, h));
+    integrator.Li2(scene, ray_array, spectrums_aa);
+    for (int r = 0; r < h; ++r) {
+      for (int c = 0; c < w; ++c) {
+        spectrums.At(r, c) += spectrums_aa.At(r, c) * aa.w;
+      }
     }
   }
-  Array2D<Spectrum> spectrums(Size(w, h));
-  integrator.Li2(scene, ray_array, spectrums);
   for (int r = 0; r < h; ++r) {
     for (int c = 0; c < w; ++c) {
       film->At(r, c).spectrum += spectrums.At(r, c);
