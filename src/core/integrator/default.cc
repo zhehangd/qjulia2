@@ -41,32 +41,6 @@ Spectrum DefaultIntegrator::Li(const Ray &ray, const Scene &scene) {
   return LiRecursive(ray, scene, 1);
 }
 
-
-
-Spectrum Shade(const Ray &ray, const Intersection &isect,
-           const Material *material, const Scene &scene) {
-  Spectrum spec;
-  const Vector3f &hit_position = isect.position;
-  const Vector3f &hit_normal = isect.normal;
-  for (int i = 0; i < scene.NumLights(); ++i) {
-    // Compute the incident ray from a light.
-    const Light *light = scene.GetLight(i);
-    LightRay lray = light->Li(hit_position);    
-    
-    // Cosine of the incident ray.
-    // This is used to decide whether the light shines the front
-    // face of the surface, and decide the illuminance on the
-    // surface.
-    Float in_cosine = Dot(lray.wi, hit_normal);
-    if (in_cosine <= 0) {continue;}
-  
-    // TODO: Test occlusion
-    // TODO: reflection
-    spec += lray.spectrum * material->diffuse * in_cosine;
-  }
-  return spec;
-}
-
 Spectrum DefaultIntegrator::LiRecursive(
     const Ray &ray, const Scene &scene, int depth) {
   
@@ -130,23 +104,84 @@ Spectrum DefaultIntegrator::LiRecursive(
   return final_spectrum;
 }
 
-void DefaultIntegrator::Li2(const Scene &scene, Array2D<Ray> rays,
+void DefaultIntegrator::Li2(const Scene &scene, const Array2D<Ray> &rays,
                             Array2D<Spectrum> &spectrums) {
+  
+  // test rays from eye
+  // go through isects
+  // for each light
+  //  test rays to the light
+  //  shade light
+  // collect reflected rays
+  // recurse
+  
+  
+  // TODO: needs a way to tell scene/shape to ignore a ray
+  
   int max_depths = 1;
   spectrums.Resize(rays.Width(), rays.Height());
   auto h = rays.Height(), w = rays.Width();
-  Array2D<SceneIsect> scene_isects;
+  Array2D<SceneIsect> scene_isects = Array2D<SceneIsect>::ZeroLike(rays);
   scene.Intersect(rays, scene_isects);
-  for (int i = 0; i < rays.Size(); ++i) {
-    auto &scene_isect = scene_isects(i);
-    auto *object = scene_isect.isect_obj;
-    auto &isect = scene_isect.isect;
-    if (object == nullptr) {continue;}
-    const Ray &ray = rays(i);
-    const Material *material = object->material;
-    spectrums(i) = Shade(ray, isect, material, scene);
+  
+  Array2D<Ray> light_rays = Array2D<Ray>::ZeroLike(rays);
+  Array2D<SceneIsect> light_isects = Array2D<SceneIsect>::ZeroLike(rays);
+  for (int k = 0; k < scene.NumLights(); ++k) {
+    const Light *light = scene.GetLight(k);
+    for (int i = 0; i < rays.Size(); ++i) {
+      auto &scene_isect = scene_isects(i);
+      auto *object = scene_isect.isect_obj;
+      if (object) {
+        auto &isect = scene_isect.isect;
+        const Vector3f &hit_position = isect.position;
+        const Vector3f &hit_normal = isect.normal;
+        
+        LightRay lray = light->Li(hit_position);
+        
+        // Cosine of the incident ray.
+        // This is used to decide whether the light shines the front
+        // face of the surface, and decide the illuminance on the
+        // surface.
+        Float in_cosine = Dot(lray.wi, hit_normal);
+        if (in_cosine > 0) {
+          light_rays(i) = Ray(hit_position + lray.wi * ray_delta_, lray.wi);
+        } else {
+          light_rays(i) = {};
+        }
+      } else {
+        light_rays(i) = {};
+      }
+    }
+    scene.Intersect(light_rays, light_isects);
+    for (int i = 0; i < rays.Size(); ++i) {
+      auto &scene_isect = scene_isects(i);
+      auto *object = scene_isect.isect_obj;
+      if (object) {
+        auto &isect = scene_isect.isect;
+        const Vector3f &hit_position = isect.position;
+        const Vector3f &hit_normal = isect.normal;
+        LightRay lray = light->Li(hit_position);
+        Float in_cosine = Dot(lray.wi, hit_normal);
+        if (in_cosine <= 0) {continue;}
+        auto &occ_isect = light_isects(i).isect;
+        if (occ_isect.good && occ_isect.dist <= lray.dist) {continue;}
+        
+        const Material *material = object->material;
+        Float reflect = Dot(-rays(i).dir, ReflectVector(lray.wi, hit_normal));
+        reflect = std::max((Float)0, reflect);
+        reflect = std::pow(reflect, material->ps);
+        
+        auto &spectrum = spectrums(i);
+        spectrum += lray.spectrum * material->ks * reflect;
+        spectrum += lray.spectrum * material->diffuse * in_cosine;
+      }
+    }
   }
 }
+/*
+void DefaultIntegrator::Li2Recursive(const Ray &ray, const Scene &scene, int depth) {
+  
+}*/
 
 }
 

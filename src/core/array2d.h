@@ -41,6 +41,9 @@ class Array2D {
   Array2D(SizeType width, SizeType height, T t = {})
     : width_(width), height_(height), size_(width * height), data_(size_, t) {}
   
+  template <typename G>
+  static Array2D<T> ZeroLike(const Array2D<G> &src) {return Array2D<T>(src.Width(), src.Height(), {});}
+  
   T& At(SizeType r, SizeType c);
   const T& At(SizeType r, SizeType c) const;
   T& At(SizeType i);

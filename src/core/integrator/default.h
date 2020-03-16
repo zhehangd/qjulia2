@@ -36,12 +36,14 @@ class DefaultIntegrator : public Integrator {
   
   Spectrum Li(const Ray &ray, const Scene &scene) override;
   
-  void Li2(const Scene &scene, Array2D<Ray> rays,
+  void Li2(const Scene &scene, const Array2D<Ray> &rays,
            Array2D<Spectrum> &spectrums) override;
 
  private:
    
   Spectrum LiRecursive(const Ray &ray, const Scene &scene, int depth);
+  
+  void Li2Recursive(const Scene &scene, Array2D<Ray> rays, int depth);
   
   Float ray_delta_ = 5e-3; // TODO: Use EFloat to bound the error.
 };

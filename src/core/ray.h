@@ -36,6 +36,8 @@ class Ray {
   Ray(void) {}
   Ray(Point3f start, Point3f dir) : start(start), dir(dir) {};
   
+  bool operator()(void) {return dir[0] != 0 || dir[1] != 0 || dir[2] != 0;}
+  
   Point3f start;
   Point3f dir;
 };
