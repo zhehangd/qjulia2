@@ -106,19 +106,16 @@ Spectrum DefaultIntegrator::LiRecursive(
 
 void DefaultIntegrator::Li2(const Scene &scene, const Array2D<Ray> &rays,
                             Array2D<Spectrum> &spectrums) {
+  int depth = 1;
+  Array2D<Ray> rays_cache(rays);
+  Array2D<Float> scales(rays.ArraySize(), 1);
+  Li2Recursive(scene, rays_cache, scales, spectrums, depth);
+}
+
+void DefaultIntegrator::Li2Recursive(
+    const Scene &scene, Array2D<Ray> &rays, Array2D<Float> &scales,
+    Array2D<Spectrum> &spectrums, int curr_reflection_depth) {
   
-  // test rays from eye
-  // go through isects
-  // for each light
-  //  test rays to the light
-  //  shade light
-  // collect reflected rays
-  // recurse
-  
-  
-  // TODO: needs a way to tell scene/shape to ignore a ray
-  
-  int max_depths = 1;
   auto h = rays.Height(), w = rays.Width();
   Array2D<SceneIsect> scene_isects = Array2D<SceneIsect>::ZeroLike(rays);
   scene.Intersect(rays, scene_isects);
@@ -166,21 +163,39 @@ void DefaultIntegrator::Li2(const Scene &scene, const Array2D<Ray> &rays,
         if (occ_isect.good && occ_isect.dist <= lray.dist) {continue;}
         
         const Material *material = object->material;
-        Float reflect = Dot(-rays(i).dir, ReflectVector(lray.wi, hit_normal));
-        reflect = std::max((Float)0, reflect);
-        reflect = std::pow(reflect, material->ps);
+        Float specular = Dot(-rays(i).dir, ReflectVector(lray.wi, hit_normal));
+        specular = std::max((Float)0, specular);
+        specular = std::pow(specular, material->ps);
         
         auto &spectrum = spectrums(i);
-        spectrum += lray.spectrum * material->ks * reflect;
-        spectrum += lray.spectrum * material->diffuse * in_cosine;
+        spectrum += lray.spectrum * material->ks * (specular * scales(i));
+        spectrum += lray.spectrum * material->diffuse * (in_cosine * scales(i));
       }
     }
   }
-}
-/*
-void DefaultIntegrator::Li2Recursive(const Ray &ray, const Scene &scene, int depth) {
   
-}*/
+  // Recursive reflection
+  curr_reflection_depth -= 1;
+  if (curr_reflection_depth < 0) {return;}
+  
+  for (int i = 0; i < rays.NumElems(); ++i) {
+    auto &scene_isect = scene_isects(i);
+    auto *object = scene_isect.isect_obj;
+    if (object) {
+      auto &ray = rays(i);
+      auto &isect = scene_isect.isect;
+      const Material *material = object->material;
+      const Vector3f &hit_position = isect.position;
+      const Vector3f &hit_normal = isect.normal;
+      Vector3f ray_dir = ReflectVector(-ray.dir, hit_normal);
+      rays(i) = Ray(hit_position + ray_dir * ray_delta_, ray_dir),
+      scales(i) *= material->reflection;
+    } else {
+      rays(i) = {};
+    }
+  }
+  Li2Recursive(scene, rays, scales, spectrums, curr_reflection_depth);
+}
 
 }
 
