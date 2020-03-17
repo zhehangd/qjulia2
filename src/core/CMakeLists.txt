@@ -44,6 +44,7 @@ add_library(qjulia2-core OBJECT
   shape/sphere.cc
   shape/plane.cc
   shape/julia3d.cc
+  shape/julia3d_impl_cpu.cc
 )
 
 target_include_directories(qjulia2-core PUBLIC

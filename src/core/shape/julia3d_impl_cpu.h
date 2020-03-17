@@ -24,55 +24,28 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_JULIA3D_H_
-#define QJULIA_JULIA3D_H_
+#ifndef QJULIA_JULIA3D_IMPL_CPU_H_
+#define QJULIA_JULIA3D_IMPL_CPU_H_
 
 #include <vector>
-#include <memory>
 
+#include "core/array2d.h"
+#include "core/ray.h"
+#include "core/intersection.h"
 #include "core/vector.h"
-#include "core/shape.h"
 
 namespace qjulia {
 
-class Julia3DShape : public Shape {
- public:
-  
-  struct FractalTestRet {
-    bool has_intersection = false;
-    Vector3f isect_position;
-    Float dist;
-  };
-  
-  Julia3DShape(Quaternion c) : constant_(c) {}
-  Julia3DShape(void) : constant_(0, 0, 0, 0) {}
-  
-  void SetConstant(Quaternion c) {constant_ = c;}
-  
-  void UsePreset(int i);
-  
-  Intersection Intersect(const Ray &ray) const override;
-    
-  void Intersect(const Array2D<Ray> &rays,
-                 Array2D<Intersection> &isects) const override;
-  
-  
-  std::string GetImplName(void) const override {return "julia3d";}
-  
-  SceneEntity* Clone(void) const override {return new Julia3DShape(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
-  
- private:
-  
-  int max_iterations_ = 200;
-  Float max_magnitude_ = 10.0f;
-  Float bounding_radius_ = 3.0f;
-  Quaternion constant_;
-};
+void Julia3DIntersectCPU(
+  const Ray &ray, Intersection &isect,
+  Quaternion julia_constant, int max_iterations,
+  Float max_magnitude, Float bounding_radius);
+
+void Julia3DIntersectCPU(
+  const Array2D<Ray> &rays, Array2D<Intersection> &isects,
+  Quaternion julia_constant, int max_iterations,
+  Float max_magnitude, Float bounding_radius);
 
 }
 
 #endif
- 
