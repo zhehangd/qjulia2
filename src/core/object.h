@@ -53,7 +53,8 @@ class Object : public SceneEntity {
   */
   Intersection Intersect(const Ray &ray) const;
   
-  void Intersect(const Array2D<Ray> &rays, Array2D<Intersection> &isects) const;
+  void Intersect(const Array2D<Ray> &rays, Array2D<Ray> &rays_cache,
+                 Array2D<Intersection> &isects) const;
   
   SceneEntity* Clone(void) const {return new Object(*this);}
   

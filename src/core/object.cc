@@ -52,18 +52,17 @@ Intersection Object::Intersect(const Ray &ray) const {
   return isect;
 }
 
-void Object::Intersect(const Array2D<Ray> &rays,
+void Object::Intersect(const Array2D<Ray> &rays, Array2D<Ray> &rays_cache,
                        Array2D<Intersection> &isects) const {
-  Array2D<Ray> rays_(rays.Width(), rays.Height());
   CHECK_NOTNULL(shape);
   CHECK_NOTNULL(transform);
   for (int i = 0; i < rays.NumElems(); ++i) {
     Ray ray = rays(i);
     ray.start = transform->W2O_Point(ray.start);
     ray.dir = Normalize(transform->W2O_Vector(ray.dir));
-    rays_(i) = ray;
+    rays_cache(i) = ray;
   }
-  shape->Intersect(rays_, isects);
+  shape->Intersect(rays_cache, isects);
   for (int i = 0; i < rays.NumElems(); ++i) {
     auto &isect = isects(i);
     isect.position = transform->O2W_Point(isect.position);
