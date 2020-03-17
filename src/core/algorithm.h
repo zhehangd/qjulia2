@@ -30,6 +30,9 @@ SOFTWARE.
 /** \file Common algorithms
 */
 
+#include <algorithm>
+#include <cmath>
+
 #include "base.h"
 #include "ray.h"
 #include "vector.h"
@@ -39,13 +42,32 @@ namespace qjulia {
 /** \brief Solve a quadratic equation
 
 Solve a*x^2 + b*x + c = 0 for its real roots. If the equation has real roots,
-they are solved in t0 and t1 and true is returned. Otherwise t0 are t1 are
+they are solved in tl and tg and true is returned. Otherwise tl are tg are
 not changed and false is returned.
 */
-bool SolveQuadratic(Float a, Float b, Float c, Float *t0, Float *t1);
+inline bool SolveQuadratic(Float a, Float b, Float c, Float *tl, Float *tg) {
+  // TODO This is a naive implementation which is not stable
+  // when a is close to 0. Improvement is needed.
+  Float d = b * b - 4 * a * c;
+  if (d < 0) {
+    return false;
+  } else {
+    d = std::sqrt(d);
+    *tl = (-b + d) / (2 * a);
+    *tg = (-b - d) / (2 * a);
+    if (*tl > *tg) {std::swap(*tl, *tg);}
+    return true;
+  }
+}
 
-bool IntersectSphere(const Vector3f start, const Vector3f dir,
-                     Float r, Float *tl, Float *tg);
+inline bool IntersectSphere(const Vector3f start, const Vector3f dir,
+                     Float r, Float *tl, Float *tg) {
+  Float a = dir.Norm2();
+  Float b = 2 * Dot(start, dir);
+  Float c = start.Norm2() - r * r;
+  bool has_root = SolveQuadratic(a, b, c, tl, tg);
+  return has_root;
+}
 
 // This function produces a basis of the vector space orthogonal to a unit
 // vector 'vec'. The number of basis vectors equals the dimension minus one.
