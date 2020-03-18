@@ -116,7 +116,6 @@ void DefaultIntegrator::Li2Recursive(
     const Scene &scene, Array2D<Ray> &rays, Array2D<Float> &scales,
     Array2D<Spectrum> &spectrums, int curr_reflection_depth) {
   
-  auto h = rays.Height(), w = rays.Width();
   Array2D<SceneIsect> scene_isects = Array2D<SceneIsect>::ZeroLike(rays);
   scene.Intersect(rays, scene_isects);
   

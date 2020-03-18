@@ -22,7 +22,7 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-project(qjulia2 VERSION 1.1.0 LANGUAGES CXX)
+project(qjulia2 VERSION 1.1.0 LANGUAGES CXX CUDA)
 
 if(NOT CMAKE_BUILD_TYPE)
   message(WARNING
@@ -32,12 +32,14 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+#set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_compile_options(-Wall -pedantic -Wextra)
-endif()
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wall>)
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-pedantic>)
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wextra>)
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wextra>)
 
 set(WITH_GUI OFF CACHE BOOL "Build GUI based on Qt5")
 

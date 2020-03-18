@@ -45,7 +45,8 @@ Solve a*x^2 + b*x + c = 0 for its real roots. If the equation has real roots,
 they are solved in tl and tg and true is returned. Otherwise tl are tg are
 not changed and false is returned.
 */
-inline bool SolveQuadratic(Float a, Float b, Float c, Float *tl, Float *tg) {
+CPU_AND_CUDA inline bool SolveQuadratic(
+    Float a, Float b, Float c, Float *tl, Float *tg) {
   // TODO This is a naive implementation which is not stable
   // when a is close to 0. Improvement is needed.
   Float d = b * b - 4 * a * c;
@@ -55,13 +56,18 @@ inline bool SolveQuadratic(Float a, Float b, Float c, Float *tl, Float *tg) {
     d = std::sqrt(d);
     *tl = (-b + d) / (2 * a);
     *tg = (-b - d) / (2 * a);
-    if (*tl > *tg) {std::swap(*tl, *tg);}
+    if (*tl > *tg) {
+      Float t = *tl;
+      *tl = *tg;
+      *tg = t;
+    }
     return true;
   }
 }
 
-inline bool IntersectSphere(const Vector3f start, const Vector3f dir,
-                     Float r, Float *tl, Float *tg) {
+CPU_AND_CUDA inline bool IntersectSphere(
+    const Vector3f start, const Vector3f dir,
+    Float r, Float *tl, Float *tg) {
   Float a = dir.Norm2();
   Float b = 2 * Dot(start, dir);
   Float c = start.Norm2() - r * r;

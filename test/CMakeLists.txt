@@ -31,6 +31,9 @@ add_executable(test_all
 
 target_include_directories(test_all PUBLIC ${GTEST_INCLUDE_DIRS})
 
+set_property(TARGET test_all
+             PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+
 target_link_libraries(test_all
   qjulia2-core
   glog

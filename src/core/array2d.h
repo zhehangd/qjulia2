@@ -73,6 +73,8 @@ class Array2D {
   int Height(void) const {return size_.height;}
   Size ArraySize(void) const {return size_;}
   SizeType NumElems() const {return size_.Total();}
+  T* Data(void) {return data_.data();}
+  const T* Data(void) const {return data_.data();}
   
  private:
   Size size_;

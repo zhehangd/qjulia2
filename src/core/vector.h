@@ -24,13 +24,10 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_VECTOR_H_
-#define QJULIA_VECTOR_H_
+#ifndef QJULIA_VECTOR_CUDA_H_
+#define QJULIA_VECTOR_CUDA_H_
 
-#include <cassert>
 #include <cmath>
-#include <iostream>
-#include <array>
 
 #include "base.h"
 
@@ -49,66 +46,66 @@ to represent complex numbers, and quaternions.
 template<typename T, int C>
 class Vec_ {
  public:
-  Vec_(void) {}
-  Vec_(T c) {for (int i = 0; i < C; ++i) {vals[i] = c;}}
-  Vec_(T v0, T v1) {assert(C >= 2); v(0) = v0; v(1) = v1;}
-  Vec_(T v0, T v1, T v2) {assert(C >= 3); v(0) = v0; v(1) = v1; v(2) = v2;}
-  Vec_(T v0, T v1, T v2, T v3) {assert(C >= 4); v(0) = v0; v(1) = v1; v(2) = v2; v(3) = v3;}
+  CPU_AND_CUDA Vec_(void) {}
+  CPU_AND_CUDA Vec_(T c) {for (int i = 0; i < C; ++i) {vals[i] = c;}}
+  CPU_AND_CUDA Vec_(T v0, T v1) {v(0) = v0; v(1) = v1;}
+  CPU_AND_CUDA Vec_(T v0, T v1, T v2) {v(0) = v0; v(1) = v1; v(2) = v2;}
+  CPU_AND_CUDA Vec_(T v0, T v1, T v2, T v3) {assert(C >= 4); v(0) = v0; v(1) = v1; v(2) = v2; v(3) = v3;}
   
-  const T& operator[](int i) const {return v(i);}
-  T& operator[](int i) {return v(i);}
-  const T& operator()(int i) const {return v(i);}
-  T& operator()(int i) {return v(i);}
+  CPU_AND_CUDA const T& operator[](int i) const {return v(i);}
+  CPU_AND_CUDA T& operator[](int i) {return v(i);}
+  CPU_AND_CUDA const T& operator()(int i) const {return v(i);}
+  CPU_AND_CUDA T& operator()(int i) {return v(i);}
   
-  const T& v(int i) const {return vals[i];} // for internal access
-  T& v(int i) {return vals[i];}
+  CPU_AND_CUDA const T& v(int i) const {return vals[i];} // for internal access
+  CPU_AND_CUDA T& v(int i) {return vals[i];}
   
-  Vec_<T, C> operator-(void) const;
+  CPU_AND_CUDA Vec_<T, C> operator-(void) const;
   
-  Vec_<T, C>& operator+=(const Vec_<T, C> &p);
-  Vec_<T, C>& operator-=(const Vec_<T, C> &p);
+  CPU_AND_CUDA Vec_<T, C>& operator+=(const Vec_<T, C> &p);
+  CPU_AND_CUDA Vec_<T, C>& operator-=(const Vec_<T, C> &p);
   
-  Vec_<T, C> operator+(const Vec_<T, C> &p) const;
-  Vec_<T, C> operator-(const Vec_<T, C> &p) const;
+  CPU_AND_CUDA Vec_<T, C> operator+(const Vec_<T, C> &p) const;
+  CPU_AND_CUDA Vec_<T, C> operator-(const Vec_<T, C> &p) const;
   
-  Vec_<T, C>& operator*=(const Vec_<T, C> &p);
-  Vec_<T, C>& operator/=(const Vec_<T, C> &p);
+  CPU_AND_CUDA Vec_<T, C>& operator*=(const Vec_<T, C> &p);
+  CPU_AND_CUDA Vec_<T, C>& operator/=(const Vec_<T, C> &p);
   
-  Vec_<T, C> operator*(const Vec_<T, C> &p) const;
-  Vec_<T, C> operator/(const Vec_<T, C> &p) const;
+  CPU_AND_CUDA Vec_<T, C> operator*(const Vec_<T, C> &p) const;
+  CPU_AND_CUDA Vec_<T, C> operator/(const Vec_<T, C> &p) const;
   
-  Vec_<T, C>& operator+=(T c);
-  Vec_<T, C>& operator-=(T c);
+  CPU_AND_CUDA Vec_<T, C>& operator+=(T c);
+  CPU_AND_CUDA Vec_<T, C>& operator-=(T c);
   
-  Vec_<T, C> operator+(T c) const;
-  Vec_<T, C> operator-(T c) const;
+  CPU_AND_CUDA Vec_<T, C> operator+(T c) const;
+  CPU_AND_CUDA Vec_<T, C> operator-(T c) const;
   
-  Vec_<T, C>& operator*=(T c);
-  Vec_<T, C>& operator/=(T c);
+  CPU_AND_CUDA Vec_<T, C>& operator*=(T c);
+  CPU_AND_CUDA Vec_<T, C>& operator/=(T c);
   
-  Vec_<T, C> operator*(T c) const;
-  Vec_<T, C> operator/(T c) const;
+  CPU_AND_CUDA Vec_<T, C> operator*(T c) const;
+  CPU_AND_CUDA Vec_<T, C> operator/(T c) const;
   
-  bool operator==(const Vec_<T, C> &p) const;
-  bool operator!=(const Vec_<T, C> &p) const {return !(*this == p);}
+  CPU_AND_CUDA bool operator==(const Vec_<T, C> &p) const;
+  CPU_AND_CUDA bool operator!=(const Vec_<T, C> &p) const {return !(*this == p);}
   
-  void Fill(T c) const {for (int i = 0; i < C; ++i) {vals[i] = c;}}
+  CPU_AND_CUDA void Fill(T c) const {for (int i = 0; i < C; ++i) {vals[i] = c;}}
   
   /** \brief The square of the L2 norm
   */
-  Float Norm2(void) const;
+  CPU_AND_CUDA Float Norm2(void) const;
   
   /** \brief The L2 norm
   */
-  Float Norm(void) const;
+  CPU_AND_CUDA Float Norm(void) const;
   
   //T vals[C] = {}; // data
-  std::array<T, C> vals = {};
+  T vals[C] = {};
 };
 
 // - v
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator-(void) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator-(void) const {
   Vec_<T, C> neg;
   for (int i = 0; i < C; ++i) {neg.v(i) = - v(i);}
   return neg;
@@ -116,95 +113,95 @@ Vec_<T, C> Vec_<T, C>::operator-(void) const {
 
 // v1 += v2
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator+=(T c) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator+=(T c) {
   for (int i = 0; i < C; ++i) {v(i) += c;}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator-=(T c) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator-=(T c) {
   for (int i = 0; i < C; ++i) {v(i) -= c;}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator+(T c) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator+(T c) const {
   return Vec_(*this) += c;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator-(T c) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator-(T c) const {
   return Vec_(*this) -= c;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator*=(T c) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator*=(T c) {
   for (int i = 0; i < C; ++i) {v(i) *= c;}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator/=(T c) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator/=(T c) {
   for (int i = 0; i < C; ++i) {v(i) /= c;}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator*(T c) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator*(T c) const {
   return Vec_(*this) *= c;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator/(T c) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator/(T c) const {
   return Vec_(*this) /= c;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator+=(const Vec_<T, C> &p) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator+=(const Vec_<T, C> &p) {
   for (int i = 0; i < C; ++i) {v(i) += p.v(i);}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator-=(const Vec_<T, C> &p) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator-=(const Vec_<T, C> &p) {
   for (int i = 0; i < C; ++i) {v(i) -= p.v(i);}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator+(const Vec_<T, C> &p) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator+(const Vec_<T, C> &p) const {
   return Vec_(*this) += p;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator-(const Vec_<T, C> &p) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator-(const Vec_<T, C> &p) const {
   return Vec_(*this) -= p;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator*=(const Vec_<T, C> &p) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator*=(const Vec_<T, C> &p) {
   for (int i = 0; i < C; ++i) {v(i) *= p.v(i);}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C>& Vec_<T, C>::operator/=(const Vec_<T, C> &p) {
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator/=(const Vec_<T, C> &p) {
   for (int i = 0; i < C; ++i) {v(i) /= p.v(i);}
   return *this;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator*(const Vec_<T, C> &p) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator*(const Vec_<T, C> &p) const {
   return Vec_(*this) *= p;
 }
 
 template<typename T, int C> inline
-Vec_<T, C> Vec_<T, C>::operator/(const Vec_<T, C> &p) const {
+CPU_AND_CUDA Vec_<T, C> Vec_<T, C>::operator/(const Vec_<T, C> &p) const {
   return Vec_(*this) /= p;
 }
 
 template<typename T, int C> inline
-bool Vec_<T, C>::operator==(const Vec_<T, C> &p) const {
+CPU_AND_CUDA bool Vec_<T, C>::operator==(const Vec_<T, C> &p) const {
   for (int i = 0; i < C; ++i) {
     if (v(i) != p.v(i)) {return false;}
   }
@@ -212,7 +209,7 @@ bool Vec_<T, C>::operator==(const Vec_<T, C> &p) const {
 }
 
 template<typename T, int C> inline
-Float Vec_<T, C>::Norm2(void) const {
+CPU_AND_CUDA Float Vec_<T, C>::Norm2(void) const {
   Float sum = 0;
   for (int i = 0; i < C; ++i) {
     Float v = this->v(i);
@@ -222,32 +219,32 @@ Float Vec_<T, C>::Norm2(void) const {
 }
 
 template<typename T, int C> inline
-Float Vec_<T, C>::Norm(void) const {
+CPU_AND_CUDA Float Vec_<T, C>::Norm(void) const {
   return std::sqrt(Norm2());
 }
 
 /** \brief The square of the L2 Distance between two points
 */
 template<typename T, int C>
-Float Dist2(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
+CPU_AND_CUDA Float Dist2(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
   return (p1 - p2).Norm2();
 }
 
 /** \brief The L2 Distance between two points
 */
 template<typename T, int C>
-Float Dist(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
+CPU_AND_CUDA Float Dist(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
   return std::sqrt(Dist2(p1, p2));
 }
 
 template<typename T, int C>
-bool IsFinite(const Vec_<T, C> &vec) {
+CPU_AND_CUDA bool IsFinite(const Vec_<T, C> &vec) {
   for (auto &v : vec.vals) {if (!std::isfinite(v)) {return false;}}
   return true;
 }
 
 template<typename T, int C>
-Vec_<T, C> Clamp(const Vec_<T, C> &vec, T min_v, T max_v) {
+CPU_AND_CUDA Vec_<T, C> Clamp(const Vec_<T, C> &vec, T min_v, T max_v) {
   Vec_<T, C> vec_out;
   for (int i = 0; i < C; ++i) {
     T v = vec[i];
@@ -291,7 +288,7 @@ std::istream& operator>>(std::istream &iss, Vec_<T, C> &vec) {
 }
 
 template<typename T, int C>
-Vec_<T, C> multiply(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
+CPU_AND_CUDA Vec_<T, C> multiply(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
   Vec_<T, C> v;
   for (int i = 0; i < C; ++i) {v[i] = p1[i] * p2[i];}
   return v;
@@ -300,14 +297,14 @@ Vec_<T, C> multiply(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
 /** \brief Dot product
 */
 template<typename T, int C>
-Float Dot(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
+CPU_AND_CUDA Float Dot(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
   Float sum = 0;
   for (int i = 0; i < C; ++i) {sum += p1(i) * p2(i);}
   return sum;
 }
 
 template<typename T>
-Vec_<Float, 3> Cross(const Vec_<T, 3> &p1, const Vec_<T, 3> &p2) {
+CPU_AND_CUDA Vec_<Float, 3> Cross(const Vec_<T, 3> &p1, const Vec_<T, 3> &p2) {
   return Vec_<Float, 3>(
     p1(1) * p2(2) - p1(2) * p2(1), p1(2) * p2(0) - p1(0) * p2(2),
     p1(0) * p2(1) - p1(1) * p2(0));
@@ -315,12 +312,12 @@ Vec_<Float, 3> Cross(const Vec_<T, 3> &p1, const Vec_<T, 3> &p2) {
 
 // Project p1 to p2.
 template<typename T, int C>
-Vec_<Float, C> Project(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
+CPU_AND_CUDA Vec_<Float, C> Project(const Vec_<T, C> &p1, const Vec_<T, C> &p2) {
   return p2 * (Dot(p1, p2) / p2.Norm2());
 }
 
 template<typename T, int C>
-Vec_<Float, C> Normalize(const Vec_<T, C> &p) {
+CPU_AND_CUDA Vec_<Float, C> Normalize(const Vec_<T, C> &p) {
   return p / p.Norm();
 }
 
@@ -396,35 +393,35 @@ inline Complex Complex::operator*(const Complex &p) const {
 */
 class Quaternion : public Vec_<Float, 4> {
  public:
-  Quaternion(void) {}
-  Quaternion(Float a, Float b, Float c, Float d) : Vec_<Float, 4>(a, b, c, d) {}
-  Quaternion(const Vec_<Float, 4> &p) : Vec_<Float, 4>(p) {}
+  CPU_AND_CUDA Quaternion(void) {}
+  CPU_AND_CUDA Quaternion(Float a, Float b, Float c, Float d) : Vec_<Float, 4>(a, b, c, d) {}
+  CPU_AND_CUDA Quaternion(const Vec_<Float, 4> &p) : Vec_<Float, 4>(p) {}
   
-  const Float& Real(void) const {return v(0);}
-  const Float& ImagI(void) const {return v(1);}
-  const Float& ImagJ(void) const {return v(2);}
-  const Float& ImagK(void) const {return v(3);}
-  Float& Real(void) {return v(0);}
-  Float& ImagI(void) {return v(1);}
-  Float& ImagJ(void) {return v(2);}
-  Float& ImagK(void) {return v(3);}
+  CPU_AND_CUDA const Float& Real(void) const {return v(0);}
+  CPU_AND_CUDA const Float& ImagI(void) const {return v(1);}
+  CPU_AND_CUDA const Float& ImagJ(void) const {return v(2);}
+  CPU_AND_CUDA const Float& ImagK(void) const {return v(3);}
+  CPU_AND_CUDA Float& Real(void) {return v(0);}
+  CPU_AND_CUDA Float& ImagI(void) {return v(1);}
+  CPU_AND_CUDA Float& ImagJ(void) {return v(2);}
+  CPU_AND_CUDA Float& ImagK(void) {return v(3);}
   
-  Quaternion Conj(void) const {return Quaternion(v(0), -v(1), -v(2), -v(3));}
+  CPU_AND_CUDA Quaternion Conj(void) const {return Quaternion(v(0), -v(1), -v(2), -v(3));}
   
-  Quaternion& operator*=(const Quaternion &p);
-  Quaternion operator*(const Quaternion &p) const;
+  CPU_AND_CUDA Quaternion& operator*=(const Quaternion &p);
+  CPU_AND_CUDA Quaternion operator*(const Quaternion &p) const;
   
-  Quaternion& operator/=(const Quaternion &p) = delete;
-  Quaternion operator/(const Quaternion &p) const = delete;
+  CPU_AND_CUDA Quaternion& operator/=(const Quaternion &p) = delete;
+  CPU_AND_CUDA Quaternion operator/(const Quaternion &p) const = delete;
   
-  Quaternion& operator*=(Float c);
-  Quaternion operator*(Float c) const;
+  CPU_AND_CUDA Quaternion& operator*=(Float c);
+  CPU_AND_CUDA Quaternion operator*(Float c) const;
   
-  Quaternion& operator/=(Float c) = delete;
-  Quaternion operator/(Float c) const = delete;
+  CPU_AND_CUDA Quaternion& operator/=(Float c) = delete;
+  CPU_AND_CUDA Quaternion operator/(Float c) const = delete;
 };
 
-inline Quaternion& Quaternion::operator*=(const Quaternion &p) {
+CPU_AND_CUDA inline Quaternion& Quaternion::operator*=(const Quaternion &p) {
   Float a = Real() * p.Real() - ImagI() * p.ImagI()
     - ImagJ() * p.ImagJ() - ImagK() * p.ImagK();     
   Float i = Real() * p.ImagI() + ImagI() * p.Real()
@@ -440,16 +437,16 @@ inline Quaternion& Quaternion::operator*=(const Quaternion &p) {
   return *this;
 }
 
-inline Quaternion Quaternion::operator*(const Quaternion &p) const {
+CPU_AND_CUDA inline Quaternion Quaternion::operator*(const Quaternion &p) const {
   return Quaternion(*this) *= p;
 }
 
-inline Quaternion& Quaternion::operator*=(Float c) {
+CPU_AND_CUDA inline Quaternion& Quaternion::operator*=(Float c) {
   for (int i = 0; i < 4; ++i) {v(i) *= c;}
   return *this;
 }
 
-inline Quaternion Quaternion::operator*(Float c) const {
+CPU_AND_CUDA inline Quaternion Quaternion::operator*(Float c) const {
   return Quaternion(*this) *= c;
 }
 

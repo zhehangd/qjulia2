@@ -25,6 +25,9 @@ add_executable(qjulia2-cli
   $<TARGET_OBJECTS:qjulia2-core>
 )
 
+set_property(TARGET qjulia2-cli 
+             PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+
 target_link_libraries(qjulia2-cli
   qjulia2-core
   glog cxxopts

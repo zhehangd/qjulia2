@@ -27,6 +27,7 @@ SOFTWARE.
 #ifndef QJULIA_TRANSFORM_H_
 #define QJULIA_TRANSFORM_H_
 
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -39,7 +40,8 @@ namespace qjulia {
 class Matrix4x4 : public Vec_<Float, 16> {
  public:
    Matrix4x4(void);
-   Matrix4x4(const std::array<Float, 16> vals) {this->vals = vals;}
+   Matrix4x4(const std::array<Float, 16> vals) {
+     std::memcpy(this->vals, vals.data(), sizeof(Float)*16);}
    
    static Matrix4x4 Identity(void);
    static Matrix4x4 Translate(const Vector3f &T);

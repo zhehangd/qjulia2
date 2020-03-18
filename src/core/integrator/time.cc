@@ -40,7 +40,7 @@ Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
   Timer timer;
   timer.Start();
   Intersection isect;
-  const Object* hit_object = scene.Intersect(ray, &isect);
+  (void)scene.Intersect(ray, &isect);
   timer.End();
   auto t = timer.Total();
   max_time_ = std::max(max_time_, t);

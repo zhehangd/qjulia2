@@ -35,6 +35,7 @@ SOFTWARE.
 #include "core/resource_mgr.h"
 
 #include "julia3d_impl_cpu.h"
+#include "julia3d_impl_gpu.h"
 
 namespace qjulia {
 
@@ -48,7 +49,7 @@ Intersection Julia3DShape::Intersect(const Ray &ray) const {
 
 void Julia3DShape::Intersect(const Array2D<Ray> &rays,
                  Array2D<Intersection> &isects) const {
-  Julia3DIntersectCPU(
+  Julia3DIntersectGPU(
     rays, isects, constant_, max_iterations_,
     max_magnitude_, bounding_radius_);
 }

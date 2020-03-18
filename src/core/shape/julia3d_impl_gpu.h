@@ -24,25 +24,27 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_RAY_H_
-#define QJULIA_RAY_H_
+#ifndef QJULIA_JULIA3D_IMPL_GPU_H_
+#define QJULIA_JULIA3D_IMPL_GPU_H_
 
-#include "vector.h"
+#include <vector>
+
+#include "core/array2d.h"
+#include "core/ray.h"
+#include "core/intersection.h"
+#include "core/vector.h"
 
 namespace qjulia {
 
-class Ray {
- public:
-  CPU_AND_CUDA Ray(void) {}
-  CPU_AND_CUDA Ray(Point3f start, Point3f dir)
-    : start(start), dir(dir) {};
-  
-  CPU_AND_CUDA bool operator()(void) {
-    return dir[0] != 0 || dir[1] != 0 || dir[2] != 0;}
-  
-  Point3f start;
-  Point3f dir;
-};
+void Julia3DIntersectGPU(
+  const Ray &ray, Intersection &isect,
+  Quaternion julia_constant, int max_iterations,
+  Float max_magnitude, Float bounding_radius);
+
+void Julia3DIntersectGPU(
+  const Array2D<Ray> &rays, Array2D<Intersection> &isects,
+  Quaternion julia_constant, int max_iterations,
+  Float max_magnitude, Float bounding_radius);
 
 }
 

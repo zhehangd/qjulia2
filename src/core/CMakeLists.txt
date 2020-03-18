@@ -45,7 +45,11 @@ add_library(qjulia2-core OBJECT
   shape/plane.cc
   shape/julia3d.cc
   shape/julia3d_impl_cpu.cc
+  shape/julia3d_impl_gpu.cu
 )
+
+set_target_properties(qjulia2-core
+  PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(qjulia2-core PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/.."

@@ -33,6 +33,12 @@ SOFTWARE.
 
 #include <glog/logging.h>
 
+#ifdef __CUDACC__
+#define CPU_AND_CUDA __device__ __host__
+#else
+#define CPU_AND_CUDA
+#endif 
+
 namespace qjulia {
 
 typedef int SizeType;
