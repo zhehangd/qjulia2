@@ -1,0 +1,109 @@
+
+# -------------- Fractal -----------------
+
+shape julia3d fractal_shape_1 {
+  max_iterations 200
+  max_magnitude 10.0
+  bounding_radius 3.0
+  constant -0.2,0.8,0,0
+}
+
+material material_fractal {
+  diffuse 0.3,0.7,1.0
+  reflection 0.2
+  specular 0.3
+}
+
+transform fractal_transform {
+  rotate y -30
+  translate 0,1.5,0
+}
+
+object fractal_1 {
+  shape fractal_shape_1
+  material material_fractal
+  transform fractal_transform
+}
+
+shape sphere spherex {
+  position 0,1.5,0
+  radius 0.8
+}
+
+object sphere_1 {
+  shape spherex
+  material material_fractal
+}
+
+# -------------- Wall -----------------
+
+shape plane plane_shape_1 {
+  set 0,0,0 0,1,0
+}
+
+shape plane plane_shape_2 {
+  set -1.6,0,0 1,0,0
+}
+
+shape plane plane_shape_3 {
+  set 0,0,-10 0,0,1
+}
+
+material material_ground {
+  diffuse 0.8,0.8,1.0
+  reflection 0.2
+  specular 0.3
+}
+
+transform t {
+  translate 0,0,0
+}
+
+object wall1 {
+  shape plane_shape_1
+  material material_ground
+  transform t
+}
+
+object wall2 {
+  shape plane_shape_2
+  material material_ground
+  transform t
+}
+
+object wall3 {
+  shape plane_shape_3
+  material material_ground
+  transform t
+}
+
+# -------------- Lights -----------------
+
+light sun sun {
+  orientation -1,-1,-2
+  intensity 0.2,0.2,0.2
+}
+
+light point bulb {
+  position 2,3.5,2
+  intensity 8,8,8
+}
+
+# -------------- Cameras -----------------
+
+camera perspective camera_1 {
+  lookat 2,1.2,5  0,1.4,0  0,1,0
+  focus 1.8
+}
+
+# -------------- Scenes -----------------
+
+scene scene1 {
+  camera camera_1
+  object sphere_1
+  object wall1
+  object wall2
+  object wall3
+  light sun
+  light bulb
+}
