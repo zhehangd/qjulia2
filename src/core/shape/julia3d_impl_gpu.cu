@@ -29,6 +29,7 @@ SOFTWARE.
 #include "core/intersection.h"
 #include "core/vector.h"
 #include "core/algorithm.h"
+#include "core/timer.h"
 
 namespace qjulia {
 
@@ -62,7 +63,6 @@ class Julia3DIntersectKernelGPU {
   int max_iterations_ = 200;
   Float max_magnitude_ = 10.0f;
   Float bounding_radius_ = 3.0f;
-  
 };
 
 CPU_AND_CUDA Julia3DIntersectKernelGPU::Julia3DIntersectKernelGPU(
@@ -184,18 +184,27 @@ void Julia3DIntersectGPU(const Array2D<Ray> &rays,
                               Array2D<Intersection> &isects,
                               Quaternion julia_constant, int max_iterations,
                               Float max_magnitude, Float bounding_radius) {
+  Timer timer;
+  float time_malloc = 0;
+  float time_memcpy = 0;
+  float time_process = 0;
+  
+  timer.Start();
   Ray *cu_rays = 0;
   Intersection *cu_isects = 0;
-  
   int total = rays.NumElems();
   cudaMalloc((void**)&cu_rays, sizeof(Ray) * total);
   cudaMalloc((void**)&cu_isects, sizeof(Intersection) * total);
   CHECK_NOTNULL(cu_rays);
   CHECK_NOTNULL(cu_isects);
+  time_malloc += timer.End();
   
+  timer.Start();
   cudaMemcpy(cu_rays, rays.Data(), sizeof(qjulia::Ray) * total,        
              cudaMemcpyHostToDevice);
+  time_memcpy += timer.End();
   
+  timer.Start();
   int h = rays.Height();
   int w = rays.Width();
   int bsize = 32;
@@ -207,12 +216,19 @@ void Julia3DIntersectGPU(const Array2D<Ray> &rays,
     julia_constant, max_iterations, max_magnitude, bounding_radius);
   Go<<<grid_size, block_size>>>(cu_rays, cu_isects, w, h, kernel);
   cudaDeviceSynchronize();
+  time_process += timer.End();
   
+  timer.Start();
   cudaMemcpy(isects.Data(), cu_isects,
              sizeof(Intersection) * total, cudaMemcpyDeviceToHost);
+  time_memcpy += timer.End();
   
+  timer.Start();
   cudaFree(cu_rays);
   cudaFree(cu_isects);
+  time_malloc += timer.End();
+  
+  //printf("malloc:%.2f, time_memcpy:%.2f, time_process:%.2f\n", time_malloc, time_memcpy, time_process);
 }
 
 }
