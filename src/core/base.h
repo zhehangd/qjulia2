@@ -57,9 +57,9 @@ constexpr Float kNInf = - std::numeric_limits<Float>::infinity();
 
 constexpr Float kPi = 3.1415926f;
 
-inline Float Degree2Rad(Float d) {return d * kPi / 180.0f;}
+CPU_AND_CUDA inline Float Degree2Rad(Float d) {return d * kPi / 180.0f;}
 
-inline constexpr Float kGamma(int n) {
+CPU_AND_CUDA inline constexpr Float kGamma(int n) {
   return (n * kEpsilon) / (1 - n * kEpsilon);
 }
 

@@ -30,7 +30,7 @@ add_library(qjulia2-core OBJECT
   vector.cc
   light.cc
   scene.cc
-  object.cc
+  object.cu
   tokenizer.cc
   transform.cc
   material.cc
