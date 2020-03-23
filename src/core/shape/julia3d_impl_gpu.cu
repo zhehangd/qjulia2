@@ -208,8 +208,8 @@ void Julia3DIntersectGPU(const Array2D<Ray> &rays,
   int h = rays.Height();
   int w = rays.Width();
   int bsize = 32;
-  int gw = (w + bsize) / bsize;
-  int gh = (h + bsize) / bsize;
+  int gw = (w + bsize - 1) / bsize;
+  int gh = (h + bsize - 1) / bsize;
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   Julia3DIntersectKernelGPU kernel(
