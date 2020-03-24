@@ -41,6 +41,7 @@ endif()
 
 set(WITH_GUI OFF CACHE BOOL "Build GUI based on Qt5")
 
+find_package(fmt REQUIRED)
 find_package(glog REQUIRED)
 find_package(Threads REQUIRED)
 find_package(GTest)

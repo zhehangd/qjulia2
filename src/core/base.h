@@ -31,6 +31,7 @@ SOFTWARE.
 #include <cstdint>
 #include <limits>
 
+#include <fmt/format.h>
 #include <glog/logging.h>
 
 #ifdef __CUDACC__

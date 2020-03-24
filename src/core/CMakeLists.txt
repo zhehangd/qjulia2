@@ -51,6 +51,7 @@ target_include_directories(qjulia2-core PUBLIC
 )
 
 target_link_libraries(qjulia2-core
+  fmt
   glog
   ${CMAKE_THREAD_LIBS_INIT}
 )
