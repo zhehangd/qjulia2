@@ -45,6 +45,11 @@ namespace qjulia {
 class Object;
 class Light;
 
+struct SceneIsect {
+  const Object *isect_obj = nullptr;
+  Intersection isect;
+};
+
 class Scene : public SceneEntity {
  public:
    

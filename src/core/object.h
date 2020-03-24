@@ -30,12 +30,12 @@ SOFTWARE.
 #include <vector>
 #include <memory>
 
+#include "array2d.h"
 #include "entity.h"
 #include "intersection.h"
 #include "ray.h"
 #include "spectrum.h"
 #include "vector.h"
-
 
 namespace qjulia {
 

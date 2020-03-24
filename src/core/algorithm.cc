@@ -26,33 +26,5 @@ SOFTWARE.
 
 #include "core/algorithm.h"
 
-#include <algorithm>
-#include <cmath>
-
 namespace qjulia {
-
-bool SolveQuadratic(Float a, Float b, Float c, Float *tl, Float *tg) {
-  // TODO This is a naive implementation which is not stable
-  // when a is close to 0. Improvement is needed.
-  Float d = b * b - 4 * a * c;
-  if (d < 0) {
-    return false;
-  } else {
-    d = std::sqrt(d);
-    *tl = (-b + d) / (2 * a);
-    *tg = (-b - d) / (2 * a);
-    if (*tl > *tg) {std::swap(*tl, *tg);}
-    return true;
-  }
-}
-
-bool IntersectSphere(const Vector3f start, const Vector3f dir,
-                      Float r, Float *tl, Float *tg) {
-  Float a = dir.Norm2();
-  Float b = 2 * Dot(start, dir);
-  Float c = start.Norm2() - r * r;
-  bool has_root = SolveQuadratic(a, b, c, tl, tg);
-  return has_root;
-}
-
 }

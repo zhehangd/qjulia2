@@ -27,6 +27,7 @@ SOFTWARE.
 #ifndef QJULIA_INTEGRATOR_
 #define QJULIA_INTEGRATOR_
 
+#include "base.h"
 #include "spectrum.h"
 #include "vector.h"
 #include "scene.h"
@@ -37,6 +38,7 @@ class Integrator {
  public:
   
   virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
+  
 };
 
 }
