@@ -38,19 +38,14 @@ namespace qjulia {
 class PlaneShape : public Shape {
  public:
    
-  PlaneShape(void);
-  PlaneShape(Vector3f position, Vector3f orientation);
+  CPU_AND_CUDA PlaneShape(void);
+  CPU_AND_CUDA PlaneShape(Vector3f position, Vector3f orientation);
   
-  void SetPositionAndNormal(Vector3f position, Vector3f orientation);
+  CPU_AND_CUDA void SetPositionAndNormal(Vector3f position, Vector3f orientation);
   
-  Intersection Intersect(const Ray &ray) const override;
+  CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override;
   
-  std::string GetImplName(void) const override {return "plane";}
-  
-  SceneEntity* Clone(void) const override {return new PlaneShape(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Vector3f normal;
   float offset;

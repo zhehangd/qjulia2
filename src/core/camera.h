@@ -28,8 +28,8 @@ SOFTWARE.
 #define QJULIA_CAMERA_H_
 
 #include "entity.h"
-#include "vector.h"
 #include "ray.h"
+#include "vector.h"
 
 namespace qjulia {
 
@@ -37,17 +37,14 @@ namespace qjulia {
 
 This is the interface that all camera classes should implement
 */
-class Camera : public SceneEntity {
+class Camera : public Entity {
  public:
   
-  EntityType GetType(void) const final {return kType;}
-  
+  size_t GetTypeID(void) const final {return EntityTypeID<Camera>::val;}
+   
   /** \brief Cast a ray from the camera to the scene
   */
-  virtual Ray CastRay(Point2f pos) const = 0;
-  
-  static const EntityType kType = EntityType::kCamera;
-  
+  CPU_AND_CUDA virtual Ray CastRay(Point2f pos) const = 0;
 };
 
 }

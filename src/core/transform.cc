@@ -25,8 +25,7 @@ SOFTWARE.
 */
 
 #include "core/transform.h"
-
-#include "core/resource_mgr.h"
+#include "core/scene_descr.h"
 
 namespace qjulia {
 
@@ -42,54 +41,37 @@ std::ostream& operator<<(std::ostream &os, const Matrix4x4 &mat) {
   return os;
 }
 
-bool Transform::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "translate") {
+void Transform::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  if (args.size() == 0) {return;}
+  if (args[0] == "SetTranslate") {
     Vector3f t;
-    bool good = ParseInstruction_Value<Vector3f>(
-      instruction, resource, &t);
-    if (good) {
-      mat_ow_ = Matrix4x4::Translate(t) * mat_ow_;
-      mat_wo_ = mat_wo_ * Matrix4x4::Translate(-t);
-    }
-    return good;
-    
-  } else if (instruction[0] == "scale") {
+    ParseArg(args[1], t);
+    mat_ow_ = Matrix4x4::Translate(t) * mat_ow_;
+    mat_wo_ = mat_wo_ * Matrix4x4::Translate(-t);
+  } else if (args[0] == "SetScale") {
     Float s;
-    bool good = ParseInstruction_Value<Float>(
-      instruction, resource, &s);
-    if (good) {
-      mat_ow_ = Matrix4x4::Scale({s, s, s}) * mat_ow_;
-      mat_wo_ = mat_wo_ * Matrix4x4::Scale({1/s, 1/s, 1/s});
+    ParseArg(args[1], s);
+    mat_ow_ = Matrix4x4::Scale({s, s, s}) * mat_ow_;
+    mat_wo_ = mat_wo_ * Matrix4x4::Scale({1/s, 1/s, 1/s});
+  } else if (args[0] == "SetRotate") {
+    std::string axis = args[1];
+    float angle;
+    ParseArg(args[2], angle);
+    Matrix4x4 (*rot)(const float) = nullptr;
+    if (axis == "x") {
+      rot = Matrix4x4::RotateX;
+    } else if (axis == "y") {
+      rot = Matrix4x4::RotateY;
+    } else if (axis == "z") {
+      rot = Matrix4x4::RotateZ;
+    } else {
+      LOG(FATAL) << "Error: Unkown axis " << axis << ".";
     }
-    return good;
-  
-  } else if (instruction[0] == "rotate") {
-    std::string axis = "y";
-    Float angle = 0;
-    bool good = ParseInstruction_Pair<std::string, Float>(
-      instruction, resource, &axis, &angle);
-    if (good) {
-      Matrix4x4 (*rot)(const float) = nullptr;
-      if (axis == "x") {
-        rot = Matrix4x4::RotateX;
-      } else if (axis == "y") {
-        rot = Matrix4x4::RotateY;
-      } else if (axis == "z") {
-        rot = Matrix4x4::RotateZ;
-      } else {
-        std::cerr << "Error: Unkown axis " << axis << "." << std::endl;
-        return false;
-      }
-      mat_ow_ = (*rot)(angle) * mat_ow_;
-      mat_wo_ = mat_wo_ * (*rot)(-angle);
-    }
-    return good;
-  
+    mat_ow_ = (*rot)(angle) * mat_ow_;
+    mat_wo_ = mat_wo_ * (*rot)(-angle);
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
 

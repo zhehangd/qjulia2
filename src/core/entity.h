@@ -27,43 +27,73 @@ SOFTWARE.
 #ifndef QJULIA_ENTITY_H_
 #define QJULIA_ENTITY_H_
 
-#include "tokenizer.h"
+#include "base.h"
+#include <vector>
+#include <string>
 
 namespace qjulia {
 
-class ResourceMgr;
+typedef std::vector<std::string> Args;  
 
-class SceneEntity {
+class SceneBuilder;
+
+// TODO: handle object copy and CUDA copy
+
+// @brief An object that can be defined in a scene file
+class Entity {
  public:
   
-  virtual ~SceneEntity(void) {}
+  CPU_AND_CUDA virtual ~Entity(void) {}
   
-  /** \breif Returns basic entity type ID
+  virtual size_t GetTypeID(void) const {return 99;}
   
-  This is used to decide the type of an entity instance.
-  This method should be finalized by the base class of each type, such as
-  'shape', 'object', and 'material'. Each of these class should also defines
-  a static member 'kTypeID' that holds the same id. The ID values are predefined in
-  the 'EntityTypeID' enum in 'base.h'.
-  */
-  virtual EntityType GetType(void) const = 0;
+  virtual void Parse(const Args &args, SceneBuilder *build) {
+    (void)args; (void)build;
+    LOG(FATAL) << "No parsing function defined"; 
+  }
   
-  virtual std::string GetImplName(void) const {return "";};
+  virtual void UpdateDevice(Entity *device_ptr) {(void)device_ptr;}
   
-  virtual SceneEntity* Clone(void) const = 0;
-  
-  virtual bool ParseInstruction(const TokenizedStatement instruction, 
-                                const ResourceMgr *resource) = 0;
+  CPU_AND_CUDA virtual void DebugPrint(void) const {}
 };
-/*
-class Shape : public SceneEntity {
- public:
+
+class Camera; class Light; class Material; class Object;
+class Shape; class Transform; class World;
+
+template <typename T> struct EntityTypeID;
+template <> struct EntityTypeID<Camera> {static const size_t val = 0;};
+template <> struct EntityTypeID<Light> {static const size_t val = 1;};
+template <> struct EntityTypeID<Material> {static const size_t val = 2;};
+template <> struct EntityTypeID<Object> {static const size_t val = 3;};
+template <> struct EntityTypeID<Shape> {static const size_t val = 4;};
+template <> struct EntityTypeID<Transform> {static const size_t val = 5;};
+template <> struct EntityTypeID<World> {static const size_t val = 6;};
+
+constexpr size_t kNumEntityTypes = 7;
+
+constexpr const char *kEntityTypeNames[] = {
+    "Camera", "Light", "Material", "Object", "Shape", "Transform", "World"};
+
+// Traits of an entity class
+template <typename T>
+struct EntityTypeTraits {
   
-  std::string GetBaseTypeName(void) const final {return "shape";}
+  using Type = T;
   
-  std::string GetSpecificTypeName(void) const = 0;
+  using BaseType = 
+    typename std::conditional<std::is_base_of<Camera, T>::value, Camera,
+    typename std::conditional<std::is_base_of<Light, T>::value, Light,
+    typename std::conditional<std::is_base_of<Material, T>::value, Material,
+    typename std::conditional<std::is_base_of<Object, T>::value, Object,
+    typename std::conditional<std::is_base_of<World, T>::value, World,
+    typename std::conditional<std::is_base_of<Shape, T>::value, Shape,
+    typename std::conditional<std::is_base_of<Transform, T>::value, Transform,
+    void>::type>::type>::type>::type>::type>::type>::type;
+    
+  static const int type_id = EntityTypeID<BaseType>::val;
   
-};*/
+  static constexpr const char *name = kEntityTypeNames[type_id];
+};
 
 }
 

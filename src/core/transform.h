@@ -171,12 +171,10 @@ CPU_AND_CUDA inline Vector3f Matrix4x4::MulTranspMatVecMatVec(const Vector3f &v,
 
 std::ostream& operator<<(std::ostream &os, const Matrix4x4 &mat);
   
-class Transform : public SceneEntity {
+class Transform : public Entity {
  public:
   CPU_AND_CUDA Transform(void) {Identity();}
   CPU_AND_CUDA Transform(const Vector3f &vec) {(void)vec;}
-  
-  EntityType GetType(void) const final {return kType;}
   
   CPU_AND_CUDA void Translate(const Vector3f &translate);
   
@@ -196,12 +194,7 @@ class Transform : public SceneEntity {
   
   CPU_AND_CUDA Vector3f O2W_Normal(const Vector3f &vec) const;
   
-  SceneEntity* Clone(void) const override {return new Transform(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
-  
-  static const EntityType kType = EntityType::kTransform;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Matrix4x4 mat_ow_; // object to world
   Matrix4x4 mat_wo_; // world to object

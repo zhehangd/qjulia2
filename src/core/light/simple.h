@@ -33,14 +33,9 @@ namespace qjulia {
 
 class SunLight : public Light {
  public:
-  LightRay Li(const Point3f &p) const;
+  CPU_AND_CUDA LightRay Li(const Point3f &p) const override;
   
-  std::string GetImplName(void) const override {return "sun";}
-  
-  SceneEntity* Clone(void) const override {return new SunLight(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Spectrum intensity;
   Vector3f orientation;
@@ -48,14 +43,9 @@ class SunLight : public Light {
 
 class PointLight : public Light {
  public:
-  LightRay Li(const Point3f &p) const;
+  CPU_AND_CUDA LightRay Li(const Point3f &p) const override;
   
-  std::string GetImplName(void) const override {return "point";}
-  
-  SceneEntity* Clone(void) const override {return new PointLight(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Spectrum intensity;
   Vector3f position;

@@ -24,21 +24,55 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_MESSAGES_H_
-#define QJULIA_MESSAGES_H_
+#ifndef QJULIA_WORLD_H_
+#define QJULIA_WORLD_H_
 
-#include <iostream>
-#include <string>
+#include <vector>
+#include <memory>
+
+#include "entity.h"
+#include "camera.h"
+#include "intersection.h"
+#include "light.h"
+#include "material.h"
+#include "object.h"
+#include "shape.h"
+#include "transform.h"
+#include "vector.h"
 
 namespace qjulia {
 
-typedef std::string Token;
-
-void CannotParseTokenMessage(const Token &token);
-
-void BadStreamMessage(void);
-
+class World : public Entity {
+ public:
+  
+  CPU_AND_CUDA World(void); 
+  
+  CPU_AND_CUDA const Object* Intersect(const Ray &ray, Intersection *isect) const;
+  
+  CPU_AND_CUDA int NumObjects(void) const {return data_.num_objects;}
+  CPU_AND_CUDA int NumLights(void) const {return data_.num_lights;}
+  
+  CPU_AND_CUDA const Object* GetObject(int i) const {return data_.objects[i];}
+  
+  CPU_AND_CUDA const Light* GetLight(int i) const {return data_.lights[i];}
+  
+  void Parse(const Args &args, SceneBuilder *build) override;
+  
+  struct Data {
+    int num_objects = 0;
+    int num_lights = 0;
+    int num_cameras = 0;
+    Object* objects[20] = {};
+    Light* lights[20] = {};
+    Camera* cameras[20] = {};
+  };
+  
+  Data data_device_;
+  Data data_host_;
+  Data &data_;
+};
 
 }
 
 #endif
+ 

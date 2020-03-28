@@ -20,34 +20,52 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(qjulia2-core OBJECT
+configure_file(config.h.in config.h)
+
+set(CPP_ONLY_SOURCE_FILES
   algorithm.cc
-  camera.cc
   efloat.cc
-  engine.cc
   film.cc
-  integrator.cc
   vector.cc
-  light.cc
-  scene.cc
-  object.cc
-  tokenizer.cc
-  transform.cc
-  material.cc
-  messages.cc
-  resource_mgr.cc
-  camera/camera3d.cc
+  scene_descr.cc
+  engine.cc
+  
   integrator/default.cc
-  integrator/normal.cc
-  integrator/time.cc
-  light/simple.cc
-  shape/sphere.cc
-  shape/plane.cc
-  shape/julia3d.cc
 )
+
+set(SHARED_SOURCE_FILES
+  material.cc
+  object.cc
+  scene.cc
+  world.cc
+  scene_builder.cc
+  transform.cc
+  camera/camera3d.cc
+  light/simple.cc
+  shape/julia3d.cc
+  shape/julia3d_kernel.cc
+  shape/plane.cc
+  shape/sphere.cc
+)
+
+add_library(qjulia2-core OBJECT
+  ${SHARED_SOURCE_FILES}
+  ${CPP_ONLY_SOURCE_FILES}
+)
+
+if (WITH_CUDA)
+  set_source_files_properties(
+    ${SHARED_SOURCE_FILES}
+    PROPERTIES LANGUAGE CUDA
+  )
+endif()
+
+set_target_properties(qjulia2-core
+  PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(qjulia2-core PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/.."
+  "${CMAKE_CURRENT_BUILD_DIR}"
 )
 
 target_link_libraries(qjulia2-core

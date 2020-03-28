@@ -35,7 +35,7 @@ namespace qjulia {
 class Intersection {
  public:
    
-  void Clear(void) {
+  CPU_AND_CUDA void Clear(void) {
     good = false;
     dist = 0;
     position = {};

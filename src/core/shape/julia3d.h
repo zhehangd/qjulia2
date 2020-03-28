@@ -32,59 +32,31 @@ SOFTWARE.
 
 #include "core/vector.h"
 #include "core/shape.h"
+#include "julia3d_kernel.h"
 
 namespace qjulia {
 
 class Julia3DShape : public Shape {
  public:
   
-  struct FractalTestRet {
-    bool has_intersection = false;
-    Vector3f isect_position;
-    Float dist;
-  };
+  CPU_AND_CUDA Julia3DShape(Quaternion c) : kernel(c) {}
+  CPU_AND_CUDA Julia3DShape(void) : kernel({0, 0, 0, 0}) {}
   
-  Julia3DShape(Quaternion c) : constant_(c) {}
-  Julia3DShape(void) : constant_(0, 0, 0, 0) {}
+  CPU_AND_CUDA void SetConstant(Quaternion c) {kernel.SetConstant(c);}
   
-  void SetConstant(Quaternion c) {constant_ = c;}
+  CPU_AND_CUDA void UsePreset(int i);
   
-  void UsePreset(int i);
+  CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override {
+    Intersection isect;
+    IsectJulia3D(kernel, ray, isect);
+    return isect;
+  }
   
-  Intersection Intersect(const Ray &ray) const override {
-    return Intersect(ray.start, ray.dir);}
-  
-  Intersection Intersect(const Vector3f &start, const Vector3f &dir) const;
-  
-  std::string GetImplName(void) const override {return "julia3d";}
-  
-  SceneEntity* Clone(void) const override {return new Julia3DShape(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
  private:
   
-  FractalTestRet SearchIntersection(
-    const Vector3f &start, const Vector3f &dir, Float max_dist) const;
-  
-  int GetMaxIterations(void) const {return max_iterations_;}
-  // 
-  int TestFractal(Quaternion &q) const;
-  int TestFractal(Quaternion &q, Quaternion &qp) const;
-  
-  // Fractal iteration function
-  void Iterate(Quaternion &q, Quaternion &qp) const;
-  void Iterate(Quaternion &q, Quaternion &qp, int n) const;
-  void Iterate(Quaternion &q) const;
-  void Iterate(Quaternion &q, int n) const;
-  
-  Vector3f EstimateNormal(const Vector3f &v) const;
-  
-  int max_iterations_ = 200;
-  Float max_magnitude_ = 10.0f;
-  Float bounding_radius_ = 3.0f;
-  Quaternion constant_;
+  Julia3DIntersectKernel kernel;
 };
 
 }

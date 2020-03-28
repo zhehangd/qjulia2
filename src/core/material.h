@@ -30,23 +30,15 @@ SOFTWARE.
 #include "base.h"
 #include "entity.h"
 #include "spectrum.h"
-#include "tokenizer.h"
 
 namespace qjulia {
 
-class Material : public SceneEntity {
+class Material : public Entity {
  public:
-  Material(void) {}
-  Material(Spectrum diffuse) : diffuse(diffuse) {}
+  CPU_AND_CUDA Material(void) {}
+  CPU_AND_CUDA Material(Spectrum diffuse) : diffuse(diffuse) {}
   
-  EntityType GetType(void) const final {return kType;}
-  
-  SceneEntity* Clone(void) const override {return new Material(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
-  
-  static const EntityType kType = EntityType::kMaterial;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Spectrum diffuse;
   Float ks = 0.6;

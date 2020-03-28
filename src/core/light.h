@@ -40,20 +40,9 @@ class LightRay {
   Spectrum spectrum; // Light arriving the target point.
 };
 
-class Light : public SceneEntity {
+class Light : public Entity {
  public:
-   
-  EntityType GetType(void) const final {return kType;}
-  
-  virtual LightRay Li(const Point3f &p) const {(void)p; return {};}
-  
-  SceneEntity* Clone(void) const override = 0;
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override = 0;
-
-  static const EntityType kType = EntityType::kLight;
-                        
+  CPU_AND_CUDA virtual LightRay Li(const Point3f &p) const = 0;
 };
 
 }

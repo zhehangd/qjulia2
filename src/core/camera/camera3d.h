@@ -34,16 +34,16 @@ namespace qjulia {
 class Camera3D : public Camera {
  public:
   
-  Camera3D(void);
+  CPU_AND_CUDA Camera3D(void);
   
-  void LookAt(Vector3f position, Vector3f at, Vector3f up);
+  CPU_AND_CUDA void LookAt(Vector3f position, Vector3f at, Vector3f up);
   
-  void CenterAround(Float h, Float v, Float radius);
+  CPU_AND_CUDA void CenterAround(Float h, Float v, Float radius);
   
   // TODO: what to do if parsed from file?
-  void Update(void);
+  CPU_AND_CUDA void Update(void);
   
-  Ray CastRay(Point2f pos) const = 0;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Point3f position;
   Point3f orientation;
@@ -55,16 +55,9 @@ class Camera3D : public Camera {
 */
 class OrthoCamera : public Camera3D {
  public:
-  OrthoCamera(void) {}
+  CPU_AND_CUDA OrthoCamera(void) {}
   
-  Ray CastRay(Point2f pos) const;
-  
-  std::string GetImplName(void) const override {return "ortho";};
-  
-  SceneEntity* Clone(void) const override {return new OrthoCamera(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  CPU_AND_CUDA Ray CastRay(Point2f pos) const override;
   
   Float scale = 1;
 };
@@ -73,20 +66,13 @@ class OrthoCamera : public Camera3D {
 */
 class PerspectiveCamera : public Camera3D {
  public:
-  PerspectiveCamera(void);
+  CPU_AND_CUDA PerspectiveCamera(void);
   
-  Ray CastRay(Point2f pos) const;
+  CPU_AND_CUDA Ray CastRay(Point2f pos) const override;
   
-  std::string GetImplName(void) const override {return "perspective";}
+  void Parse(const Args &args, SceneBuilder *build) override;
   
-  SceneEntity* Clone(void) const override {return new PerspectiveCamera(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
-  
-  std::string GetSummary(void) const;
-  
-  Float focus;
+  Float focus = 1.8;
 };
 
 }

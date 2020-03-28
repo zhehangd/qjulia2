@@ -37,17 +37,12 @@ namespace qjulia {
 
 class SphereShape : public Shape {
  public:
-  SphereShape(void) {}
-  SphereShape(Point3f pos, float radius) : position(pos), radius(radius) {}
+  CPU_AND_CUDA SphereShape(void) {}
+  CPU_AND_CUDA SphereShape(Point3f pos, float radius) : position(pos), radius(radius) {}
   
-  Intersection Intersect(const Ray &ray) const override;
+  CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override;
   
-  std::string GetImplName(void) const override {return "sphere";}
-  
-  SceneEntity* Clone(void) const override {return new SphereShape(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   Point3f position;
   float radius = 1.0f;

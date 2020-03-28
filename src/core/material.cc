@@ -25,23 +25,21 @@ SOFTWARE.
 */
 
 #include "core/material.h"
-#include "core/messages.h"
-#include "core/resource_mgr.h"
+#include "core/scene_descr.h"
 
 namespace qjulia {
-
-bool Material::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "diffuse") {
-    return ParseInstruction_Value<Vector3f>(instruction, resource, &diffuse);
-  } else if (instruction[0] == "reflection") {
-    return ParseInstruction_Value<Float>(instruction, resource, &reflection);
-  } else if (instruction[0] == "specular") {
-    return ParseInstruction_Value<Float>(instruction, resource, &ks);
+  
+void Material::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  if (args.size() == 0) {return;}
+  if (args[0] == "SetDiffuse") {
+    ParseArg(args[1], diffuse);
+  } else if (args[0] == "SetReflection") {
+    ParseArg(args[1], reflection);
+  } else if (args[0] == "SetSpecular") {
+    ParseArg(args[1], ks);
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
 

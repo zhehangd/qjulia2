@@ -27,15 +27,20 @@ void RenderEngine::Init(std::string scene_file) {
   cache_.create(size_, CV_8UC3);
   prev_cache_.create(size_, CV_8UC3);
   
-  Register(mgr_);
-  mgr_.LoadSceneDescription(scene_file);
+  RegisterDefaultEntities(build);
   
-  Scene *scene = mgr_.GetScene();
-  if (scene == nullptr) {
-    std::cerr << "Error: Scene not found." << std::endl;
-    return;
+  SceneDescr scene_descr = LoadSceneFile(scene_file);
+  for (int i = 0; i < (int)scene_descr.entities.size(); ++i) {
+    LOG(INFO) << "Block #" << i << ":\n" << EntityDescr2Str(scene_descr.entities[i]) << "\n";
+    const auto &edescr = scene_descr.entities[i];
+    EntityNode *node = build.CreateEntity(edescr.type, edescr.subtype, edescr.name);
+    CHECK_NOTNULL(node);
+    Entity *e = node->Get();
+    CHECK_NOTNULL(node);
+    for (const auto &statement : edescr.statements) {
+      e->Parse(statement, &build);
+    }
   }
-  scene->SetActiveCamera(0);
 }
   
 void RenderEngine::SetValue(float v) {
@@ -57,29 +62,33 @@ cv::Mat RenderEngine::Preview(void) {
 }
 
 void RenderEngine::Run(cv::Size size, cv::Mat &dst_image) {
-  Options option;
-  option.width = size.width;
-  option.height = size.height;
-  option.antialias = true;
+  
+  auto *world = ParseEntityNode<World>("scene1", &build)->Get();
+  auto *camera = ParseEntityNode<Camera>("camera_1", &build)->Get();
   
   float angle = value_ / 99.0 * 3.1416;
   float dist = 5.3;
   float z = dist * std::cos(angle);
   float x = dist * std::sin(angle);
-  
-  Scene *scene = mgr_.GetScene();
-  scene->SetActiveCamera(0);
-  auto *camera = static_cast<PerspectiveCamera*>(const_cast<Camera*>(scene->GetActiveCamera()));
   camera->LookAt({x,1.2,z}, {0, 1.4, 0}, {0, 1, 0});
   
-  DefaultIntegrator integrator;
-  
-  int num_threads = -1;
+  Scene scene;
+  scene.camera_ = camera;
+  scene.world_ = world;
   
   Film film;
+  DefaultIntegrator integrator;
+  
+  Options option;
+  option.width = size.width;
+  option.height = size.height;
+  option.antialias = true;
+  
   RTEngine engine;
-  engine.SetNumThreads(num_threads);
-  engine.Render(*scene, integrator, option, &film);
+  engine.SetNumThreads(-1);
+  engine.Render(scene, integrator, option, &film);
+  LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
+  SaveToPPM(output_file, film, 255);
   
   cv::Mat cache_small(option.height, option.width, CV_8UC3);
   for (int r = 0; r < option.height; ++r) {

@@ -39,19 +39,10 @@ namespace qjulia {
 
 class Scene;
 
-class Shape : public SceneEntity {
+class Shape : public Entity {
  public:
   
-  EntityType GetType(void) const final {return kType;}
-  
-  virtual Intersection Intersect(const Ray &ray) const = 0;
-  
-  SceneEntity* Clone(void) const override = 0;
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override = 0;
-  
-  static const EntityType kType = EntityType::kShape;
+  CPU_AND_CUDA virtual Intersection Intersect(const Ray &ray) const = 0;
 };
 
 }

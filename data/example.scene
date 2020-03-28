@@ -1,0 +1,96 @@
+
+# -------------- Fractal -----------------
+
+Shape.Julia3D fractal_shape_1 {
+  SetConstant -0.2,0.8,0,0
+}
+
+Material material_fractal {
+  SetDiffuse 0.3,0.7,1.0
+  SetReflection 0.2
+  SetSpecular 0.3
+}
+
+Transform fractal_transform {
+  SetRotate y -30
+  SetTranslate 0,1.5,0
+}
+
+Object fractal_1 {
+  SetShape fractal_shape_1
+  SetMaterial material_fractal
+  SetTransform fractal_transform
+}
+
+# -------------- Wall -----------------
+
+Shape.Plane plane_shape_1 {
+  Set 0,0,0 0,1,0
+}
+
+Shape.Plane plane_shape_2 {
+  Set -1.6,0,0 1,0,0
+}
+
+Shape.Plane plane_shape_3 {
+  Set 0,0,-10 0,0,1
+}
+
+Material material_ground {
+  SetDiffuse 0.8,0.8,1.0
+  SetReflection 0.2
+  SetSpecular 0.3
+}
+
+Transform t {
+  SetTranslate 0,0,0
+}
+
+Object wall1 {
+  SetShape plane_shape_1
+  SetMaterial material_ground
+  SetTransform t
+}
+
+Object wall2 {
+  SetShape plane_shape_2
+  SetMaterial material_ground
+  SetTransform t
+}
+
+Object wall3 {
+  SetShape plane_shape_3
+  SetMaterial material_ground
+  SetTransform t
+}
+
+# -------------- Lights -----------------
+
+Light.Sun sun {
+  SetOrientation -1,-1,-2
+  SetIntensity 0.2,0.2,0.2
+}
+
+Light.Point bulb {
+  SetPosition 2,3.5,2
+  SetIntensity 8,8,8
+}
+
+# -------------- Cameras -----------------
+
+Camera.Perspective camera_1 {
+  LookAt 2,1.2,5  0,1.4,0  0,1,0
+  SetFocus 1.8
+}
+
+# -------------- Scenes -----------------
+
+World scene1 {
+  AddCamera camera_1
+  AddObject fractal_1
+  AddObject wall1
+  AddObject wall2
+  AddObject wall3
+  AddLight sun
+  AddLight bulb
+}

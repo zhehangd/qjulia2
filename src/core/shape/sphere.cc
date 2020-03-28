@@ -32,11 +32,11 @@ SOFTWARE.
 #include "core/vector.h"
 #include "core/shape.h"
 #include "core/algorithm.h"
-#include "core/resource_mgr.h"
+#include "core/scene_descr.h"
 
 namespace qjulia {
 
-Intersection SphereShape::Intersect(const Ray &ray) const {
+CPU_AND_CUDA Intersection SphereShape::Intersect(const Ray &ray) const {
   Intersection isect;
   Float tl, tg;
   Vector3f start = ray.start - position;
@@ -50,18 +50,16 @@ Intersection SphereShape::Intersect(const Ray &ray) const {
   return isect;
 }
 
-bool SphereShape::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "position") {
-    return ParseInstruction_Value<Vector3f>(instruction, resource, &position);
-  } else if (instruction[0] == "radius") {
-    return ParseInstruction_Value<Float>(instruction, resource, &radius);
+void SphereShape::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  if (args.size() == 0) {return;}
+  if (args[0] == "SetPosition") {
+    ParseArg(args[1], position);
+  } else if (args[0] == "SetRadius") {
+    ParseArg(args[1], radius);
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
-
 
 }

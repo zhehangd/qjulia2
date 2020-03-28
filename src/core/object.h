@@ -43,25 +43,34 @@ class Shape;
 class Transform;
 class Material;
 
-class Object : public SceneEntity {
+class Object : public Entity {
  public:
   
-  EntityType GetType(void) const final {return kType;}
+  CPU_AND_CUDA Object(void); 
   
   /** \brief Test ray itersection with transformed shape.
   */
-  Intersection Intersect(const Ray &ray) const;
+  CPU_AND_CUDA Intersection Intersect(const Ray &ray) const;
   
-  SceneEntity* Clone(void) const {return new Object(*this);}
+  void Parse(const Args &args, SceneBuilder *build) override;
   
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
+  CPU_AND_CUDA const Material* GetMaterial(void) const {return data_.material;}
   
-  static const EntityType kType = EntityType::kObject;
+  CPU_AND_CUDA const Shape* GetShape(void) const {return data_.shape;}
   
-  const Shape *shape = nullptr;
-  const Material *material = nullptr;
-  const Transform *transform = nullptr;
+  CPU_AND_CUDA const Transform* GetTransform(void) const {return data_.transform;}
+  
+ private:
+  
+  struct Data {
+    const Shape *shape = nullptr;
+    const Material *material = nullptr;
+    const Transform *transform = nullptr;
+  };
+  
+  Data data_device_;
+  Data data_host_;
+  Data &data_;
 };
 
 }

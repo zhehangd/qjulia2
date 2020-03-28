@@ -85,7 +85,7 @@ void RTEngine::Render(const Scene &scene,
   
   film->Create(w, h);
   
-  const Camera *camera = scene.GetActiveCamera();
+  const Camera *camera = scene.GetCamera();
   
   AAFilterSet antialias;
   antialias.Enable(option.antialias);

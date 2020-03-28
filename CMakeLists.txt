@@ -22,24 +22,41 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-project(qjulia2 VERSION 1.1.0 LANGUAGES CXX)
+set(WITH_CUDA ON CACHE BOOL "Build GPU acceleration with CUDA")
+set(WITH_GUI OFF CACHE BOOL "Build GUI based on Qt5")
+
+if (WITH_CUDA)
+  message(STATUS "Build GPU acceleration with CUDA")
+  set(LANGUAGE_SET CXX CUDA)
+else()
+  set(LANGUAGE_SET CXX)
+endif()
+
+project(qjulia2 VERSION 1.0.0 LANGUAGES ${LANGUAGE_SET})
+
+if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+   message(FATAL_ERROR "In-source builds are not allowed.")
+endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 
 if(NOT CMAKE_BUILD_TYPE)
-  message(WARNING
-    "No build type selected, will use Release by default. "
-    "To use debug mode, configure cmake with -DCMAKE_BUILD_TYPE=Debug.")
-  set(CMAKE_BUILD_TYPE Release)
+    message(WARNING "No build type selected. Default to Release.")
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_compile_options(-Wall -pedantic -Wextra)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wall>)
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-pedantic>)
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wextra>)
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wextra>)
+else()
+  message(SEND_ERROR "Unspported platform")
 endif()
 
-set(WITH_GUI OFF CACHE BOOL "Build GUI based on Qt5")
+
 
 find_package(fmt REQUIRED)
 find_package(glog REQUIRED)
@@ -58,10 +75,9 @@ add_subdirectory(3rdparty)
 add_subdirectory(src)
 add_subdirectory(doc)
 
-
-if (${GTest_FOUND})
-  add_subdirectory(test)
-endif()
+#if (${GTest_FOUND})
+#  add_subdirectory(test)
+#endif()
 
 file(COPY "${PROJECT_SOURCE_DIR}/data"
   DESTINATION ${PROJECT_BINARY_DIR})

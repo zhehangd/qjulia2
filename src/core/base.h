@@ -36,9 +36,15 @@ SOFTWARE.
 
 #ifdef __CUDACC__
 #define CPU_AND_CUDA __device__ __host__
+#define KERNEL __global__
 #else
 #define CPU_AND_CUDA
-#endif 
+#define KERNEL
+#endif
+
+#ifdef __CUDACC__
+#define CUDA_BLOCK
+#endif
 
 namespace qjulia {
 
@@ -62,29 +68,6 @@ CPU_AND_CUDA inline Float Degree2Rad(Float d) {return d * kPi / 180.0f;}
 
 CPU_AND_CUDA inline constexpr Float kGamma(int n) {
   return (n * kEpsilon) / (1 - n * kEpsilon);
-}
-
-enum class EntityType {
-  kObject = 0,
-  kShape = 1,
-  kTransform = 2,
-  kMaterial = 3,
-  kLight = 4,
-  kCamera = 5,
-  kScene = 6,
-};
-
-const int kNumEntityTypes = 7;
-
-const char * const kEntityTypeNames[] = {
-  "object", "shape", "transform", "material", "light", "camera", "scene"};
-
-inline int GetEntityTypeID(EntityType type) {
-  return static_cast<int>(type);
-}
-
-inline const char* GetEntityTypeName(EntityType type) {
-  return kEntityTypeNames[GetEntityTypeID(type)];
 }
 
 }

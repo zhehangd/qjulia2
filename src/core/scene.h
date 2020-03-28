@@ -39,52 +39,26 @@ SOFTWARE.
 #include "shape.h"
 #include "transform.h"
 #include "vector.h"
+#include "world.h"
 
 namespace qjulia {
 
-class Object;
-class Light;
-
-struct SceneIsect {
-  const Object *isect_obj = nullptr;
-  Intersection isect;
-};
-
-class Scene : public SceneEntity {
+class Scene {
  public:
-   
-  EntityType GetType(void) const final {return kType;}
   
-  void AddObject(Object *obj) {objects_.emplace_back(obj);}
-  void AddLight(Light *light) {lights_.emplace_back(light);}
-  void AddCamera(Camera *camera) {cameras_.emplace_back(camera);}
+  CPU_AND_CUDA const Camera* GetCamera(void) const {return camera_;}
   
-  // TODO
-  void SetActiveCamera(int i = 0) {active_camera_ = cameras_[i];}
-  const Camera* GetActiveCamera(void) const {return active_camera_;}
+  CPU_AND_CUDA const Object* Intersect(const Ray &ray, Intersection *isect) const {return world_->Intersect(ray, isect);}
   
-  const Object* Intersect(const Ray &ray, Intersection *isect) const;
+  CPU_AND_CUDA int NumObjects(void) const {return world_->NumObjects();}
+  CPU_AND_CUDA int NumLights(void) const {return world_->NumLights();}
   
-  int NumObjects(void) const {return objects_.size();}
-  int NumLights(void) const {return lights_.size();}
+  CPU_AND_CUDA const Object* GetObject(int i) const {return world_->GetObject(i);}
   
-  const Object* GetObject(int i) const {return objects_[i];}
+  CPU_AND_CUDA const Light* GetLight(int i) const {return world_->GetLight(i);}
   
-  const Light* GetLight(int i) const {return lights_[i];}
-  
-  bool AddShape(const std::string &name, Shape* shape);
-  
-  SceneEntity* Clone(void) const override {return new Scene(*this);}
-  
-  bool ParseInstruction(const TokenizedStatement instruction, 
-                        const ResourceMgr *resource) override;
-  
-  static const EntityType kType = EntityType::kScene;
-  
-  std::vector<const Object*> objects_;
-  std::vector<const Light*> lights_;
-  std::vector<const Camera*> cameras_;
-  const Camera *active_camera_;
+  World *world_;
+  Camera *camera_;
 };
 
 }

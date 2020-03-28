@@ -32,23 +32,23 @@ SOFTWARE.
 #include "core/vector.h"
 #include "core/shape.h"
 #include "core/algorithm.h"
-#include "core/resource_mgr.h"
+#include "core/scene_descr.h"
 
 namespace qjulia {
 
-PlaneShape::PlaneShape(void) : PlaneShape({}, {0, 0, 1}) {
+CPU_AND_CUDA  PlaneShape::PlaneShape(void) : PlaneShape({}, {0, 0, 1}) {
 }
 
-PlaneShape::PlaneShape(Vector3f position, Vector3f orientation) {
+CPU_AND_CUDA  PlaneShape::PlaneShape(Vector3f position, Vector3f orientation) {
   SetPositionAndNormal(position, orientation);
 }
 
-void PlaneShape::SetPositionAndNormal(Vector3f position, Vector3f orientation) {
+CPU_AND_CUDA void PlaneShape::SetPositionAndNormal(Vector3f position, Vector3f orientation) {
   normal = Normalize(orientation);
   offset = - Dot(position, normal);
 }
 
-Intersection PlaneShape::Intersect(const Ray &ray) const {
+CPU_AND_CUDA Intersection PlaneShape::Intersect(const Ray &ray) const {
   Intersection isect;
   Float num = - (Dot(normal, ray.start) + offset);
   Float den = Dot(normal, ray.dir);
@@ -67,19 +67,17 @@ Intersection PlaneShape::Intersect(const Ray &ray) const {
   return isect;
 }
 
-bool PlaneShape::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "set") {
+void PlaneShape::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  if (args.size() == 0) {return;}
+  if (args[0] == "Set") {
     Vector3f v2[2];
-    bool good = ParseInstruction_Value<Vector3f, 2>(instruction, resource, v2);
-    if (good) {SetPositionAndNormal(v2[0], v2[1]);}
-    return good;
+    ParseArg(args[1], v2[0]);
+    ParseArg(args[2], v2[1]);
+    SetPositionAndNormal(v2[0], v2[1]);
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
-
 
 }

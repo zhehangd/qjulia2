@@ -24,12 +24,12 @@ SOFTWARE.
 
 */
 
-#include "core/light/simple.h"
-#include "core/resource_mgr.h"
+#include "simple.h"
+#include "scene_descr.h"
 
 namespace qjulia {
 
-LightRay SunLight::Li(const Point3f &p) const {
+CPU_AND_CUDA LightRay SunLight::Li(const Point3f &p) const {
   (void)p;
   LightRay lray;
   lray.dist = kInf;
@@ -38,24 +38,19 @@ LightRay SunLight::Li(const Point3f &p) const {
   return lray;
 }
 
-bool SunLight::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "intensity") {
-    return ParseInstruction_Value<Spectrum>(instruction, resource, &intensity);
-  } else if (instruction[0] == "orientation") {
-    bool good = ParseInstruction_Value<Vector3f>(
-      instruction, resource, &orientation);
-    orientation = Normalize(orientation);
-    return good;
+void SunLight::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  if (args.size() == 0) {return;}
+  if (args[0] == "SetIntensity") {
+    ParseArg(args[1], intensity);
+  } else if (args[0] == "SetOrientation") {
+    ParseArg(args[1], orientation);
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
 
-
-LightRay PointLight::Li(const Point3f &p) const {
+CPU_AND_CUDA LightRay PointLight::Li(const Point3f &p) const {
   LightRay lray;
   Vector3f path = (position - p);
   lray.dist = path.Norm();
@@ -64,18 +59,16 @@ LightRay PointLight::Li(const Point3f &p) const {
   return lray;
 }
 
-bool PointLight::ParseInstruction(
-    const TokenizedStatement instruction, 
-    const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "intensity") {
-    return ParseInstruction_Value<Spectrum>(instruction, resource, &intensity);
-  } else if (instruction[0] == "position") {
-    return ParseInstruction_Value<Vector3f>(instruction, resource, &position);
+void PointLight::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  if (args.size() == 0) {return;}
+  if (args[0] == "SetIntensity") {
+    ParseArg(args[1], intensity);
+  } else if (args[0] == "SetPosition") {
+    ParseArg(args[1], position);
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
-
 
 }

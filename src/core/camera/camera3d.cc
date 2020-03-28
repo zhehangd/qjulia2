@@ -25,31 +25,31 @@ SOFTWARE.
 */
 
 #include "core/camera/camera3d.h"
-#include "core/resource_mgr.h"
+#include "core/scene_descr.h"
 
 namespace qjulia {
 
-Camera3D::Camera3D(void) {
+CPU_AND_CUDA Camera3D::Camera3D(void) {
   position = {0, 0, 1};
   orientation = {0, 0, -1};
   up = {0, 1, 0};
 }
 
-void Camera3D::Update(void) {
+CPU_AND_CUDA void Camera3D::Update(void) {
   orientation = Normalize(orientation);
   up = up - Project(up, orientation);
   up = Normalize(up);
   right = Cross(orientation, up);
 }
 
-void Camera3D::LookAt(Vector3f position, Vector3f at, Vector3f up) {
+CPU_AND_CUDA void Camera3D::LookAt(Vector3f position, Vector3f at, Vector3f up) {
   this->position = position;
   orientation = at - position;
   this->up = up;
   Update();
 }
 
-void Camera3D::CenterAround(Float h, Float v, Float radius) {
+CPU_AND_CUDA void Camera3D::CenterAround(Float h, Float v, Float radius) {
   h *= kPi / 180.0f;
   v *= kPi / 180.0f;
   Float x = std::cos(h) * std::cos(v) * radius;
@@ -58,35 +58,42 @@ void Camera3D::CenterAround(Float h, Float v, Float radius) {
   LookAt({x, y, z}, {0, 0, 0}, {0, 1, 0});
 }
 
-Ray OrthoCamera::CastRay(Point2f pos) const {
+void Camera3D::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  
+  CHECK(args.size() > 0);
+  if (args[0] == "LookAt") {
+    Vector3f v3[3];
+    bool good = true;
+    ParseArg(args[1], v3[0]);
+    ParseArg(args[2], v3[1]);
+    ParseArg(args[3], v3[2]);
+    if (good) {
+      LookAt(v3[0], v3[1], v3[2]);
+    } else {
+      LOG(FATAL) << "Not GOOD instruction";
+    }
+  } else if (args[0] == "SetPosition") {
+    ParseArg(args[1], position);
+  } else {
+    throw UnknownCommand(args[0]);
+  }
+}
+
+CPU_AND_CUDA Ray OrthoCamera::CastRay(Point2f pos) const {
   Float x = pos[0];
   Float y = pos[1];
   return Ray(position + right * x + up * y, orientation);
 }
 
-bool OrthoCamera::ParseInstruction(
-    const TokenizedStatement instruction,  const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "lookat") {
-    Vector3f v3[3];
-    bool good = ParseInstruction_Value<Vector3f, 3>(instruction, resource, v3);
-    if (good) {LookAt(v3[0], v3[1], v3[2]);}
-    return good;
-  } else if (instruction[0] == "scale") {
-    return ParseInstruction_Value<Float>(instruction, resource, &scale);
-  } else {
-    return UnknownInstructionError(instruction);
-  }
-}
-
-PerspectiveCamera::PerspectiveCamera(void) {
+CPU_AND_CUDA PerspectiveCamera::PerspectiveCamera(void) {
   position = {0, 0, 1};
   orientation = {0, 0, -1};
   up = {0, 1, 0};
   focus = 1;
 }
 
-Ray PerspectiveCamera::CastRay(Point2f pos) const {
+CPU_AND_CUDA Ray PerspectiveCamera::CastRay(Point2f pos) const {
   Float x = pos[0];
   Float y = pos[1];
   Float z = focus;
@@ -94,25 +101,14 @@ Ray PerspectiveCamera::CastRay(Point2f pos) const {
   return Ray(position, dir);
 }
 
-bool PerspectiveCamera::ParseInstruction(
-    const TokenizedStatement instruction,  const ResourceMgr *resource) {
-  if (instruction.size() == 0) {return true;}
-  if (instruction[0] == "lookat") {
-    Vector3f v3[3];
-    bool good = ParseInstruction_Value<Vector3f, 3>(instruction, resource, v3);
-    if (good) {LookAt(v3[0], v3[1], v3[2]);}
-    return good;
-  } else if (instruction[0] == "focus") {
-    return ParseInstruction_Value<Float>(instruction, resource, &focus);
+void PerspectiveCamera::Parse(const Args &args, SceneBuilder *build) {
+  (void)build;
+  CHECK(args.size() > 0);
+  if (args[0] == "SetFocus") {
+    ParseArg(args[1], focus);
   } else {
-    return UnknownInstructionError(instruction);
+    Camera3D::Parse(args, build);
   }
-}
-
-std::string PerspectiveCamera::GetSummary(void) const {
-  std::ostringstream oss;
-  //oss << "PerspCamera: look from " << position << " toward " << 
-  return oss.str();
 }
 
 }

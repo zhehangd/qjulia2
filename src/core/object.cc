@@ -27,15 +27,28 @@ SOFTWARE.
 #include "core/object.h"
 
 #include "core/base.h"
+#include "core/camera.h"
+#include "core/light.h"
 #include "core/shape.h"
 #include "core/transform.h"
 #include "core/material.h"
-#include "core/resource_mgr.h"
+#include "core/scene_descr.h"
+#include "core/scene_builder.h"
 
 namespace qjulia {
 
-Intersection Object::Intersect(const Ray &ray) const {
+CPU_AND_CUDA Object::Object(void)
+#ifdef __CUDA_ARCH__
+  : data_(data_device_) {
+#else
+  : data_(data_host_) {
+#endif
+}
+
+CPU_AND_CUDA Intersection Object::Intersect(const Ray &ray) const {
   Intersection isect;
+  auto *transform = data_.transform;
+  auto *shape = data_.shape;
   if (shape == nullptr) {return isect;}
   if (transform != nullptr) {
     Ray ray_local = ray;
@@ -51,28 +64,22 @@ Intersection Object::Intersect(const Ray &ray) const {
   return isect;
 }
 
-bool Object::ParseInstruction(const TokenizedStatement instruction, 
-                             const ResourceMgr *resource) {
-  // Empty
-  if (instruction.size() == 0) {return true;}
-  
-  // Shape
-  if (instruction[0] == GetEntityTypeName(Shape::kType)) {
-    return ParseInstruction_Pointer<Shape>(
-      instruction, resource, &shape);
-  
-  // Material
-  } else if (instruction[0] == GetEntityTypeName(Material::kType)) {
-    return ParseInstruction_Pointer<Material>(
-      instruction, resource, &material);
-  
-  // Transform
-  } else if (instruction[0] == GetEntityTypeName(Transform::kType)) {
-    return ParseInstruction_Pointer<Transform>(
-      instruction, resource, &transform);
-  
+void Object::Parse(const Args &args, SceneBuilder *build) {
+  if (args.size() == 0) {return;}
+  if (args[0] == "SetShape") {
+    auto *node = ParseEntityNode<Shape>(args[1], build);
+    data_host_.shape = node->Get();
+    data_device_.shape = node->GetDevice();
+  } else if (args[0] == "SetMaterial") {
+    auto *node = ParseEntityNode<Material>(args[1], build);
+    data_host_.material = node->Get();
+    data_device_.material = node->GetDevice();
+  } else if (args[0] == "SetTransform") {
+    auto *node = ParseEntityNode<Transform>(args[1], build);
+    data_host_.transform = node->Get();
+    data_device_.transform = node->GetDevice();
   } else {
-    return UnknownInstructionError(instruction);
+    throw UnknownCommand(args[0]);
   }
 }
 

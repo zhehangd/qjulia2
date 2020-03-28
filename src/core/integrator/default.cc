@@ -57,7 +57,7 @@ Spectrum DefaultIntegrator::LiRecursive(
   const Vector3f &hit_position = isect.position;
   const Vector3f &hit_normal = isect.normal;
   
-  const Material *material = hit_object->material;
+  const Material *material = hit_object->GetMaterial();
   
   // Light illumination
   for (int i = 0; i < scene.NumLights(); ++i) {
