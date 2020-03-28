@@ -43,7 +43,11 @@ namespace qjulia {
   
 class Camera; class Light; class Material; class Object;
 class Shape; class Transform; class World;
-  
+
+std::string SceneBuilder::GetSTypeName(size_t stype_id) const {
+  return reg_table_[stype_id].stype_name;
+}
+
 void SceneBuilder::ParseSceneDescr(const SceneDescr &descr) {
   for (const auto &e : descr.entities) {
     ParseEntityDescr(e);
@@ -62,20 +66,20 @@ void SceneBuilder::ParseEntityDescr(const EntityDescr &descr) {
   
 EntityNode* SceneBuilder::CreateEntity(
     std::string btype, std::string stype, std::string name) {
-  if (btype == EntityTypeTraits<Camera>::name) {
-    return CreateEntityByTypeName<Camera>(stype, name);
-  } else if (btype == EntityTypeTraits<Light>::name) {
-    return CreateEntityByTypeName<Light>(stype, name);
-  } else if (btype == EntityTypeTraits<Material>::name) {
-    return CreateEntityByTypeName<Material>(stype, name);
-  } else if (btype == EntityTypeTraits<Object>::name) {
-    return CreateEntityByTypeName<Object>(stype, name);
-  } else if (btype == EntityTypeTraits<Shape>::name) {
-    return CreateEntityByTypeName<Shape>(stype, name);
-  } else if (btype == EntityTypeTraits<Transform>::name) {
-    return CreateEntityByTypeName<Transform>(stype, name);
-  } else if (btype == EntityTypeTraits<World>::name) {
-    return CreateEntityByTypeName<World>(stype, name);
+  if (btype == EntityTrait<Camera>::name) {
+    return CreateEntity<Camera>(stype, name);
+  } else if (btype == EntityTrait<Light>::name) {
+    return CreateEntity<Light>(stype, name);
+  } else if (btype == EntityTrait<Material>::name) {
+    return CreateEntity<Material>(stype, name);
+  } else if (btype == EntityTrait<Object>::name) {
+    return CreateEntity<Object>(stype, name);
+  } else if (btype == EntityTrait<Shape>::name) {
+    return CreateEntity<Shape>(stype, name);
+  } else if (btype == EntityTrait<Transform>::name) {
+    return CreateEntity<Transform>(stype, name);
+  } else if (btype == EntityTrait<World>::name) {
+    return CreateEntity<World>(stype, name);
   } else {
     LOG(FATAL) << "Unknown BType: " << btype;
     return nullptr;
@@ -84,7 +88,7 @@ EntityNode* SceneBuilder::CreateEntity(
 
 void SceneBuilder::DebugPrint(void) const {
   LOG(INFO) << "Registered records:";
-  for (const auto &record : stype_table_) {
+  for (const auto &record : reg_table_) {
     LOG(INFO) << "Record:";
     LOG(INFO) << "stype_name: " << record.stype_name;
     LOG(INFO) << "btype_id: " << record.btype_id;

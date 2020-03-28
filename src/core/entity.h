@@ -57,9 +57,13 @@ class Entity {
   CPU_AND_CUDA virtual void DebugPrint(void) const {}
 };
 
+// Six basic entity types
 class Camera; class Light; class Material; class Object;
 class Shape; class Transform; class World;
 
+/// @brief Gets the ID of a basic type
+///
+/// One can also use EntityTrait<T>::btype_id to achieve the same purpose.
 template <typename T> struct EntityTypeID;
 template <> struct EntityTypeID<Camera> {static const size_t val = 0;};
 template <> struct EntityTypeID<Light> {static const size_t val = 1;};
@@ -69,17 +73,30 @@ template <> struct EntityTypeID<Shape> {static const size_t val = 4;};
 template <> struct EntityTypeID<Transform> {static const size_t val = 5;};
 template <> struct EntityTypeID<World> {static const size_t val = 6;};
 
-constexpr size_t kNumEntityTypes = 7;
+/// @brief Gets the basic type from its ID
+template <int N> struct EntityType;
+template <> struct EntityType<0> {typedef Camera type;};
+template <> struct EntityType<1> {typedef Light type;};
+template <> struct EntityType<2> {typedef Material type;};
+template <> struct EntityType<3> {typedef Object type;};
+template <> struct EntityType<4> {typedef Shape type;};
+template <> struct EntityType<5> {typedef Transform type;};
+template <> struct EntityType<6> {typedef World type;};
 
+/// @brief Name table of the basic types
+/// It is used to match of description text
 constexpr const char *kEntityTypeNames[] = {
     "Camera", "Light", "Material", "Object", "Shape", "Transform", "World"};
 
-// Traits of an entity class
+/// @brief Trait of an entity type
+/// The template argument can be either a basic or a specific type.
+/// The trait provides the info of the corresponding basic type.
 template <typename T>
-struct EntityTypeTraits {
+struct EntityTrait {
   
   using Type = T;
   
+  /// @brief Basic type
   using BaseType = 
     typename std::conditional<std::is_base_of<Camera, T>::value, Camera,
     typename std::conditional<std::is_base_of<Light, T>::value, Light,
@@ -89,10 +106,12 @@ struct EntityTypeTraits {
     typename std::conditional<std::is_base_of<Shape, T>::value, Shape,
     typename std::conditional<std::is_base_of<Transform, T>::value, Transform,
     void>::type>::type>::type>::type>::type>::type>::type;
-    
-  static const int type_id = EntityTypeID<BaseType>::val;
   
-  static constexpr const char *name = kEntityTypeNames[type_id];
+  /// @brief ID of the basic type
+  static const int btype_id = EntityTypeID<BaseType>::val;
+  
+  /// @brief Name of the type
+  static constexpr const char *name = kEntityTypeNames[btype_id];
 };
 
 }

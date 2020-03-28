@@ -37,17 +37,11 @@ namespace qjulia {
 class SceneDescr;
 class EntityDescr;
 
-// Compare if two C strings are the same
-inline CPU_AND_CUDA bool EqualString(const char *src1, const char *src2) {
-  char c1, c2;
-  do {
-    c1 = *src1++;
-    c2 = *src2++;
-  } while (c1 && c2 && c1 == c2);
-  return (c1 || c2) == 0x00;
-}
-
-
+/// @brief Interface of the entity container
+///
+/// This class has two responsibilities:
+/// * Maintains the meta info of an entity such as its name and type.
+/// * Maintains the entity's host and device copies.
 struct EntityNode {
   
   virtual ~EntityNode(void) {}
@@ -71,10 +65,15 @@ struct EntityNode {
   virtual void UpdateDevice(void) = 0;
   
   std::string name_;
+  
+  /// @brief ID of the specific type.
+  /// This ID is the index of the stype record in the scene builder.
+  /// One can 
   size_t stype_id_ = 0;
   size_t btype_id_ = 0;
 };
 
+/// @brief EntityNode for a basic type
 template<typename BT>
 struct EntityNodeBT : public EntityNode {
   virtual BT* Get(void) = 0;
@@ -82,50 +81,75 @@ struct EntityNodeBT : public EntityNode {
   virtual BT* GetDevice(void) = 0;
 };
 
-
-// Builds scene data structure from description files and user input.
-// It is supposed to run both on GPU and CPU.
+/// @brief Creates and maintains the scene data
 class SceneBuilder {
  public:
   
+  /// @brief Register an entity type
+  ///
+  /// The basic type class is given as a template argument as its name is
+  /// given as a parameter. Specific types of a particular basic type 
+  /// must be unique. If a basic type itself is to be registered,
+  /// the name should be left empty.
   template <typename ST>
-  bool Register(std::string stype_name);
+  bool Register(std::string stype_name = {});
   
+  /// @brief Parses a SceneDescr object
   void ParseSceneDescr(const SceneDescr &descr);
   
+  /// @brief Parses an EntityDescr object
   void ParseEntityDescr(const EntityDescr &descr);
+  
+  /// @brief Gets the name of a specific type by its ID
+  std::string GetSTypeName(size_t stype_id) const;
   
   void DebugPrint(void) const;
   
-  EntityNodeBT<Camera>* CreateCameraByTypeName(std::string stype, std::string name) {
-    return static_cast<EntityNodeBT<Camera>*>(
-      CreateEntityByTypeName<Camera>(stype, name));
-  }
-    
-  EntityNodeBT<Light>* CreateLightByTypeName(std::string stype, std::string name) {
-    return static_cast<EntityNodeBT<Light>*>(
-      CreateEntityByTypeName<Light>(stype, name));
-  }
-  
+  /// @brief Creates a new entity
+  /// Calls with the names of the basic and specific types and
+  /// the name assigned to this entity. The name must have not
+  /// been used for any other of the same basic type.
   EntityNode* CreateEntity(std::string btype, std::string stype, std::string name);
   
+  /// @brief Creates a new entity
   template <typename BT>
-  EntityNodeBT<BT>* CreateEntityByTypeName(std::string stype, std::string name);
+  EntityNodeBT<BT>* CreateEntity(std::string stype, std::string name);
   
+  /// @brief Search an entity by its name
+  ///
+  /// The basic type must be given. Returns nullptr if not found.
   template <typename BT>
-  EntityNodeBT<BT>* SearchEntityByName(std::string name);
+  EntityNodeBT<BT>* SearchEntityByName(const std::string &name);
   
-  struct EntityRecord {
-    size_t btype_id;
-    size_t stype_id;
-    std::string stype_name;
-    EntityNode*(*fn_create)(void) = nullptr;
+ private:
+  
+  /// @brief Info of a registered type
+  struct RegRecord {
+    size_t btype_id; // ID of the basic type
+    size_t stype_id; // ID of the specific type, same as its table index
+    std::string stype_name; // Registered name
+    EntityNode*(*fn_create)(void) = nullptr; // function to new such an entity
   };
   
-  std::vector<EntityRecord> stype_table_;
+  /// @brief Info of all registered types
+  std::vector<RegRecord> reg_table_;
   
-  // Nodes that hold all the created entities.
+  /// @brief Nodes that keep all the created entities
   std::vector<std::unique_ptr<EntityNode> > nodes_;
+};
+
+struct RegisterFailedExcept : public std::exception {
+  RegisterFailedExcept(std::string name)
+    : msg(fmt::format("Unknown entity \"{}\".", name)) {}
+  const char* what() const noexcept override {return msg.c_str();}
+  std::string msg;
+};
+
+struct UnknownEntityExcept : public std::exception {
+  UnknownEntityExcept(std::string name)
+    : msg(fmt::format("Unknown entity \"{}\".", name)) {}
+  const char* what() const noexcept override {return msg.c_str();}
+  std::string msg;
 };
 
 // We hide the implementation of SceneBuilder::Register inside
@@ -137,15 +161,15 @@ class SceneBuilder {
 #endif
 
 template <typename BT>
-EntityNodeBT<BT>* SceneBuilder::CreateEntityByTypeName(std::string stype, std::string name) {
+EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name) {
   if (SearchEntityByName<BT>(name)) {
-    LOG(FATAL) << "There is already a " << EntityTypeTraits<BT>::name
+    LOG(FATAL) << "There is already a " << EntityTrait<BT>::name
               << " entity named " << name << ".";
     return nullptr;
   }
   
-  for (const auto &record : stype_table_) {
-    if (record.btype_id != EntityTypeTraits<BT>::type_id) {continue;}
+  for (const auto &record : reg_table_) {
+    if (record.btype_id != EntityTrait<BT>::btype_id) {continue;}
     if (record.stype_name == stype) {
       auto *node = static_cast<EntityNodeBT<BT>*>(record.fn_create());
       node->SetName(name);
@@ -155,14 +179,14 @@ EntityNodeBT<BT>* SceneBuilder::CreateEntityByTypeName(std::string stype, std::s
       return node;
     }
   }
-  LOG(ERROR) << "There is no stype \"" << stype << "\" found for " << EntityTypeTraits<BT>::name << ".";
+  LOG(ERROR) << "There is no stype \"" << stype << "\" found for " << EntityTrait<BT>::name << ".";
   return nullptr;
 }
 
 template <typename BT>
-EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(std::string name) {
+EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(const std::string &name) {
   for (auto &node : nodes_) {
-    if (node->GetName() == name) {
+    if (node->GetName() == name) { // name and btype must both match
       if (EntityTypeID<BT>::val == node->btype_id_) {
         return static_cast<EntityNodeBT<BT>*>(node.get());
       }
@@ -171,15 +195,13 @@ EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(std::string name) {
   return nullptr;
 }
 
-// Registers all built-in entities
+/// @brief Registers all built-in entities
+///
+/// Typically you should call it immediately after you make a scene builder
+/// unless you have other arrangement.
 void RegisterDefaultEntities(SceneBuilder &build);
 
-struct UnknownEntityExcept : public std::exception {
-  UnknownEntityExcept(std::string name)
-    : msg(fmt::format("Unknown entity \"{}\".", name)) {}
-  const char* what() const noexcept override {return msg.c_str();}
-  std::string msg;
-};
+
 
 template <typename BT>
 EntityNodeBT<BT>* ParseEntityNode(const std::string &name, SceneBuilder *build) {

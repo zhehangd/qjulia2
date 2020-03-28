@@ -25,15 +25,17 @@ SOFTWARE.
 */
 
 
+/// @brief Device kernel to create a new entity object
 template<typename ST>
 KERNEL void AllocateDeviceKernel(ST **dst) {
   *dst = new ST();
 }
 
+/// @brief EntityNode for a specific type
 template <typename ST>
-struct EntityNodeST : public EntityNodeBT<typename EntityTypeTraits<ST>::BaseType> {
+struct EntityNodeST : public EntityNodeBT<typename EntityTrait<ST>::BaseType> {
   
-  using BaseType = typename EntityTypeTraits<ST>::BaseType;
+  using BaseType = typename EntityTrait<ST>::BaseType;
   
   EntityNodeST(void) {AllocateHost();}
   
@@ -71,20 +73,20 @@ struct EntityNodeST : public EntityNodeBT<typename EntityTypeTraits<ST>::BaseTyp
 
 template <typename ST>
 bool SceneBuilder::Register(std::string stype_name) {
-  for (const auto &record : stype_table_) {
-    if (record.btype_id != EntityTypeTraits<ST>::type_id) {continue;}
+  auto btype_id = EntityTrait<ST>::btype_id;
+  for (const auto &record : reg_table_) {
+    if (record.btype_id != btype_id) {continue;}
     if (record.stype_name == stype_name) {
-      LOG(FATAL) << "SType name \"" << stype_name << "\" for type "
-        << EntityTypeTraits<ST>::type_id << " has been registered.";
+      LOG(ERROR) << "SType name \"" << stype_name << "\" for type "
+        << btype_id << " has been registered.";
       return false;
     }
   }
-  EntityRecord record;
-  record.btype_id = EntityTypeTraits<ST>::type_id;
-  record.stype_id = stype_table_.size();
+  RegRecord record;
   record.stype_name = stype_name;
-  record.fn_create = []() -> EntityNode* {
-    return static_cast<EntityNode*>(new EntityNodeST<ST>());};
-  stype_table_.push_back(record);
+  record.btype_id = btype_id;
+  record.stype_id = reg_table_.size(); // equal to the index in reg_table 
+  record.fn_create = []() -> EntityNode* {return new EntityNodeST<ST>();};
+  reg_table_.push_back(record);
   return true;
 }
