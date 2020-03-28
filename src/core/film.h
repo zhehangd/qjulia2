@@ -58,7 +58,8 @@ class Film : public Array2D<Spectrum> {
   int relocation_s_ = 0;
 };
 
-void SaveToPPM(const std::string &filename, const Film &film, Float scale = 1);
+void SaveToPPM(const std::string &filename, const Film &film,
+               Float scale = 255);
 
 }
 

@@ -97,11 +97,10 @@ bool Run(int argc, char **argv) {
   DefaultIntegrator integrator;
   
   RTEngine engine;
-  engine.SetNumThreads(-1);
+  engine.SetNumThreads(num_threads);
   engine.Render(scene, integrator, option, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
-  SaveToPPM(output_file, film, 255);
-  
+  SaveToPPM(output_file, film);
   return true;
 }
 
