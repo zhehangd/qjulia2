@@ -36,8 +36,6 @@ class Integrator;
 
 class Options {
  public:
-  int width = 640;
-  int height = 360;
   bool antialias = true;
 };
 
@@ -47,7 +45,7 @@ class RTEngine {
   void SetNumThreads(int num_threads) {num_threads_ = num_threads;}
   
   void Render(const Scene &scene, Integrator &integrator,
-              const Options &option, Film *film);
+              const Options &option, Film &film);
   
   float LastRenderTime(void) const {return (float)last_render_time_;}
   

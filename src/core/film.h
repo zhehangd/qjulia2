@@ -31,40 +31,16 @@ SOFTWARE.
 #include <array>
 
 #include "spectrum.h"
+#include "array2d.h"
 
 namespace qjulia {
 
-struct FilmSample {
-  Spectrum spectrum;
-  Float w = 0;
-};
-
-class Film {
+class Film : public Array2D<Spectrum> {
  public:
-  
-  Film(void) {}
-  Film(int w, int h) {Create(w, h);}
-  
-  int GetWidth(void) const {return width_;}
-  int GetHeight(void) const {return height_;}
-  int GetTotal(void) const {return total_;}
-  
-  void Create(int w, int h);
-  void Clean(void);
-  
-  FilmSample* GetRow(int r) {return buffer_.data() + r * width_;}
-  const FilmSample* GetRowConst(int r) const {return buffer_.data() + r * width_;}
-  
-  FilmSample& At(int r, int c) {return buffer_[GetIndex(r, c)];}
-  const FilmSample& At(int r, int c) const {return buffer_[GetIndex(r, c)];}
-  
-  FilmSample& At(int i) {return buffer_[i];}
-  const FilmSample& At(int i) const {return buffer_[i];}
+  Film(int w, int h) : Array2D<Spectrum>(w, h) {Relocate();}
   
   void Relocate(void);
   void Relocate(int x, int y, int w, int h);
-  
-  int GetIndex(int r, int c) const {return r * width_ + c;}
   
   void GenerateCameraCoords(int i, Float *x, Float *y) const;
   void GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const;
@@ -72,17 +48,9 @@ class Film {
   bool GenerateImageCoords(Float x, Float y, int *i) const;
   bool GenerateImageCoords(Float x, Float y, int *r, int *c) const;
   
-  bool CheckRange(int r, int c) const;
+  bool CheckRange(int r, int c) const {return IsValidCoords(r, c);}
   
  private:
-  typedef std::vector<FilmSample> Buffer;
-  
-  Buffer buffer_;
-  int width_ = 0;
-  int height_ = 0;
-  int short_ = 0;
-  int total_ = 0;
-  bool has_relocation_ = false;
   int relocation_x_ = 0;
   int relocation_y_ = 0;
   int relocation_w_ = 0;

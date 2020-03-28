@@ -59,6 +59,9 @@ class Array2D {
   T& At(SizeType i);
   const T& At(SizeType i) const;
   
+  T* Row(SizeType r) {return &At(r, 0);}
+  const T* Row(SizeType r) const {return &At(r, 0);}
+  
   T& operator()(SizeType r, SizeType c) {return At(r, c);}
   const T& operator()(SizeType r, SizeType c) const {return At(r, c);}
   T& operator()(SizeType i) {return At(i);}

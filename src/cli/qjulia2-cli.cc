@@ -81,23 +81,24 @@ bool Run(int argc, char **argv) {
   build.ParseSceneDescr(scene_descr);
   Scene scene = build.BuildScene({});
   
-  Film film;
-  DefaultIntegrator integrator;
-  
   Options option;
+  option.antialias = true;
+  
   Vector2i size = ParseImageSize(size_str);
   if (size[0] <= 0 || size[1] <= 0) {
     std::cerr << "Error: Invalid image size "
       << size[0] << "x" << size[1] << "." << std::endl;
     return false;
   }
-  option.width = size[0];
-  option.height = size[1];
-  option.antialias = true;
+  
+  int w = size[0];
+  int h = size[1];
+  Film film(w, h);
+  DefaultIntegrator integrator;
   
   RTEngine engine;
   engine.SetNumThreads(-1);
-  engine.Render(scene, integrator, option, &film);
+  engine.Render(scene, integrator, option, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   SaveToPPM(output_file, film, 255);
   

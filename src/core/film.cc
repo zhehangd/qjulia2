@@ -33,34 +33,18 @@ SOFTWARE.
 
 namespace qjulia {
 
-void Film::Create(int w, int h) {
-  int total = w * h;
-  buffer_.resize(total);
-  Clean();
-  width_ = w;
-  height_ = h;
-  short_ = std::min(width_, height_);
-  total_ = total;
-  Relocate();
-  
-}
-
-void Film::Clean(void) {
-  std::fill(buffer_.begin(), buffer_.end(), FilmSample());
-}
-
 void Film::Relocate(void) {
   relocation_x_ = 0;
   relocation_y_ = 0;
-  relocation_w_ = width_;
-  relocation_h_ = height_;
+  relocation_w_ = Width();
+  relocation_h_ = Height();
   relocation_s_ = std::min(relocation_w_, relocation_h_);
 }
 
 void Film::GenerateCameraCoords(int i, Float *x, Float *y) const {
   //
-  int r = i / width_;
-  int c = i % width_;
+  int r = i / Width();
+  int c = i % Height();
   GenerateCameraCoords(r, c, x, y);
 }
 
@@ -76,7 +60,7 @@ bool Film::GenerateImageCoords(Float x, Float y, int *i) const {
   int r, c;
   GenerateImageCoords(x, y, &r, &c);
   if (CheckRange(r, c)) {
-    *i = r * width_ + c;
+    *i = r * Width() + c;
   } else {
     *i = -1;
   }
@@ -90,17 +74,13 @@ bool Film::GenerateImageCoords(Float x, Float y, int *r, int *c) const {
   return CheckRange(*r, *c);
 }
 
-bool Film::CheckRange(int r, int c) const {
-  return r >= 0 && c >= 0 && r < height_ && c < width_;
-}
-
 void SaveToPPM(const std::string &filename, const Film &film, Float scale) {
-  int w = film.GetWidth();
-  int h = film.GetHeight();
+  int w = film.Width();
+  int h = film.Height();
   std::vector<unsigned char> buf(w * h * 3);
   auto *p = buf.data();
   for (int i = 0; i < (w * h); ++i) {
-    const auto &sp = film.At(i).spectrum;
+    const auto &sp = film.At(i);
     for (int ch = 0; ch < 3; ++ch) {
       *(p++) = std::min(255, std::max(0, (int)std::round(sp[ch] * scale)));
     }

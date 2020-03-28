@@ -75,15 +75,9 @@ void AAFilterSet::Enable(bool enable) {
 
 void RTEngine::Render(const Scene &scene,
                       Integrator &integrator,
-                      const Options &option, Film *film) {
+                      const Options &option, Film &film) {
   Timer timer;
   timer.Start();
-  int w = option.width;
-  int h = option.height;
-  assert(w > 0);
-  assert(h > 0);
-  
-  film->Create(w, h);
   
   const Camera *camera = scene.GetCamera();
   
@@ -91,23 +85,22 @@ void RTEngine::Render(const Scene &scene,
   antialias.Enable(option.antialias);
   
   std::atomic<int> row_cursor(0);
-  
   auto RunThread = [&](void) {
     while(true) {
       int r = row_cursor++;
-      if (r >= h) {break;}
-      auto *row = film->GetRow(r);
-      for (int c = 0; c < film->GetWidth(); ++c) {
+      if (r >= film.Height()) {break;}
+      auto *row = film.Row(r);
+      for (int c = 0; c < film.Width(); ++c) {
         auto &pix = row[c];
         Float x, y;
         for (int i = 0; i < antialias.NumFilters(); ++i) {
           const auto &aa = antialias.GetFilter(i);
           Float fr = r + aa.offset[0];
           Float fc = c + aa.offset[1];
-          film->GenerateCameraCoords(fr, fc, &x, &y);
+          film.GenerateCameraCoords(fr, fc, &x, &y);
           Vector2f p = Vector2f(x, y);
           Ray ray = camera->CastRay(p);
-          pix.spectrum += integrator.Li(ray, scene) * aa.w;
+          pix += integrator.Li(ray, scene) * aa.w;
         }
       }
     }
