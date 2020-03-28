@@ -79,13 +79,7 @@ bool Run(int argc, char **argv) {
   
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
-  
-  auto *world = ParseEntityNode<World>("scene1", &build)->Get();
-  auto *camera = ParseEntityNode<Camera>("camera_1", &build)->Get();
-  
-  Scene scene;
-  scene.camera_ = camera;
-  scene.world_ = world;
+  Scene scene = build.BuildScene({});
   
   Film film;
   DefaultIntegrator integrator;

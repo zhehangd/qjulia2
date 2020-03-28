@@ -103,6 +103,16 @@ void SceneBuilder::DebugPrint(void) const {
   }
 }
 
+Scene SceneBuilder::BuildScene(const BuildSceneParams &params) const {
+  Scene scene;
+  // TODO: How to make sure only cameras in this world are searched?
+  auto *node_world = SearchEntityByName<World>(params.world);
+  scene.world_ = node_world->Get();
+  auto *node_camera = SearchEntityByName<Camera>(params.camera);
+  scene.camera_ = node_camera->Get();
+  return scene;
+}
+
 void RegisterDefaultEntities(SceneBuilder &build) {
   build.Register<Object>("");
   build.Register<Material>("");

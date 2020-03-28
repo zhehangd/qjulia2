@@ -28,6 +28,7 @@ SOFTWARE.
 #define QJULIA2_SCENE_BUILDER_H_
 
 #include "entity.h"
+#include "scene.h"
 
 #include <exception>
 #include <string>
@@ -46,8 +47,8 @@ struct EntityNode {
   
   virtual ~EntityNode(void) {}
   
-  // Returns the pointer to the entity
-  // The void* pointer can be cast to the corresponding top-level type.
+  /// @brief Returns the pointer to the entity
+  ///
   virtual Entity* Get(void) = 0;
   
   void SetName(std::string name) {name_ = name;}
@@ -79,6 +80,11 @@ struct EntityNodeBT : public EntityNode {
   virtual BT* Get(void) = 0;
   
   virtual BT* GetDevice(void) = 0;
+};
+
+struct BuildSceneParams {
+  std::string camera;
+  std::string world;
 };
 
 /// @brief Creates and maintains the scene data
@@ -115,11 +121,15 @@ class SceneBuilder {
   template <typename BT>
   EntityNodeBT<BT>* CreateEntity(std::string stype, std::string name);
   
-  /// @brief Search an entity by its name
+  /// @brief Searches an entity by its name
   ///
   /// The basic type must be given. Returns nullptr if not found.
+  /// If name is empty, returns the first entity matching the basic entity.
   template <typename BT>
-  EntityNodeBT<BT>* SearchEntityByName(const std::string &name);
+  EntityNodeBT<BT>* SearchEntityByName(const std::string &name) const;
+  
+  /// @
+  Scene BuildScene(const BuildSceneParams &params) const;
   
  private:
   
@@ -191,7 +201,6 @@ EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name
   if (SearchEntityByName<BT>(name)) {
     throw OccupiedEntityNameExcept(EntityTrait<BT>::name, name);
   }
-  
   for (const auto &record : reg_table_) {
     if (record.btype_id != EntityTrait<BT>::btype_id) {continue;}
     if (record.stype_name == stype) {
@@ -207,9 +216,9 @@ EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name
 }
 
 template <typename BT>
-EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(const std::string &name) {
+EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(const std::string &name) const {
   for (auto &node : nodes_) {
-    if (node->GetName() == name) { // name and btype must both match
+    if (node->GetName() == name || name.empty()) { // name and btype must both match
       if (EntityTypeID<BT>::val == node->btype_id_) {
         return static_cast<EntityNodeBT<BT>*>(node.get());
       }
@@ -223,8 +232,6 @@ EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(const std::string &name) {
 /// Typically you should call it immediately after you make a scene builder
 /// unless you have other arrangement.
 void RegisterDefaultEntities(SceneBuilder &build);
-
-
 
 }
 
