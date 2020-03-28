@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "core/world.h"
 
+#include "core/arg_parse.h"
 #include "core/base.h"
 #include "core/intersection.h"
 #include "core/object.h"

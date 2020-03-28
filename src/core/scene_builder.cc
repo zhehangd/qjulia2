@@ -24,14 +24,16 @@ SOFTWARE.
 
 */
 
-
 #include "scene_builder.h"
+
+#include "core/entity.h"
 
 #include "core/material.h"
 #include "core/object.h"
 #include "core/scene.h"
 #include "core/world.h"
 #include "core/transform.h"
+
 #include "core/camera/camera3d.h"
 #include "core/light/simple.h"
 #include "core/shape/julia3d.h"
@@ -40,9 +42,6 @@ SOFTWARE.
 #include "core/scene_descr.h"
 
 namespace qjulia {
-  
-class Camera; class Light; class Material; class Object;
-class Shape; class Transform; class World;
 
 std::string SceneBuilder::GetSTypeName(size_t stype_id) const {
   return reg_table_[stype_id].stype_name;
@@ -81,8 +80,7 @@ EntityNode* SceneBuilder::CreateEntity(
   } else if (btype == EntityTrait<World>::name) {
     return CreateEntity<World>(stype, name);
   } else {
-    LOG(FATAL) << "Unknown BType: " << btype;
-    return nullptr;
+    throw UnknownBTypeExcept(btype);
   }
 }
 

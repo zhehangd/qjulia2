@@ -36,6 +36,7 @@ SOFTWARE.
 #include <cxxopts.hpp>
 
 #include "core/qjulia2.h"
+#include "core/arg_parse.h"
 
 using namespace qjulia;
 

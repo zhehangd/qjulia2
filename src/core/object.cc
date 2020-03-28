@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "core/object.h"
 
+#include "core/arg_parse.h"
 #include "core/base.h"
 #include "core/camera.h"
 #include "core/light.h"

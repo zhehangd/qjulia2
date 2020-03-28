@@ -25,7 +25,8 @@ SOFTWARE.
 */
 
 #include "core/camera/camera3d.h"
-#include "core/scene_descr.h"
+
+#include "core/arg_parse.h"
 
 namespace qjulia {
 

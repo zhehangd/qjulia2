@@ -25,6 +25,8 @@ SOFTWARE.
 */
 
 #include "core/material.h"
+
+#include "core/arg_parse.h"
 #include "core/scene_descr.h"
 
 namespace qjulia {

@@ -77,9 +77,7 @@ bool SceneBuilder::Register(std::string stype_name) {
   for (const auto &record : reg_table_) {
     if (record.btype_id != btype_id) {continue;}
     if (record.stype_name == stype_name) {
-      LOG(ERROR) << "SType name \"" << stype_name << "\" for type "
-        << btype_id << " has been registered.";
-      return false;
+      throw RegisterFailedExcept(EntityTrait<ST>::name, stype_name);
     }
   }
   RegRecord record;

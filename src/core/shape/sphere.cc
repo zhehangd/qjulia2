@@ -29,10 +29,10 @@ SOFTWARE.
 #include <vector>
 #include <memory>
 
-#include "core/vector.h"
-#include "core/shape.h"
+#include "core/arg_parse.h"
 #include "core/algorithm.h"
-#include "core/scene_descr.h"
+#include "core/shape.h"
+#include "core/vector.h"
 
 namespace qjulia {
 

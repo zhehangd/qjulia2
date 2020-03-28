@@ -138,16 +138,42 @@ class SceneBuilder {
   std::vector<std::unique_ptr<EntityNode> > nodes_;
 };
 
+/// @brief Exception for registration failure
 struct RegisterFailedExcept : public std::exception {
-  RegisterFailedExcept(std::string name)
+  RegisterFailedExcept(std::string bname, std::string sname)
+    : msg(fmt::format("Cannot register type {}.{}.", bname, sname)) {}
+  const char* what() const noexcept override {return msg.c_str();}
+  std::string msg;
+};
+
+/// @brief Exception for unknown basic type
+struct UnknownBTypeExcept : public std::exception {
+  UnknownBTypeExcept(std::string bname)
+    : msg(fmt::format("Unknown basic type \"{}\".", bname)) {}
+  const char* what() const noexcept override {return msg.c_str();}
+  std::string msg;
+};
+
+/// @brief Exception for unknown specific type
+struct UnknownSTypeExcept : public std::exception {
+  UnknownSTypeExcept(std::string bname, std::string name)
+    : msg(fmt::format("Unknown specific type \"{}.{}\".", bname, name)) {}
+  const char* what() const noexcept override {return msg.c_str();}
+  std::string msg;
+};
+
+/// @brief Exception for unknown entity
+struct UnknownEntityExcept : public std::exception {
+  UnknownEntityExcept(std::string name)
     : msg(fmt::format("Unknown entity \"{}\".", name)) {}
   const char* what() const noexcept override {return msg.c_str();}
   std::string msg;
 };
 
-struct UnknownEntityExcept : public std::exception {
-  UnknownEntityExcept(std::string name)
-    : msg(fmt::format("Unknown entity \"{}\".", name)) {}
+/// @brief Exception for unknown entity
+struct OccupiedEntityNameExcept : public std::exception {
+  OccupiedEntityNameExcept(std::string bname, std::string name)
+    : msg(fmt::format("There is already a {} entity named \"{}\".", bname, name)) {}
   const char* what() const noexcept override {return msg.c_str();}
   std::string msg;
 };
@@ -163,9 +189,7 @@ struct UnknownEntityExcept : public std::exception {
 template <typename BT>
 EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name) {
   if (SearchEntityByName<BT>(name)) {
-    LOG(FATAL) << "There is already a " << EntityTrait<BT>::name
-              << " entity named " << name << ".";
-    return nullptr;
+    throw OccupiedEntityNameExcept(EntityTrait<BT>::name, name);
   }
   
   for (const auto &record : reg_table_) {
@@ -179,8 +203,7 @@ EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name
       return node;
     }
   }
-  LOG(ERROR) << "There is no stype \"" << stype << "\" found for " << EntityTrait<BT>::name << ".";
-  return nullptr;
+  throw UnknownSTypeExcept(EntityTrait<BT>::name, stype);
 }
 
 template <typename BT>
@@ -201,20 +224,6 @@ EntityNodeBT<BT>* SceneBuilder::SearchEntityByName(const std::string &name) {
 /// unless you have other arrangement.
 void RegisterDefaultEntities(SceneBuilder &build);
 
-
-
-template <typename BT>
-EntityNodeBT<BT>* ParseEntityNode(const std::string &name, SceneBuilder *build) {
-  auto *node = build->SearchEntityByName<BT>(name);
-  if (!node) {throw UnknownEntityExcept(name);}
-  return node;
-}
-
-// TODO remove
-template <typename BT>
-BT* ParseEntity(const std::string &name, SceneBuilder *build) {
-  return ParseEntityNode<BT>(name, build)->Get();
-}
 
 
 }
