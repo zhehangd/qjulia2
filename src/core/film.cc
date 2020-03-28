@@ -44,7 +44,7 @@ void Film::Relocate(void) {
 void Film::GenerateCameraCoords(int i, Float *x, Float *y) const {
   //
   int r = i / Width();
-  int c = i % Height();
+  int c = i % Width();
   GenerateCameraCoords(r, c, x, y);
 }
 
