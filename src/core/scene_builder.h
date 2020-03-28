@@ -34,6 +34,9 @@ SOFTWARE.
 
 namespace qjulia {
 
+class SceneDescr;
+class EntityDescr;
+
 // Compare if two C strings are the same
 inline CPU_AND_CUDA bool EqualString(const char *src1, const char *src2) {
   char c1, c2;
@@ -87,6 +90,10 @@ class SceneBuilder {
   
   template <typename ST>
   bool Register(std::string stype_name);
+  
+  void ParseSceneDescr(const SceneDescr &descr);
+  
+  void ParseEntityDescr(const EntityDescr &descr);
   
   void DebugPrint(void) const;
   

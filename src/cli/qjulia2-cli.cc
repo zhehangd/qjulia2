@@ -77,17 +77,7 @@ bool Run(int argc, char **argv) {
   RegisterDefaultEntities(build);
   
   SceneDescr scene_descr = LoadSceneFile(scene_file);
-  for (int i = 0; i < (int)scene_descr.entities.size(); ++i) {
-    LOG(INFO) << "Block #" << i << ":\n" << EntityDescr2Str(scene_descr.entities[i]) << "\n";
-    const auto &edescr = scene_descr.entities[i];
-    EntityNode *node = build.CreateEntity(edescr.type, edescr.subtype, edescr.name);
-    CHECK_NOTNULL(node);
-    Entity *e = node->Get();
-    CHECK_NOTNULL(node);
-    for (const auto &statement : edescr.statements) {
-      e->Parse(statement, &build);
-    }
-  }
+  build.ParseSceneDescr(scene_descr);
   
   auto *world = ParseEntityNode<World>("scene1", &build)->Get();
   auto *camera = ParseEntityNode<Camera>("camera_1", &build)->Get();

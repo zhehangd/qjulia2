@@ -37,13 +37,28 @@ SOFTWARE.
 #include "core/shape/julia3d.h"
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
+#include "core/scene_descr.h"
 
 namespace qjulia {
   
 class Camera; class Light; class Material; class Object;
 class Shape; class Transform; class World;
   
+void SceneBuilder::ParseSceneDescr(const SceneDescr &descr) {
+  for (const auto &e : descr.entities) {
+    ParseEntityDescr(e);
+  }
+}
   
+void SceneBuilder::ParseEntityDescr(const EntityDescr &descr) {
+  EntityNode *node = CreateEntity(descr.type, descr.subtype, descr.name);
+  CHECK_NOTNULL(node);
+  Entity *entity = node->Get();
+  CHECK_NOTNULL(node);
+  for (const auto &statement : descr.statements) {
+    entity->Parse(statement, this);
+  }
+}
   
 EntityNode* SceneBuilder::CreateEntity(
     std::string btype, std::string stype, std::string name) {
