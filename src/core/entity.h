@@ -52,7 +52,10 @@ class Entity {
     LOG(FATAL) << "No parsing function defined"; 
   }
   
-  virtual void UpdateDevice(Entity *device_ptr) {(void)device_ptr;}
+  virtual void UpdateDevice(Entity *device_ptr) const {
+    (void)device_ptr;
+    LOG(FATAL) << "UpdateDevice is not implemented";
+  }
   
   CPU_AND_CUDA virtual void DebugPrint(void) const {}
 };
@@ -74,7 +77,7 @@ template <> struct EntityTypeID<Transform> {static const size_t val = 5;};
 template <> struct EntityTypeID<World> {static const size_t val = 6;};
 
 /// @brief Gets the basic type from its ID
-template <int N> struct EntityType;
+template <size_t N> struct EntityType;
 template <> struct EntityType<0> {typedef Camera type;};
 template <> struct EntityType<1> {typedef Light type;};
 template <> struct EntityType<2> {typedef Material type;};
@@ -108,7 +111,7 @@ struct EntityTrait {
     void>::type>::type>::type>::type>::type>::type>::type;
   
   /// @brief ID of the basic type
-  static const int btype_id = EntityTypeID<BaseType>::val;
+  static const size_t btype_id = EntityTypeID<BaseType>::val;
   
   /// @brief Name of the type
   static constexpr const char *name = kEntityTypeNames[btype_id];

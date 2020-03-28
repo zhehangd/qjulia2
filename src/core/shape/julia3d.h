@@ -52,6 +52,8 @@ class Julia3DShape : public Shape {
     return isect;
   }
   
+  void UpdateDevice(Entity *device_ptr) const override;
+  
   void Parse(const Args &args, SceneBuilder *build) override;
   
  private:

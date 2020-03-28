@@ -50,6 +50,28 @@ CPU_AND_CUDA Intersection SphereShape::Intersect(const Ray &ray) const {
   return isect;
 }
 
+#ifdef WITH_CUDA
+
+struct SphereData {
+  Vector3f position;
+  Float radius;
+};
+
+KERNEL void UpdateSphereShape(Entity *dst_b, SphereData params) {
+  auto *dst = static_cast<SphereShape*>(dst_b);
+  dst->position = params.position;
+  dst->radius = params.radius;
+}
+
+void SphereShape::UpdateDevice(Entity *device_ptr) const {
+  SphereData params;
+  params.position = position;
+  params.radius = radius;
+  UpdateSphereShape<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
+
 void SphereShape::Parse(const Args &args, SceneBuilder *build) {
   (void)build;
   if (args.size() == 0) {return;}

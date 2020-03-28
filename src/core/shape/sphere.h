@@ -42,6 +42,8 @@ class SphereShape : public Shape {
   
   CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override;
   
+  void UpdateDevice(Entity *device_ptr) const override;
+  
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Point3f position;

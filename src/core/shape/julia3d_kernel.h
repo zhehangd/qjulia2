@@ -46,6 +46,8 @@ class Julia3DIntersectKernel {
   
   CPU_AND_CUDA void SetConstant(Quaternion c) {julia_constant_ = c;}
   
+  CPU_AND_CUDA Quaternion GetConstant(void) const {return julia_constant_;}
+  
   CPU_AND_CUDA FractalTestRet SearchIntersection(
     const Vector3f &start, const Vector3f &dir, Float max_dist) const;
     

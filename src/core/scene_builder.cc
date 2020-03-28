@@ -27,6 +27,7 @@ SOFTWARE.
 #include "scene_builder.h"
 
 #include "core/entity.h"
+#include "core/scene_builder_register.h"
 
 #include "core/material.h"
 #include "core/object.h"

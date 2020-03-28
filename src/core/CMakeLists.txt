@@ -25,7 +25,6 @@ configure_file(config.h.in config.h)
 set(CPP_ONLY_SOURCE_FILES
   algorithm.cc
   efloat.cc
-  film.cc
   vector.cc
   scene_descr.cc
   engine.cc
@@ -34,6 +33,7 @@ set(CPP_ONLY_SOURCE_FILES
 )
 
 set(SHARED_SOURCE_FILES
+  film.cc
   material.cc
   object.cc
   scene.cc
@@ -65,7 +65,7 @@ set_target_properties(qjulia2-core
 
 target_include_directories(qjulia2-core PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/.."
-  "${CMAKE_CURRENT_BUILD_DIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}/.."
 )
 
 target_link_libraries(qjulia2-core

@@ -24,12 +24,30 @@ SOFTWARE.
 
 */
 
+#ifndef QJULIA_SCENE_BUILD_REGISTER_H_
+#define QJULIA_SCENE_BUILD_REGISTER_H_
 
+#include "scene_builder.h"
+
+#include <exception>
+#include <memory>
+#include <string>
+
+#if !defined(WITH_CUDA) || defined(__CUDACC__)
+
+#if defined(WITH_CUDA) && !defined(__CUDACC__)
+#error If CUDA is enabled, any file that includes this must be compiled with NVCC
+#endif
+
+namespace qjulia {
+
+#ifdef __CUDACC__
 /// @brief Device kernel to create a new entity object
 template<typename ST>
 KERNEL void AllocateDeviceKernel(ST **dst) {
   *dst = new ST();
 }
+#endif
 
 /// @brief EntityNode for a specific type
 template <typename ST>
@@ -37,7 +55,7 @@ struct EntityNodeST : public EntityNodeBT<typename EntityTrait<ST>::BaseType> {
   
   using BaseType = typename EntityTrait<ST>::BaseType;
   
-  EntityNodeST(void) {AllocateHost();}
+  EntityNodeST(void);
   
   // Returns the pointer to the entity
   ST* Get(void) override {return host_ptr_.get();}
@@ -51,11 +69,13 @@ struct EntityNodeST : public EntityNodeBT<typename EntityTrait<ST>::BaseType> {
   
   void AllocateDevice(void) override {
     ST *p = nullptr;
+#ifdef __CUDACC__
     ST **dpp = nullptr;
     cudaMalloc((void **)&dpp, sizeof(ST*));
     AllocateDeviceKernel<ST><<<1, 1>>>(dpp);
     cudaMemcpy(&p, dpp, sizeof(ST*), cudaMemcpyDeviceToHost);
     cudaFree(dpp);
+#endif
     device_ptr_.reset(p);
   }
   
@@ -64,12 +84,24 @@ struct EntityNodeST : public EntityNodeBT<typename EntityTrait<ST>::BaseType> {
   }
   
   void UpdateDevice(void) override {
-    Get()->UpdateDevice(device_ptr_.get());
+    Get()->UpdateDevice(GetDevice());
   }
   
-  std::unique_ptr<ST, void(*)(ST*)> device_ptr_ {nullptr, [](ST *p) {cudaFree(p);}};
+#ifdef __CUDACC__
+  std::unique_ptr<ST, void(*)(ST*)> device_ptr_
+    {nullptr, [](ST *p) {cudaFree(p);}};
+#else
+  std::unique_ptr<ST> device_ptr_ {};
+#endif
+  
   std::unique_ptr<ST> host_ptr_;
 };
+
+template <typename ST>
+EntityNodeST<ST>::EntityNodeST(void) {
+  AllocateHost();
+  AllocateDevice();
+}
 
 template <typename ST>
 bool SceneBuilder::Register(std::string stype_name) {
@@ -88,3 +120,9 @@ bool SceneBuilder::Register(std::string stype_name) {
   reg_table_.push_back(record);
   return true;
 }
+
+}
+
+#endif
+
+#endif

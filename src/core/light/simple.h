@@ -35,6 +35,8 @@ class SunLight : public Light {
  public:
   CPU_AND_CUDA LightRay Li(const Point3f &p) const override;
   
+  void UpdateDevice(Entity *device_ptr) const override;
+  
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Spectrum intensity;
@@ -44,6 +46,8 @@ class SunLight : public Light {
 class PointLight : public Light {
  public:
   CPU_AND_CUDA LightRay Li(const Point3f &p) const override;
+  
+  void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
   

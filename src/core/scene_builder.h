@@ -97,6 +97,8 @@ class SceneBuilder {
   /// given as a parameter. Specific types of a particular basic type 
   /// must be unique. If a basic type itself is to be registered,
   /// the name should be left empty.
+  /// Code that calls this should include \file scene_builder_register.h 
+  /// and if CUDA is enabled the file must be compiled with NVCC.
   template <typename ST>
   bool Register(std::string stype_name = {});
   
@@ -126,7 +128,7 @@ class SceneBuilder {
   /// The basic type must be given. Returns nullptr if not found.
   /// If name is empty, returns the first entity matching the basic entity.
   template <typename BT>
-  EntityNodeBT<BT>* SearchEntityByName(const std::string &name) const;
+  EntityNodeBT<BT>* SearchEntityByName(const std::string &name = {}) const;
   
   /// @
   Scene BuildScene(const BuildSceneParams &params) const;
@@ -187,14 +189,6 @@ struct OccupiedEntityNameExcept : public std::exception {
   const char* what() const noexcept override {return msg.c_str();}
   std::string msg;
 };
-
-// We hide the implementation of SceneBuilder::Register inside
-// a separate file and include it only when __CUDACC__ is defined.
-// By doing so source files that don't call SceneBuilder::Register
-// don't have to compiled by NVCC.
-#ifdef __CUDACC__
-#include "scene_builder.h.in"
-#endif
 
 template <typename BT>
 EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name) {

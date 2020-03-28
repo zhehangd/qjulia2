@@ -35,77 +35,111 @@ namespace qjulia {
 
 class Size {
  public:
-  Size(void) {}
-  Size(SizeType width, SizeType height) : width(width), height(height) {}
-  SizeType Total(void) const {return width * height;}
+  CPU_AND_CUDA Size(void) {}
+  CPU_AND_CUDA Size(SizeType width, SizeType height) : width(width), height(height) {}
+  CPU_AND_CUDA SizeType Total(void) const {return width * height;}
   SizeType width = 0;
   SizeType height = 0;
 };
-  
 
 template <typename T>
 class Array2D {
  public:
   
-  Array2D(Size size, T t = {}) : size_(size), data_(size_.Total(), t) {}
-  Array2D(SizeType width, SizeType height, T t = {})
-    : size_(width, height), data_(size_.Total(), t) {}
+  CPU_AND_CUDA Array2D(Size size);
   
-  template <typename G>
-  static Array2D<T> ZeroLike(const Array2D<G> &src) {return Array2D<T>(src.Width(), src.Height(), {});}
+  CPU_AND_CUDA Array2D(Size size, T *p);
   
-  T& At(SizeType r, SizeType c);
-  const T& At(SizeType r, SizeType c) const;
-  T& At(SizeType i);
-  const T& At(SizeType i) const;
+  CPU_AND_CUDA Array2D(const Array2D &src);
   
-  T* Row(SizeType r) {return &At(r, 0);}
-  const T* Row(SizeType r) const {return &At(r, 0);}
+  CPU_AND_CUDA ~Array2D(void);
   
-  T& operator()(SizeType r, SizeType c) {return At(r, c);}
-  const T& operator()(SizeType r, SizeType c) const {return At(r, c);}
-  T& operator()(SizeType i) {return At(i);}
-  const T& operator()(SizeType i) const {return At(i);}
+  CPU_AND_CUDA T& At(SizeType r, SizeType c);
+  CPU_AND_CUDA const T& At(SizeType r, SizeType c) const;
+  CPU_AND_CUDA T& At(SizeType i);
+  CPU_AND_CUDA const T& At(SizeType i) const;
   
-  SizeType GetIndex(SizeType r, SizeType c) const {return size_.width * r + c;}
-  bool IsValidCoords(SizeType r, SizeType c) const;
+  CPU_AND_CUDA T* Row(SizeType r) {return &At(r, 0);}
+  CPU_AND_CUDA const T* Row(SizeType r) const {return &At(r, 0);}
+  
+  CPU_AND_CUDA T& operator()(SizeType r, SizeType c) {return At(r, c);}
+  CPU_AND_CUDA const T& operator()(SizeType r, SizeType c) const {return At(r, c);}
+  CPU_AND_CUDA T& operator()(SizeType i) {return At(i);}
+  CPU_AND_CUDA const T& operator()(SizeType i) const {return At(i);}
+  
+  CPU_AND_CUDA SizeType GetIndex(SizeType r, SizeType c) const {return size_.width * r + c;}
+  CPU_AND_CUDA bool IsValidCoords(SizeType r, SizeType c) const;
   
   //void Resize(SizeType width, SizeType height);
   
-  int Width(void) const {return size_.width;}
-  int Height(void) const {return size_.height;}
-  Size ArraySize(void) const {return size_;}
-  SizeType NumElems() const {return size_.Total();}
-  T* Data(void) {return data_.data();}
-  const T* Data(void) const {return data_.data();}
+  CPU_AND_CUDA int Width(void) const {return size_.width;}
+  CPU_AND_CUDA int Height(void) const {return size_.height;}
+  CPU_AND_CUDA Size ArraySize(void) const {return size_;}
+  CPU_AND_CUDA SizeType NumElems() const {return size_.Total();}
+  CPU_AND_CUDA T* Data(void) {return data_;}
+  CPU_AND_CUDA const T* Data(void) const {return data_;}
   
  private:
+  bool managed_ = false;
   Size size_;
-  std::vector<T> data_; // W x H
+  T *data_; // W x H
 };
 
 template <typename T>
-T& Array2D<T>::At(SizeType r, SizeType c) {
+CPU_AND_CUDA Array2D<T>::Array2D(Size size) {
+  managed_ = true;
+  size_ = size;
+  data_ = new T[size.Total()]();
+}
+
+template <typename T>
+CPU_AND_CUDA Array2D<T>::Array2D(Size size, T *p) {
+  managed_ = false;
+  size_ = size;
+  data_ = p;
+}
+
+template <typename T>
+CPU_AND_CUDA Array2D<T>::~Array2D(void) {
+  if (managed_) {delete[] data_;}
+}
+
+template <typename T>
+CPU_AND_CUDA Array2D<T>::Array2D(const Array2D &src) {
+  if (src.managed_) {
+    managed_ = true;
+    size_ = src.size_;
+    data_ = new T[size_.Total()]();
+    for (int i = 0; i < size_.Total(); ++i) {data_[i] = src(i);}
+  } else {
+    managed_ = false;
+    size_ = src.size_;
+    data_ = src.data_;
+  }
+}
+
+template <typename T>
+CPU_AND_CUDA T& Array2D<T>::At(SizeType r, SizeType c) {
   return At(GetIndex(r, c));
 }
 
 template <typename T>
-const T& Array2D<T>::At(SizeType r, SizeType c) const {
+CPU_AND_CUDA const T& Array2D<T>::At(SizeType r, SizeType c) const {
   return At(GetIndex(r, c));
 }
 
 template <typename T>
-T& Array2D<T>::At(SizeType i) {
+CPU_AND_CUDA T& Array2D<T>::At(SizeType i) {
   return data_[i];
 }
 
 template <typename T>
-const T& Array2D<T>::At(SizeType i) const {
+CPU_AND_CUDA const T& Array2D<T>::At(SizeType i) const {
   return data_[i];
 }
 
 template <typename T>
-bool Array2D<T>::IsValidCoords(SizeType r, SizeType c) const {
+CPU_AND_CUDA bool Array2D<T>::IsValidCoords(SizeType r, SizeType c) const {
   return GetIndex(r, c) < size_.Total();
 }
 

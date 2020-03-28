@@ -39,6 +39,28 @@ CPU_AND_CUDA LightRay SunLight::Li(const Point3f &p) const {
   return lray;
 }
 
+#ifdef WITH_CUDA
+
+struct SunLightData {
+  Vector3f orientation;
+  Vector3f intensity;
+};
+
+KERNEL void UpdatePointLight(Entity *dst_b, SunLightData params) {
+  auto *dst = static_cast<SunLight*>(dst_b);
+  dst->orientation = params.orientation;
+  dst->intensity = params.intensity;
+}
+
+void SunLight::UpdateDevice(Entity *device_ptr) const {
+  SunLightData params;
+  params.orientation = orientation;
+  params.intensity = intensity;
+  UpdatePointLight<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
+
 void SunLight::Parse(const Args &args, SceneBuilder *build) {
   (void)build;
   if (args.size() == 0) {return;}
@@ -59,6 +81,28 @@ CPU_AND_CUDA LightRay PointLight::Li(const Point3f &p) const {
   lray.spectrum = intensity / (lray.dist * lray.dist);
   return lray;
 }
+
+#ifdef WITH_CUDA
+
+struct PointLightData {
+  Vector3f position;
+  Vector3f intensity;
+};
+
+KERNEL void UpdatePointLight(Entity *dst_b, PointLightData params) {
+  auto *dst = static_cast<PointLight*>(dst_b);
+  dst->position = params.position;
+  dst->intensity = params.intensity;
+}
+
+void PointLight::UpdateDevice(Entity *device_ptr) const {
+  PointLightData params;
+  params.position = position;
+  params.intensity = intensity;
+  UpdatePointLight<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
 
 void PointLight::Parse(const Args &args, SceneBuilder *build) {
   (void)build;

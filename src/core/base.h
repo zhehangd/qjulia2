@@ -34,6 +34,8 @@ SOFTWARE.
 #include <fmt/format.h>
 #include <glog/logging.h>
 
+#include "core/config.h"
+
 #ifdef __CUDACC__
 #define CPU_AND_CUDA __device__ __host__
 #define KERNEL __global__

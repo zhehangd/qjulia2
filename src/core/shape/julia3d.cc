@@ -36,6 +36,24 @@ SOFTWARE.
 
 namespace qjulia {
 
+#ifdef WITH_CUDA
+
+struct Julia3DData {
+  Quaternion constant;
+};
+
+KERNEL void UpdateJulia3DShape(Entity *dst_b, Julia3DData params) {
+  auto *dst = static_cast<Julia3DShape*>(dst_b);
+  dst->SetConstant(params.constant);
+}
+
+void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
+  Julia3DData params;
+  params.constant = kernel.GetConstant();
+  UpdateJulia3DShape<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
 
 CPU_AND_CUDA void Julia3DShape::UsePreset(int i) {
   Quaternion constant;

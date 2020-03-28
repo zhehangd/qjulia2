@@ -70,6 +70,8 @@ class PerspectiveCamera : public Camera3D {
   
   CPU_AND_CUDA Ray CastRay(Point2f pos) const override;
   
+  void UpdateDevice(Entity *device_ptr) const override;
+  
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Float focus = 1.8;

@@ -37,18 +37,19 @@ namespace qjulia {
 
 class Film : public Array2D<Spectrum> {
  public:
-  Film(int w, int h) : Array2D<Spectrum>(w, h) {Relocate();}
+  CPU_AND_CUDA Film(int w, int h) : Array2D<Spectrum>({w, h}) {Relocate();}
+  CPU_AND_CUDA Film(int w, int h, Spectrum *p) : Array2D<Spectrum>({w, h}, p) {Relocate();}
   
-  void Relocate(void);
-  void Relocate(int x, int y, int w, int h);
+  CPU_AND_CUDA void Relocate(void);
+  CPU_AND_CUDA void Relocate(int x, int y, int w, int h);
   
-  void GenerateCameraCoords(int i, Float *x, Float *y) const;
-  void GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const;
+  CPU_AND_CUDA void GenerateCameraCoords(int i, Float *x, Float *y) const;
+  CPU_AND_CUDA void GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const;
   
-  bool GenerateImageCoords(Float x, Float y, int *i) const;
-  bool GenerateImageCoords(Float x, Float y, int *r, int *c) const;
+  CPU_AND_CUDA bool GenerateImageCoords(Float x, Float y, int *i) const;
+  CPU_AND_CUDA bool GenerateImageCoords(Float x, Float y, int *r, int *c) const;
   
-  bool CheckRange(int r, int c) const {return IsValidCoords(r, c);}
+  CPU_AND_CUDA bool CheckRange(int r, int c) const {return IsValidCoords(r, c);}
   
  private:
   int relocation_x_ = 0;

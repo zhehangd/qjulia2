@@ -26,29 +26,28 @@ SOFTWARE.
 
 #include "core/film.h"
 
-#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <sstream>
 
 namespace qjulia {
 
-void Film::Relocate(void) {
+CPU_AND_CUDA void Film::Relocate(void) {
   relocation_x_ = 0;
   relocation_y_ = 0;
   relocation_w_ = Width();
   relocation_h_ = Height();
-  relocation_s_ = std::min(relocation_w_, relocation_h_);
+  relocation_s_ = relocation_w_ < relocation_h_ ? relocation_w_ : relocation_h_;
 }
 
-void Film::GenerateCameraCoords(int i, Float *x, Float *y) const {
+CPU_AND_CUDA void Film::GenerateCameraCoords(int i, Float *x, Float *y) const {
   //
   int r = i / Width();
   int c = i % Width();
   GenerateCameraCoords(r, c, x, y);
 }
 
-void Film::GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const {
+CPU_AND_CUDA void Film::GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const {
   c += relocation_x_;
   r += relocation_y_;
   Float s = (Float)(relocation_s_ - 1);
@@ -56,7 +55,7 @@ void Film::GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const {
   *y = ((relocation_h_ - 1) * 0.5f - r) / s;
 }
 
-bool Film::GenerateImageCoords(Float x, Float y, int *i) const {
+CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *i) const {
   int r, c;
   GenerateImageCoords(x, y, &r, &c);
   if (CheckRange(r, c)) {
@@ -67,7 +66,7 @@ bool Film::GenerateImageCoords(Float x, Float y, int *i) const {
   return CheckRange(r, c);
 }
   
-bool Film::GenerateImageCoords(Float x, Float y, int *r, int *c) const {
+CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *r, int *c) const {
   Float s = (Float)(relocation_s_ - 1);
   *c = std::round(x * s  + (relocation_w_ - 1) * 0.5f) - relocation_x_;
   *r = std::round(y * s  + (relocation_h_ - 1) * 0.5f) - relocation_y_;
