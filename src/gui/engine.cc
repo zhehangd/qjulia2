@@ -50,7 +50,7 @@ void GUIRenderEngine::Run(cv::Size size, cv::Mat &dst_image, SceneOptions sopts)
   Quaternion jconst (sopts.julia_constant[0], sopts.julia_constant[1],
                      sopts.julia_constant[2], sopts.julia_constant[3]);
   
-  LOG(INFO) << camera_from << " " << jconst;
+  //LOG(INFO) << camera_from << " " << jconst;
   
   auto *julia3d = static_cast<Julia3DShape*>(ParseEntity<Shape>("fractal_shape_1", &build));
   julia3d->SetConstant(jconst);
@@ -61,7 +61,7 @@ void GUIRenderEngine::Run(cv::Size size, cv::Mat &dst_image, SceneOptions sopts)
   options.antialias = true;
   
   engine.Render(build, options, film);
-  LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
+  LOG(INFO) << "time: " << engine.LastRenderTime();
   
   cv::Mat cache_small(size.height, size.width, CV_8UC3);
   for (int r = 0; r < size.height; ++r) {

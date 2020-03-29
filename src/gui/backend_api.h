@@ -7,7 +7,7 @@ class RenderEngineInterface {
  public:
   
   struct SceneOptions {
-    float julia_constant[4] {-0.2,0.8,0,0};
+    float julia_constant[4] {0,0,0,0};
     float camera_pose[3] {10, 0, 5.3}; // azimuth/altitude/distance
   };
    

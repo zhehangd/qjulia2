@@ -84,22 +84,30 @@ void MainWindow::onSliderDistChanged(int position) {
 }
 
 void MainWindow::onSliderJConst1Changed(int position) {
-  engine_options_.julia_constant[0] = slider_jconst_cvt_.TickToValue(position);
+  float val = slider_jconst_cvt_.TickToValue(position);
+  engine_options_.julia_constant[0] = val;
+  ui->label_const1->setText(QString("%1").arg(val, 0, 'g', 2));
   DrawImage(position);
 }
 
 void MainWindow::onSliderJConst2Changed(int position) {
-  engine_options_.julia_constant[1] = slider_jconst_cvt_.TickToValue(position);
+  float val = slider_jconst_cvt_.TickToValue(position);
+  engine_options_.julia_constant[1] = val;
+  ui->label_const2->setText(QString("%1").arg(val, 0, 'g', 2));
   DrawImage(position);
 }
 
 void MainWindow::onSliderJConst3Changed(int position) {
-  engine_options_.julia_constant[2] = slider_jconst_cvt_.TickToValue(position);
+  float val = slider_jconst_cvt_.TickToValue(position);
+  engine_options_.julia_constant[2] = val;
+  ui->label_const3->setText(QString("%1").arg(val, 0, 'g', 2));
   DrawImage(position);
 }
 
 void MainWindow::onSliderJConst4Changed(int position) {
-  engine_options_.julia_constant[3] = slider_jconst_cvt_.TickToValue(position);
+  float val = slider_jconst_cvt_.TickToValue(position);
+  engine_options_.julia_constant[3] = val;
+  ui->label_const4->setText(QString("%1").arg(val, 0, 'g', 2));
   DrawImage(position);
 }
 

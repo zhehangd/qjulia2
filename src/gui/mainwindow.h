@@ -11,7 +11,6 @@
 
 #include "backend_api.h"
 
-
 struct SliderCvt {
   
   float TickToValue(int tick) {return (float)(tick - tsrt) / (tend - tsrt) * (vend - vsrt) + vsrt;}
@@ -41,7 +40,7 @@ class MainWindow : public QMainWindow {
  private:
   
   void DrawImage(int pos=0);
-   
+  
   Ui::MainWindow *ui;
     
   QGraphicsPixmapItem pixmap_;
