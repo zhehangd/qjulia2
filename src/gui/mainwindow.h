@@ -9,7 +9,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "backend_api.h"
+#include "engine.h"
 
 struct SliderCvt {
   
@@ -31,7 +31,7 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
  public:
-  explicit MainWindow(QWidget *parent, RenderEngineInterface *engine);
+  explicit MainWindow(QWidget *parent, RenderEngine *engine);
   ~MainWindow();
 
  protected:
@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow {
   
  private:
   
-  void DrawImage(int pos=0);
+  void DrawImage(void);
   
   Ui::MainWindow *ui;
     
@@ -47,9 +47,9 @@ class MainWindow : public QMainWindow {
   
   QFutureWatcher<cv::Mat> render_watch_;
     
-  RenderEngineInterface *engine_;
+  RenderEngine *engine_;
   
-  RenderEngineInterface::SceneOptions engine_options_;
+  RenderEngine::SceneOptions engine_options_;
   
   SliderCvt slider_azi_cvt_;
   SliderCvt slider_alt_cvt_;

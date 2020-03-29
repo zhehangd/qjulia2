@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     return 1;
   }
   
-  auto engine_sptr = std::make_unique<GUIRenderEngine>();
+  auto engine_sptr = std::make_unique<RenderEngine>();
   engine_sptr->Init(argv[1]);
   
   MainWindow main_win(nullptr, engine_sptr.get());

@@ -9,7 +9,7 @@
 
 
 
-MainWindow::MainWindow(QWidget *parent, RenderEngineInterface *engine) :
+MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
     QMainWindow(parent), ui(new Ui::MainWindow), render_watch_(this) {
   ui->setupUi(this);
   engine_ = engine;
@@ -59,56 +59,57 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::showEvent(QShowEvent *ev) {
+  (void)ev;
 }
 
 void MainWindow::renderFull(void) {
   render_watch_.cancel();
   render_watch_.waitForFinished();
-  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngineInterface::Render, engine_options_);
+  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngine::Render, engine_options_);
   render_watch_.setFuture(future);
 }
 
 void MainWindow::onSliderAltChanged(int position) {
   engine_options_.camera_pose[1] = slider_alt_cvt_.TickToValue(position);
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onSliderAziChanged(int position) {
   engine_options_.camera_pose[0] = slider_azi_cvt_.TickToValue(position);
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onSliderDistChanged(int position) {
   engine_options_.camera_pose[2] = slider_dist_cvt_.TickToValue(position);
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onSliderJConst1Changed(int position) {
   float val = slider_jconst_cvt_.TickToValue(position);
   engine_options_.julia_constant[0] = val;
   ui->label_const1->setText(QString("%1").arg(val, 0, 'g', 2));
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onSliderJConst2Changed(int position) {
   float val = slider_jconst_cvt_.TickToValue(position);
   engine_options_.julia_constant[1] = val;
   ui->label_const2->setText(QString("%1").arg(val, 0, 'g', 2));
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onSliderJConst3Changed(int position) {
   float val = slider_jconst_cvt_.TickToValue(position);
   engine_options_.julia_constant[2] = val;
   ui->label_const3->setText(QString("%1").arg(val, 0, 'g', 2));
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onSliderJConst4Changed(int position) {
   float val = slider_jconst_cvt_.TickToValue(position);
   engine_options_.julia_constant[3] = val;
   ui->label_const4->setText(QString("%1").arg(val, 0, 'g', 2));
-  DrawImage(position);
+  DrawImage();
 }
 
 void MainWindow::onRenderFinished(void) {
@@ -120,7 +121,7 @@ void MainWindow::onRenderFinished(void) {
   ui->graphicsView->fitInView(&pixmap_, Qt::KeepAspectRatio);
 }
 
-void MainWindow::DrawImage(int pos) {
+void MainWindow::DrawImage(void) {
   cv::Mat image = engine_->Preview(engine_options_);
   QImage qt_image(image.data, image.cols, image.rows,
                   image.step, QImage::Format_RGB888);

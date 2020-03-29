@@ -8,7 +8,23 @@
 
 using namespace qjulia;
 
-void GUIRenderEngine::Init(std::string scene_file) {
+class RenderEngine::Impl {
+ public:
+  
+  void Init(std::string scene_file);
+  
+  void Run(bool preview, cv::Mat &dst, SceneOptions options);
+   
+  cv::Size size_;
+  cv::Size preview_size_;
+  cv::Mat cache_;
+  cv::Mat prev_cache_;
+  
+  qjulia::RTEngine engine;
+  qjulia::SceneBuilder build;
+};
+
+void RenderEngine::Impl::Init(std::string scene_file) {
   
   size_ = cv::Size(1280, 960);
   preview_size_ = cv::Size(1280, 960);
@@ -19,22 +35,8 @@ void GUIRenderEngine::Init(std::string scene_file) {
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
 }
-  
-cv::Size GUIRenderEngine::GetSize(void) const {
-  return size_;
-}
 
-cv::Mat GUIRenderEngine::Render(SceneOptions options) {
-  Run(false, cache_, options);
-  return cache_;
-}
-
-cv::Mat GUIRenderEngine::Preview(SceneOptions options) {
-  Run(true, prev_cache_, options);
-  return prev_cache_;
-}
-
-void GUIRenderEngine::Run(bool preview, cv::Mat &dst_image, SceneOptions sopts) {
+void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopts) {
   
   auto *camera = static_cast<Camera3D*>(ParseEntity<Camera>("", &build));
   
@@ -89,6 +91,24 @@ void GUIRenderEngine::Run(bool preview, cv::Mat &dst_image, SceneOptions sopts) 
   cv::resize(cache_small, dst_image, size_);
 }
 
-std::unique_ptr<GUIRenderEngine> CreateDefaultEngine(void) {
-  return std::make_unique<GUIRenderEngine>();
+RenderEngine::RenderEngine(void) : impl_(new Impl()) {}
+
+RenderEngine::~RenderEngine(void) {}
+
+void RenderEngine::Init(std::string scene_file) {
+  impl_->Init(scene_file);
+}
+
+cv::Size RenderEngine::GetSize(void) const {
+  return impl_->size_;
+}
+
+cv::Mat RenderEngine::Render(SceneOptions options) {
+  impl_->Run(false, impl_->cache_, options);
+  return impl_->cache_;
+}
+
+cv::Mat RenderEngine::Preview(SceneOptions options) {
+  impl_->Run(true, impl_->prev_cache_, options);
+  return impl_->prev_cache_;
 }

@@ -4,32 +4,34 @@
 #include <memory>
 #include <string>
 
-#include "backend_api.h"
+#include <opencv2/opencv.hpp>
+
 #include "core/qjulia2.h"
 
-
-class GUIRenderEngine : public RenderEngineInterface {
+class RenderEngine {
  public:
+   
+  struct SceneOptions {
+    float julia_constant[4] {0,0,0,0};
+    float camera_pose[3] {10, 0, 5.3}; // azimuth/altitude/distance
+  };
+   
+  RenderEngine(void);
+  ~RenderEngine(void);
   
   void Init(std::string scene_file);
   
-  cv::Size GetSize(void) const override;
+  cv::Size GetSize(void) const;
   
-  cv::Mat Render(SceneOptions options) override;
+  cv::Mat Render(SceneOptions options);
   
-  cv::Mat Preview(SceneOptions options) override;
+  cv::Mat Preview(SceneOptions options);
   
  private:
    
-  void Run(bool preview, cv::Mat &dst, SceneOptions options);
-   
-  cv::Size size_;
-  cv::Size preview_size_;
-  cv::Mat cache_;
-  cv::Mat prev_cache_;
-  
-  qjulia::RTEngine engine;
-  qjulia::SceneBuilder build;
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
+
 
 #endif
