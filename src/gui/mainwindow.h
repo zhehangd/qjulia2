@@ -11,6 +11,19 @@
 
 #include "backend_api.h"
 
+
+struct SliderCvt {
+  
+  float TickToValue(int tick) {return (float)(tick - tsrt) / (tend - tsrt) * (vend - vsrt) + vsrt;}
+  
+  int ValueToTick(float value) {return (int)((value - vsrt) / (vend - vsrt) * (tend - tsrt) + tsrt);}
+  
+  float vsrt = 0;
+  float vend = 1;
+  int tsrt = 0;
+  int tend = 99;
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -39,21 +52,25 @@ class MainWindow : public QMainWindow {
   
   RenderEngineInterface::SceneOptions engine_options_;
   
-  // Send current settings to engine to render a preview
-  void updatePreview(void);
-  
-  // Send current settings to engine to render a full
-  void updateFull(void);
-  
-  int value_ = 0;
+  SliderCvt slider_azi_cvt_;
+  SliderCvt slider_alt_cvt_;
+  SliderCvt slider_dist_cvt_;
+  SliderCvt slider_jconst_cvt_;
 
 private slots:
   void onSliderAziChanged(int position);
-  void onSliderAziReleased(void);
   void onSliderAltChanged(int position);
-  void onSliderAltReleased(void);
   void onSliderDistChanged(int position);
-  void onSliderDistReleased(void);
+  void onSliderJConst1Changed(int position);
+  void onSliderJConst2Changed(int position);
+  void onSliderJConst3Changed(int position);
+  void onSliderJConst4Changed(int position);
+  
+  // Render a full image
+  void renderFull(void);
+  
+  // Called when engine finishes the rendering,
+  // this functions will draw it on the screen.
   void onRenderFinished(void);
 };
 

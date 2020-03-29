@@ -13,8 +13,6 @@ class RenderEngineInterface {
    
   virtual ~RenderEngineInterface(void) {};
   
-  virtual void SetValue(float v) = 0;
-  
   virtual cv::Size GetSize(void) const = 0;
   
   virtual cv::Mat Render(SceneOptions options) = 0;

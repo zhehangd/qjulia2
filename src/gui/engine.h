@@ -13,8 +13,6 @@ class GUIRenderEngine : public RenderEngineInterface {
   
   void Init(std::string scene_file);
   
-  void SetValue(float v) override;
-  
   cv::Size GetSize(void) const override;
   
   cv::Mat Render(SceneOptions options) override;
@@ -25,8 +23,6 @@ class GUIRenderEngine : public RenderEngineInterface {
    
   void Run(cv::Size size, cv::Mat &dst, SceneOptions options);
    
-  float value_ = 0;
-  
   cv::Size size_;
   cv::Size preview_size_;
   cv::Mat cache_;

@@ -4,12 +4,13 @@
 
 #include "core/qjulia2.h"
 #include "core/camera/camera3d.h"
+#include "core/shape/julia3d.h"
 
 using namespace qjulia;
 
 void GUIRenderEngine::Init(std::string scene_file) {
   
-  size_ = cv::Size(640, 480);
+  size_ = cv::Size(1280, 960);
   preview_size_ = cv::Size(160, 120);
   cache_.create(size_, CV_8UC3);
   prev_cache_.create(size_, CV_8UC3);
@@ -19,16 +20,11 @@ void GUIRenderEngine::Init(std::string scene_file) {
   build.ParseSceneDescr(scene_descr);
 }
   
-void GUIRenderEngine::SetValue(float v) {
-  value_ = v;
-}
-
 cv::Size GUIRenderEngine::GetSize(void) const {
   return size_;
 }
 
 cv::Mat GUIRenderEngine::Render(SceneOptions options) {
-  LOG(INFO) << options.camera_pose[0] << " > " << options.camera_pose[1];
   Run(size_, cache_, options);
   return cache_;
 }
@@ -48,13 +44,21 @@ void GUIRenderEngine::Run(cv::Size size, cv::Mat &dst_image, SceneOptions sopts)
   float y = dist * std::sin(alt) + 1.2;
   float z = dist * std::cos(alt) * std::cos(azi);
   float x = dist * std::cos(alt) * std::sin(azi);
-  camera->LookAt({x, y, z}, {0, 1.4, 0}, {0, 1, 0});
+  Vector3f camera_from(x, y, z);
+  camera->LookAt(camera_from, {0, 1.4, 0}, {0, 1, 0});
+  
+  Quaternion jconst (sopts.julia_constant[0], sopts.julia_constant[1],
+                     sopts.julia_constant[2], sopts.julia_constant[3]);
+  
+  LOG(INFO) << camera_from << " " << jconst;
+  
+  auto *julia3d = static_cast<Julia3DShape*>(ParseEntity<Shape>("fractal_shape_1", &build));
+  julia3d->SetConstant(jconst);
   
   Film film(size.width, size.height);
   RenderOptions options;
   options.cuda = true;
   options.antialias = true;
-  
   
   engine.Render(build, options, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
