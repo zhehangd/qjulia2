@@ -27,40 +27,40 @@ SOFTWARE.
 #ifndef QJULIA_ENGINE_H_
 #define QJULIA_ENGINE_H_
 
+#include <memory>
+
 #include "spectrum.h"
 
 namespace qjulia {
 
-class Options;
 class Scene;
 class Film;
 class Integrator;
 class SceneBuilder;
 
-class Options {
- public:
+struct RenderOptions {
   bool antialias = true;
   int num_threads = -1;
   bool cuda = true;
+  //std::string integrator = "default";
 };
 
 class RTEngine {
  public:
+   
+  RTEngine(void);
+  ~RTEngine(void);
   
-  void Render(SceneBuilder &build, Integrator &integrator,
-              const Options &option, Film &film);
+  void Render(SceneBuilder &build,
+              const RenderOptions &option, Film &film);
   
   float LastRenderTime(void) const {return (float)last_render_time_;}
   
  private:
-   
   
-  int cu_film_data_size_ = 0;
-  Spectrum *cu_film_data_ = nullptr;
-  
+  class Impl;
+  std::unique_ptr<Impl> impl_;
   float last_render_time_ = 0;
-  
-  int num_threads_ = -1;
 };
 
 }

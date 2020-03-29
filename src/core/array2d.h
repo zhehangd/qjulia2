@@ -87,9 +87,15 @@ class Array2D {
 
 template <typename T>
 CPU_AND_CUDA Array2D<T>::Array2D(Size size) {
-  managed_ = true;
-  size_ = size;
-  data_ = new T[size.Total()]();
+  if (size.Total() == 0) {
+    managed_ = false;
+    size_ = size;
+    data_ = nullptr;
+  } else {
+    managed_ = true;
+    size_ = size;
+    data_ = new T[size.Total()]();
+  }
 }
 
 template <typename T>

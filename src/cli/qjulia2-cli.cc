@@ -80,7 +80,7 @@ bool Run(int argc, char **argv) {
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
   
-  Options option;
+  RenderOptions option;
   option.cuda = true;
   option.antialias = true;
   option.num_threads = num_threads;
@@ -95,10 +95,9 @@ bool Run(int argc, char **argv) {
   int w = size[0];
   int h = size[1];
   Film film(w, h);
-  DefaultIntegrator integrator;
   
   RTEngine engine;
-  engine.Render(build, integrator, option, film);
+  engine.Render(build, option, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   SaveToPPM(output_file, film);
   return true;
