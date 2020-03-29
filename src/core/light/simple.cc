@@ -59,6 +59,11 @@ void SunLight::UpdateDevice(Entity *device_ptr) const {
   UpdatePointLight<<<1, 1>>>(device_ptr, params);
 }
 
+
+#else
+
+void SunLight::UpdateDevice(Entity*) const {}
+
 #endif
 
 void SunLight::Parse(const Args &args, SceneBuilder *build) {
@@ -101,6 +106,11 @@ void PointLight::UpdateDevice(Entity *device_ptr) const {
   params.intensity = intensity;
   UpdatePointLight<<<1, 1>>>(device_ptr, params);
 }
+
+
+#else
+
+void PointLight::UpdateDevice(Entity*) const {}
 
 #endif
 

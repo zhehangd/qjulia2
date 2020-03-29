@@ -89,6 +89,10 @@ void PlaneShape::UpdateDevice(Entity *device_ptr) const {
   UpdatePlaneShape<<<1, 1>>>(device_ptr, params);
 }
 
+#else
+
+void PlaneShape::UpdateDevice(Entity*) const {}
+
 #endif
 
 void PlaneShape::Parse(const Args &args, SceneBuilder *build) {

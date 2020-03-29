@@ -63,6 +63,10 @@ void Transform::UpdateDevice(Entity *device_ptr) const {
   UpdateTransform<<<1, 1>>>(device_ptr, params);
 }
 
+#else
+
+void Transform::UpdateDevice(Entity*) const {}
+
 #endif
 
 void Transform::Parse(const Args &args, SceneBuilder *build) {

@@ -88,7 +88,7 @@ struct BuildSceneParams {
 #ifdef WITH_CUDA
   bool cuda = true;
 #else
-  bool cuda = false
+  bool cuda = false;
 #endif
   std::string camera;
   std::string world;
@@ -138,7 +138,7 @@ class SceneBuilder {
   EntityNodeBT<BT>* SearchEntityByName(const std::string &name = {}) const;
   
   /// @
-  Scene BuildScene(const BuildSceneParams &params) const;
+  Scene BuildScene(BuildSceneParams params) const;
   
  private:
   

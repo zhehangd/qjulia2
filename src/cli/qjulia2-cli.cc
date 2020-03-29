@@ -81,7 +81,11 @@ bool Run(int argc, char **argv) {
   build.ParseSceneDescr(scene_descr);
   
   RenderOptions option;
+#ifdef WITH_CUDA
   option.cuda = true;
+#else
+  option.cuda = false;
+#endif
   option.antialias = true;
   option.num_threads = num_threads;
   

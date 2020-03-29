@@ -45,8 +45,6 @@ class Entity {
   
   CPU_AND_CUDA virtual ~Entity(void) {}
   
-  virtual size_t GetTypeID(void) const {return 99;}
-  
   virtual void Parse(const Args &args, SceneBuilder *build) {
     (void)args; (void)build;
     LOG(FATAL) << "No parsing function defined"; 

@@ -104,7 +104,7 @@ void SceneBuilder::DebugPrint(void) const {
   }
 }
 
-Scene SceneBuilder::BuildScene(const BuildSceneParams &params) const {
+Scene SceneBuilder::BuildScene(BuildSceneParams params) const {
   // TODO: How to make sure only cameras in this world are searched?
 #ifndef WITH_CUDA
   if (params.cuda) {

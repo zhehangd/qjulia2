@@ -78,6 +78,10 @@ void Object::UpdateDevice(Entity *device_ptr) const {
   UpdateObject<<<1, 1>>>(device_ptr, data_host_, data_device_);
 }
 
+#else
+
+void Object::UpdateDevice(Entity*) const {}
+
 #endif
 
 void Object::Parse(const Args &args, SceneBuilder *build) {

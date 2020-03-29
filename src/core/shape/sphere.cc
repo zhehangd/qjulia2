@@ -70,6 +70,10 @@ void SphereShape::UpdateDevice(Entity *device_ptr) const {
   UpdateSphereShape<<<1, 1>>>(device_ptr, params);
 }
 
+#else
+
+void SphereShape::UpdateDevice(Entity*) const {}
+
 #endif
 
 void SphereShape::Parse(const Args &args, SceneBuilder *build) {

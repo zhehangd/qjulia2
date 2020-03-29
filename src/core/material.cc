@@ -57,6 +57,11 @@ void Material::UpdateDevice(Entity *device_ptr) const {
   UpdatePointLight<<<1, 1>>>(device_ptr, params);
 }
 
+
+#else
+
+void Material::UpdateDevice(Entity*) const {}
+
 #endif
 
 void Material::Parse(const Args &args, SceneBuilder *build) {

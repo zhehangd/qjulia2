@@ -73,6 +73,10 @@ void World::UpdateDevice(Entity *device_ptr) const {
   UpdateWorld<<<1, 1>>>(device_ptr, data_host_, data_device_);
 }
 
+#else
+
+void World::UpdateDevice(Entity*) const {}
+
 #endif
 
 void World::Parse(const Args &args, SceneBuilder *build) {

@@ -61,6 +61,8 @@ const AASample aa_samples[6] = {
   AASample( 0.58f, -0.55f, 0.104f), AASample(-0.31f, -0.71f, 0.106f),
 };
 
+#ifdef WITH_CUDA
+
 struct CUDAImpl {
   
   CUDAImpl(void);
@@ -148,6 +150,8 @@ void CUDAImpl::Render(SceneBuilder &build,
   cudaDeviceSynchronize();
 }
 
+#endif
+
 struct CPUImpl {
   
   CPUImpl(void) {}
@@ -161,9 +165,6 @@ void CPUImpl::Render(
   BuildSceneParams params;
   params.cuda = false;
   Scene scene = build.BuildScene(params);
-  
-  int w = film.Width();
-  int h = film.Height();
   
   DefaultIntegrator integrator;
   const Camera *camera = scene.GetCamera();
@@ -218,8 +219,9 @@ class RTEngine::Impl {
   Impl(void);
   
   void Render(SceneBuilder &build, const RenderOptions &options, Film &film);
-  
+#ifdef WITH_CUDA  
   CUDAImpl cuda_impl;
+#endif
   CPUImpl cpu_impl;
 };
 
@@ -231,7 +233,11 @@ void RTEngine::Impl::Render(
     SceneBuilder &build,
     const RenderOptions &options, Film &film) {
   if (options.cuda) {
+#ifdef WITH_CUDA
     cuda_impl.Render(build, options, film);
+#else
+    LOG(FATAL) << "qjulia2 is not compiled with CUDA support.";
+#endif
   } else {
     cpu_impl.Render(build, options, film);
   }

@@ -53,6 +53,10 @@ void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
   UpdateJulia3DShape<<<1, 1>>>(device_ptr, params);
 }
 
+#else
+
+void Julia3DShape::UpdateDevice(Entity*) const {}
+
 #endif
 
 CPU_AND_CUDA void Julia3DShape::UsePreset(int i) {

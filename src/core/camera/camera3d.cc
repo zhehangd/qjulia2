@@ -123,6 +123,10 @@ void OrthoCamera::UpdateDevice(Entity *device_ptr) const {
   UpdateOrthoCamera<<<1, 1>>>(device_ptr, params);
 }
 
+#else
+
+void OrthoCamera::UpdateDevice(Entity*) const {}
+
 #endif
 
 void OrthoCamera::Parse(const Args &args, SceneBuilder *build) {
@@ -169,6 +173,10 @@ void PerspectiveCamera::UpdateDevice(Entity *device_ptr) const {
   params.focus = focus;
   UpdatePerspectiveCamera<<<1, 1>>>(device_ptr, params);
 }
+
+#else
+
+void PerspectiveCamera::UpdateDevice(Entity*) const {}
 
 #endif
 
