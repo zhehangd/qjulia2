@@ -62,9 +62,9 @@ find_package(fmt REQUIRED)
 find_package(glog REQUIRED)
 find_package(Threads REQUIRED)
 
-if (WITH_TEST REQUIRED)
-  find_package(GTest)
-endif
+if (WITH_TEST)
+  find_package(GTest REQUIRED)
+endif()
 
 if (WITH_GUI)
   message(STATUS "Build with GUI")
