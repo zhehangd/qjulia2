@@ -26,7 +26,8 @@ SOFTWARE.
 
 #include "core/film.h"
 
-#include <cmath>
+#include <math.h>
+
 #include <fstream>
 #include <sstream>
 
@@ -68,8 +69,8 @@ CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *i) const {
   
 CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *r, int *c) const {
   Float s = (Float)(relocation_s_ - 1);
-  *c = std::round(x * s  + (relocation_w_ - 1) * 0.5f) - relocation_x_;
-  *r = std::round(y * s  + (relocation_h_ - 1) * 0.5f) - relocation_y_;
+  *c = round(x * s  + (relocation_w_ - 1) * 0.5f) - relocation_x_;
+  *r = round(y * s  + (relocation_h_ - 1) * 0.5f) - relocation_y_;
   return CheckRange(*r, *c);
 }
 

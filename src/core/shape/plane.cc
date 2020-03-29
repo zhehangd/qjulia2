@@ -26,6 +26,8 @@ SOFTWARE.
 
 #include "core/shape/plane.h"
 
+#include "math.h"
+
 #include <vector>
 #include <memory>
 
@@ -53,8 +55,8 @@ CPU_AND_CUDA Intersection PlaneShape::Intersect(const Ray &ray) const {
   Float num = - (Dot(normal, ray.start) + offset);
   Float den = Dot(normal, ray.dir);
   Float dist;
-  if (std::isinf(num) || std::isinf(den)) {
-    dist = std::signbit(num) == std::signbit(den) ? kInf : kNInf;
+  if (isinf(num) || isinf(den)) {
+    dist = signbit(num) == signbit(den) ? kInf : kNInf;
   } else {
     dist = num / den;
   }
