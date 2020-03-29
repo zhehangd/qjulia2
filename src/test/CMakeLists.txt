@@ -21,13 +21,27 @@
 # SOFTWARE.
 
 
+
 add_executable(test_all
   test_main.cc
   test_efloat.cc
   test_vector.cc
   test_algorithm.cc
+  test_camera.cc
+  test_scene_builder.cc
   $<TARGET_OBJECTS:qjulia2-core>
 )
+
+if (WITH_CUDA)
+  set_source_files_properties(
+    test_scene_builder.cc
+    PROPERTIES LANGUAGE CUDA
+  )
+  
+  set_target_properties(test_all
+    PROPERTIES CUDA_SEPARABLE_COMPILATION ON
+  )
+endif()
 
 target_include_directories(test_all PUBLIC ${GTEST_INCLUDE_DIRS})
 
