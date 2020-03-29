@@ -3,32 +3,52 @@
 ![qjulia-title](data/example.jpg)
 
 ## Overview
-This is a ray-tracing program specialized in rendering quaternion julia set,
-completely written in native C++ from the scratch.
+
+**Update 2020-03-05: Added a toy GUI based on Qt**
+
+**Update 2020-03-29: Added CUDA support**
+
+qjulia2 is a command-line ray-tracing program for rendering quaternion julia set.
 
 The ray-tracing pipeline is inspired heavily from [*PBRT*](https://www.pbrt.org/),
 while the distance estimation algorithm was learnt from [1] and [2].
-The output is a [PPM](http://netpbm.sourceforge.net/doc/ppm.html) image.
-## Install and Environment
 
-This project is developed and tested on Ubuntu 16.04 with GCC 5.4,
-built with [Cmake](https://cmake.org/).
+Since 2020-03-29 CUDA support is added to grealy accelerate the rendering.
 
-* Install build tools
+Currently the only supported image format is [PPM](http://netpbm.sourceforge.net/doc/ppm.html).
+You will need to do conversion yourself to get any other format.
+
+## Install
+
+This project is developed and tested on Ubuntu 18.04 with CUDA 10.0.
+[CMake](https://cmake.org/) is requred to build the project.
+
+In addition, there are a few more dependencies:
+
+* [libfmt](https://github.com/fmtlib/fmt)
+* [glog](https://github.com/google/glog) (my plan is to remove it in the future)
+* [CUDA](https://developer.nvidia.com/cuda-zone) (optional, if you want GPU acceleration)
+* [gtest](https://github.com/google/googletest) (optional, if you want unit tests)
+* [doxygen](http://www.doxygen.nl/) (optional, if you want its documentation)
+* [Qt5](https://www.qt.io/) (optional, if you want the GUI, which is currently only a toy)
+
+Also [cxxopts](https://github.com/jarro2783/cxxopts) is shipped as a submoudle,
+I am thinking to switch to [CLI11](https://github.com/CLIUtils/CLI11) in the future.
+
+The following CMake options are available to turn on/off optional features:
+
+* *WITH_CUDA* CUDA acceleration
+* *WITH_GUI* A toy GUI based on Qt
+* *WITH_TEST* Unit test
+* *WITH_DOC* Documentation pages
+
+For example, if you want CUDA, you should do something like
 ```bash
-$ sudo apt install build-essential cmake git
+mkdir build && cd build
+cmake -DWITH_CUDA=ON ..
+make -j8
 ```
-* Clone the repository and initialize the submodules
-```bash
-$ git clone --recursive https://github.com/zhehangd/qjulia2.git
-```
-* Compile the program
-```bash
-$ cd qjulia2
-$ mkdir build && cd build
-$ cmake ..
-$ make -j4
-```
+
 
 ## Usage
 
@@ -42,7 +62,7 @@ There are a few options can be used:
 
 * `-t <n>, --num_threads <n>`
 
-  Specifies the number of threads used in rendering.
+  Specifies the number of threads used in rendering (if CUDA is not used).
 
 * `-s <w>x<h>, --size <w>x<h>`
 
@@ -53,50 +73,33 @@ There are a few options can be used:
   Specifies the output file name, which should end with ".ppm".
   By default "output.ppm".
 
+For example, after you build the project under `<project_dir>/build`, you can do
+```bash
+./src/cli/qjulia-cli -i ../data/example.scene
+```
+
 ## Scene Description
 
 A scene description file consists a set of blocks, such as
 ```
-shape julia3d fractal_shape_1 {
-  max_iterations 200
-  max_magnitude 10.0
-  bounding_radius 3.0
-  constant -0.2,0.8,0,0
+Shape.Julia3D shape1 {
+  SetConstant -0.2,0.8,0,0
 }
 ```
-Each block describes an instance added to the cene manager.
-A block begins with a line of header, in format
+Each block describes an enitty added to the scene builder.
+A block begins with a line of header, in the following format 
 ```
-<TYPE> <IMPLEMENTATION> <NAME> {
+<BASIC TYPE>.<SPECIFIC TYPE> <NAME> {
   ...
 }
 ```
 
-There are at total 7 types:
-  * `Object`
-  * `Shape`
-  * `Transform`
-  * `Material`
-  * `Light`
-  * `Camera`
-  * `Scene`
+An example has been given in the `<project_dir>/data/example.scene`.
 
-Entities of the same type must use unique names.
+## TODOList
 
-TBD
-
-
-## Issues and Limitations
-
-* Although the change of object position should be handled by
-the `Transform` component, many shapes implement their own position
-attribute. This may give some wired result if both set.
-
-* The distance estimation method is used to find the surface of
-fractals. Though every fast, the surface is too smooth and many
-appealing details are lost.
-
-* Entity management is not complete.
+* Animation support
+* Better GUI
 
 ## Reference
 

@@ -22,8 +22,10 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-set(WITH_CUDA ON CACHE BOOL "Build GPU acceleration with CUDA")
+set(WITH_CUDA OFF CACHE BOOL "Build GPU acceleration with CUDA")
 set(WITH_GUI OFF CACHE BOOL "Build GUI based on Qt5")
+set(WITH_TEST OFF CACHE BOOL "Build unit tests")
+set(WITH_DOC OFF CACHE BOOL "Build doxygen documentation")
 
 if (WITH_CUDA)
   message(STATUS "Build GPU acceleration with CUDA")
@@ -56,12 +58,13 @@ else()
   message(SEND_ERROR "Unspported platform")
 endif()
 
-
-
 find_package(fmt REQUIRED)
 find_package(glog REQUIRED)
 find_package(Threads REQUIRED)
-find_package(GTest)
+
+if (WITH_TEST REQUIRED)
+  find_package(GTest)
+endif
 
 if (WITH_GUI)
   message(STATUS "Build with GUI")
@@ -73,11 +76,10 @@ endif()
 
 add_subdirectory(3rdparty)
 add_subdirectory(src)
-add_subdirectory(doc)
 
-#if (${GTest_FOUND})
-#  add_subdirectory(test)
-#endif()
+if (WITH_DOC)
+  add_subdirectory(doc)
+endif()
 
 file(COPY "${PROJECT_SOURCE_DIR}/data"
   DESTINATION ${PROJECT_BINARY_DIR})
