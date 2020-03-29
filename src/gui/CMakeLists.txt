@@ -12,3 +12,7 @@ target_link_libraries(qjulia2-gui
   ${OpenCV_LIBS}
   qjulia2-core
 )
+
+set_target_properties(qjulia2-gui
+  PROPERTIES CUDA_SEPARABLE_COMPILATION ON
+)

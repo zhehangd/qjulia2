@@ -30,7 +30,7 @@ class RenderEngine : public RenderEngineInterface {
   cv::Size preview_size_;
   cv::Mat cache_;
   cv::Mat prev_cache_;
-  SceneBuilder build;
+  qjulia::SceneBuilder build;
 };
 
 std::unique_ptr<RenderEngine> CreateDefaultEngine(void);
