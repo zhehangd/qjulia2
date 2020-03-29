@@ -60,6 +60,21 @@ CPU_AND_CUDA World::World(void)
 #endif
 }
 
+#ifdef WITH_CUDA
+
+KERNEL void UpdateWorld(Entity *dst_b, World::Data data_host,
+                        World::Data data_device) {
+  auto *dst = static_cast<World*>(dst_b);
+  dst->data_host_ = data_host;
+  dst->data_device_ = data_device;
+}
+
+void World::UpdateDevice(Entity *device_ptr) const {
+  UpdateWorld<<<1, 1>>>(device_ptr, data_host_, data_device_);
+}
+
+#endif
+
 void World::Parse(const Args &args, SceneBuilder *build) {
   if (args.size() == 0) {return;}
   if (args[0] == "AddObject") {

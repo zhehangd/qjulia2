@@ -48,7 +48,8 @@ class Scene {
   
   CPU_AND_CUDA const Camera* GetCamera(void) const {return camera_;}
   
-  CPU_AND_CUDA const Object* Intersect(const Ray &ray, Intersection *isect) const {return world_->Intersect(ray, isect);}
+  CPU_AND_CUDA const Object* Intersect(const Ray &ray, Intersection *isect) const {
+    return world_->Intersect(ray, isect);}
   
   CPU_AND_CUDA int NumObjects(void) const {return world_->NumObjects();}
   CPU_AND_CUDA int NumLights(void) const {return world_->NumLights();}

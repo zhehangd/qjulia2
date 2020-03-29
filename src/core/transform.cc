@@ -43,6 +43,28 @@ std::ostream& operator<<(std::ostream &os, const Matrix4x4 &mat) {
   return os;
 }
 
+#ifdef WITH_CUDA
+
+struct TransformData {
+  Matrix4x4 mat_ow;
+  Matrix4x4 mat_wo;
+};
+
+KERNEL void UpdateTransform(Entity *dst_b, TransformData params) {
+  auto *dst = static_cast<Transform*>(dst_b);
+  dst->mat_ow_ = params.mat_ow;
+  dst->mat_wo_ = params.mat_wo;
+}
+
+void Transform::UpdateDevice(Entity *device_ptr) const {
+  TransformData params;
+  params.mat_ow = mat_ow_;
+  params.mat_wo = mat_wo_;
+  UpdateTransform<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
+
 void Transform::Parse(const Args &args, SceneBuilder *build) {
   (void)build;
   if (args.size() == 0) {return;}

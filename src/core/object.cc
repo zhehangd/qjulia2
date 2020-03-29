@@ -65,6 +65,21 @@ CPU_AND_CUDA Intersection Object::Intersect(const Ray &ray) const {
   return isect;
 }
 
+#ifdef WITH_CUDA
+
+KERNEL void UpdateObject(Entity *dst_b, Object::Data data_host,
+                        Object::Data data_device) {
+  auto *dst = static_cast<Object*>(dst_b);
+  dst->data_host_ = data_host;
+  dst->data_device_ = data_device;
+}
+
+void Object::UpdateDevice(Entity *device_ptr) const {
+  UpdateObject<<<1, 1>>>(device_ptr, data_host_, data_device_);
+}
+
+#endif
+
 void Object::Parse(const Args &args, SceneBuilder *build) {
   if (args.size() == 0) {return;}
   if (args[0] == "SetShape") {

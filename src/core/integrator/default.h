@@ -34,11 +34,11 @@ namespace qjulia {
 class DefaultIntegrator : public Integrator {
  public:
   
-  Spectrum Li(const Ray &ray, const Scene &scene);
+  CPU_AND_CUDA Spectrum Li(const Ray &ray, const Scene &scene);
 
  private:
    
-  Spectrum LiRecursive(const Ray &ray, const Scene &scene, int depth);
+  CPU_AND_CUDA Spectrum LiRecursive(const Ray &ray, const Scene &scene, int depth);
   
   Float ray_delta_ = 5e-3; // TODO: Use EFloat to bound the error.
 };

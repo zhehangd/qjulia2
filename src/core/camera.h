@@ -33,17 +33,14 @@ SOFTWARE.
 
 namespace qjulia {
 
-/** \brief Defines how rays are projected to films and vice versa
-
-This is the interface that all camera classes should implement
-*/
+/// @brief Defines how rays are projected to films and vice versa
+///
+/// This is the interface that all camera classes should implement
+///
 class Camera : public Entity {
  public:
   
-  size_t GetTypeID(void) const final {return EntityTypeID<Camera>::val;}
-   
-  /** \brief Cast a ray from the camera to the scene
-  */
+  /// @brief Cast a ray from the camera to the scene
   CPU_AND_CUDA virtual Ray CastRay(Point2f pos) const = 0;
 };
 

@@ -51,6 +51,8 @@ struct EntityNode {
   ///
   virtual Entity* Get(void) = 0;
   
+  virtual Entity* GetDevice(void) = 0;
+  
   void SetName(std::string name) {name_ = name;}
   
   std::string GetName(void) const {return name_;}
@@ -77,12 +79,17 @@ struct EntityNode {
 /// @brief EntityNode for a basic type
 template<typename BT>
 struct EntityNodeBT : public EntityNode {
-  virtual BT* Get(void) = 0;
+  BT* Get(void) override = 0;
   
-  virtual BT* GetDevice(void) = 0;
+  BT* GetDevice(void) override = 0;
 };
 
 struct BuildSceneParams {
+#ifdef WITH_CUDA
+  bool cuda = true;
+#else
+  bool cuda = false
+#endif
   std::string camera;
   std::string world;
 };

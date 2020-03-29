@@ -92,13 +92,47 @@ struct PerspectiveCameraData : public Camera3DData {
   Float focus;
 };
 
+struct OrthoCameraData : public Camera3DData {
+  Float scale;
+};
+
 CPU_AND_CUDA Ray OrthoCamera::CastRay(Point2f pos) const {
   Float x = pos[0];
   Float y = pos[1];
   return Ray(position + right * x + up * y, orientation);
 }
 
-// TODO: OrthoCamera CUDA support and arg parsing
+#ifdef WITH_CUDA
+
+KERNEL void UpdateOrthoCamera(Entity *dst_b, OrthoCameraData params) {
+  auto *dst = static_cast<OrthoCamera*>(dst_b);
+  dst->position = params.position;
+  dst->orientation = params.orientation;
+  dst->up = params.up;
+  dst->right = params.right;
+  dst->scale = params.scale;
+}
+
+void OrthoCamera::UpdateDevice(Entity *device_ptr) const {
+  OrthoCameraData params;
+  params.position = position;
+  params.orientation = orientation;
+  params.up = up;
+  params.right = right;
+  params.scale = scale;
+  UpdateOrthoCamera<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
+
+void OrthoCamera::Parse(const Args &args, SceneBuilder *build) {
+  CHECK(args.size() > 0);
+  if (args[0] == "SetScale") {
+    ParseArg(args[1], scale);
+  } else {
+    Camera3D::Parse(args, build);
+  }
+}
 
 CPU_AND_CUDA PerspectiveCamera::PerspectiveCamera(void) {
   position = {0, 0, 1};
@@ -139,7 +173,6 @@ void PerspectiveCamera::UpdateDevice(Entity *device_ptr) const {
 #endif
 
 void PerspectiveCamera::Parse(const Args &args, SceneBuilder *build) {
-  (void)build;
   CHECK(args.size() > 0);
   if (args[0] == "SetFocus") {
     ParseArg(args[1], focus);

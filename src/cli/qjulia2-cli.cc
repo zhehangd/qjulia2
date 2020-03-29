@@ -79,10 +79,11 @@ bool Run(int argc, char **argv) {
   
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
-  Scene scene = build.BuildScene({});
   
   Options option;
+  option.cuda = true;
   option.antialias = true;
+  option.num_threads = num_threads;
   
   Vector2i size = ParseImageSize(size_str);
   if (size[0] <= 0 || size[1] <= 0) {
@@ -97,8 +98,7 @@ bool Run(int argc, char **argv) {
   DefaultIntegrator integrator;
   
   RTEngine engine;
-  engine.SetNumThreads(num_threads);
-  engine.Render(scene, integrator, option, film);
+  engine.Render(build, integrator, option, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   SaveToPPM(output_file, film);
   return true;

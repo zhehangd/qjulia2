@@ -27,12 +27,10 @@ set(CPP_ONLY_SOURCE_FILES
   efloat.cc
   vector.cc
   scene_descr.cc
-  engine.cc
-  
-  integrator/default.cc
 )
 
 set(SHARED_SOURCE_FILES
+  engine.cc
   film.cc
   material.cc
   object.cc
@@ -46,6 +44,9 @@ set(SHARED_SOURCE_FILES
   shape/julia3d_kernel.cc
   shape/plane.cc
   shape/sphere.cc
+  integrator/default.cc
+  integrator/normal.cc
+  integrator/time.cc
 )
 
 add_library(qjulia2-core OBJECT

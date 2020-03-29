@@ -197,6 +197,8 @@ class Transform : public Entity {
   
   CPU_AND_CUDA Vector3f O2W_Normal(const Vector3f &vec) const;
   
+  void UpdateDevice(Entity *device_ptr) const override;
+  
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Matrix4x4 mat_ow_; // object to world

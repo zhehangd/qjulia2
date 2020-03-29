@@ -31,6 +31,8 @@ SOFTWARE.
 
 #include <glog/logging.h>
 
+#include "core/scene_builder.h"
+
 #include "core/algorithm.h"
 #include "core/camera.h"
 #include "core/efloat.h"
@@ -41,6 +43,9 @@ SOFTWARE.
 #include "core/scene.h"
 #include "core/timer.h"
 #include "core/vector.h"
+
+// TODO tmp
+#include "core/integrator/default.h"
 
 namespace qjulia {
 
@@ -73,14 +78,95 @@ void AAFilterSet::Enable(bool enable) {
   }
 }
 
-void RTEngine::Render(const Scene &scene,
-                      Integrator &integrator,
-                      const Options &option, Film &film) {
+KERNEL void GPUKernel(Film film, Scene scene) {
+  int r = blockIdx.y * blockDim.y + threadIdx.y;
+  int c = blockIdx.x * blockDim.x + threadIdx.x;
+  if (!film.IsValidCoords(r, c)) {return;}
+  int i = film.GetIndex(r, c);
+  DefaultIntegrator integrator; // TODO
+  Point2f p;
+  film.GenerateCameraCoords(i, &p[0], &p[1]);
+  Ray ray = scene.GetCamera()->CastRay(p);
+  film(i) = integrator.Li(ray, scene);
+}
+
+void RTEngine::Render(SceneBuilder &build, Integrator &integrator,
+                      const Options &options, Film &film) {
   Timer timer;
   timer.Start();
   
-  const Camera *camera = scene.GetCamera();
+  BuildSceneParams params;
+  params.cuda = options.cuda;
+  Scene scene = build.BuildScene(params);
   
+  int w = film.Width();
+  int h = film.Height();
+  
+  if (cu_film_data_size_ != film.NumElems()) {
+    cu_film_data_size_ = film.NumElems();
+    if (cu_film_data_) {cudaFree(cu_film_data_);}
+    cudaMalloc((void**)&cu_film_data_, sizeof(Spectrum) * cu_film_data_size_);
+    CHECK_NOTNULL(cu_film_data_);
+  }
+  
+  Film cu_film(w, h, cu_film_data_);  
+  
+  if (options.cuda) {
+    int bsize = 16;
+    int gw = (w + bsize - 1) / bsize;
+    int gh = (h + bsize - 1) / bsize;
+    dim3 block_size(bsize, bsize);
+    dim3 grid_size(gw, gh);
+    GPUKernel<<<grid_size, block_size>>>(cu_film, scene);
+    cudaDeviceSynchronize();
+    cudaMemcpy(film.Data(), cu_film_data_,
+               sizeof(Spectrum) * cu_film_data_size_,
+               cudaMemcpyDeviceToHost);
+    // TODO AA
+  } else {
+    const Camera *camera = scene.GetCamera();
+    
+    AAFilterSet antialias;
+    antialias.Enable(options.antialias);
+    
+    std::atomic<int> row_cursor(0);
+    auto RunThread = [&](void) {
+      while(true) {
+        int r = row_cursor++;
+        if (r >= film.Height()) {break;}
+        auto *row = film.Row(r);
+        for (int c = 0; c < film.Width(); ++c) {
+          auto &pix = row[c];
+          Float x, y;
+          for (int i = 0; i < antialias.NumFilters(); ++i) {
+            const auto &aa = antialias.GetFilter(i);
+            Float fr = r + aa.offset[0];
+            Float fc = c + aa.offset[1];
+            film.GenerateCameraCoords(fr, fc, &x, &y);
+            Vector2f p = Vector2f(x, y);
+            Ray ray = camera->CastRay(p);
+            pix += integrator.Li(ray, scene) * aa.w;
+          }
+        }
+      }
+    };
+    int num_threads = options.num_threads;
+    if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
+    
+    if (num_threads == 0) {
+      RunThread();
+    } else {
+      std::vector<std::thread> threads;
+      for (int i = 0; i < num_threads; ++i) {
+        threads.emplace_back(RunThread);
+      }
+      for (auto &thread : threads) {thread.join();}
+    }
+  }
+  
+  last_render_time_ = timer.End();
+  
+  /*
   AAFilterSet antialias;
   antialias.Enable(option.antialias);
   
@@ -118,7 +204,8 @@ void RTEngine::Render(const Scene &scene,
     }
     for (auto &thread : threads) {thread.join();}
   }
-  last_render_time_ = timer.End();
+  */
+  
 }
 
 }

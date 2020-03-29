@@ -42,6 +42,9 @@ SOFTWARE.
 
 namespace qjulia {
 
+/// @brief Scene
+///
+/// 
 class World : public Entity {
  public:
   
@@ -55,6 +58,8 @@ class World : public Entity {
   CPU_AND_CUDA const Object* GetObject(int i) const {return data_.objects[i];}
   
   CPU_AND_CUDA const Light* GetLight(int i) const {return data_.lights[i];}
+  
+  void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
   

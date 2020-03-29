@@ -38,6 +38,8 @@ class Material : public Entity {
   CPU_AND_CUDA Material(void) {}
   CPU_AND_CUDA Material(Spectrum diffuse) : diffuse(diffuse) {}
   
+  void UpdateDevice(Entity *device_ptr) const override;
+  
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Spectrum diffuse;

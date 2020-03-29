@@ -33,15 +33,15 @@ SOFTWARE.
 
 namespace qjulia {
 
-Vector3f ReflectVector(const Vector3f &vin, const Vector3f &normal) {
+CPU_AND_CUDA Vector3f ReflectVector(const Vector3f &vin, const Vector3f &normal) {
   return normal * (2 * Dot(vin, normal)) - vin;
 }
 
-Spectrum DefaultIntegrator::Li(const Ray &ray, const Scene &scene) {
+CPU_AND_CUDA Spectrum DefaultIntegrator::Li(const Ray &ray, const Scene &scene) {
   return LiRecursive(ray, scene, 1);
 }
 
-Spectrum DefaultIntegrator::LiRecursive(
+CPU_AND_CUDA Spectrum DefaultIntegrator::LiRecursive(
     const Ray &ray, const Scene &scene, int depth) {
   
   Spectrum final_spectrum;
@@ -86,7 +86,7 @@ Spectrum DefaultIntegrator::LiRecursive(
     }
     
     Float reflect = Dot(-ray.dir, ReflectVector(lray.wi, hit_normal));
-    reflect = std::max((Float)0, reflect);
+    reflect = reflect > 0 ? reflect : 0;
     reflect = std::pow(reflect, material->ps);
     
     final_spectrum += lray.spectrum * material->ks * reflect;

@@ -36,7 +36,8 @@ SOFTWARE.
 
 namespace qjulia {
   
-Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
+CPU_AND_CUDA Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
+#ifndef __CUDA_ARCH__
   Timer timer;
   timer.Start();
   Intersection isect;
@@ -47,6 +48,9 @@ Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
   total_time_ += t;
   count_ += 1;
   return {t, t, t};
+#else
+  return {0, 0, 0};
+#endif
 }
 
 }

@@ -105,12 +105,29 @@ void SceneBuilder::DebugPrint(void) const {
 }
 
 Scene SceneBuilder::BuildScene(const BuildSceneParams &params) const {
-  Scene scene;
   // TODO: How to make sure only cameras in this world are searched?
-  auto *node_world = SearchEntityByName<World>(params.world);
-  scene.world_ = node_world->Get();
-  auto *node_camera = SearchEntityByName<Camera>(params.camera);
-  scene.camera_ = node_camera->Get();
+#ifndef WITH_CUDA
+  if (params.cuda) {
+    LOG(ERROR) << "qjulia2 is not compiled with CUDA, fallback to CPU mode";
+    params.cuda = false;
+  }
+#endif
+  Scene scene;
+  if (params.cuda) {
+    for (auto &node : nodes_) {
+      CHECK_NOTNULL(node->Get())->UpdateDevice(
+        CHECK_NOTNULL(node->GetDevice()));
+    }
+    auto *node_world = SearchEntityByName<World>(params.world);
+    scene.world_ = node_world->GetDevice();
+    auto *node_camera = SearchEntityByName<Camera>(params.camera);
+    scene.camera_ = node_camera->GetDevice();
+  } else {
+    auto *node_world = SearchEntityByName<World>(params.world);
+    scene.world_ = node_world->Get();
+    auto *node_camera = SearchEntityByName<Camera>(params.camera);
+    scene.camera_ = node_camera->Get();
+  }
   return scene;
 }
 

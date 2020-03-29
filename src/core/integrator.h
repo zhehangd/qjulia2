@@ -37,7 +37,7 @@ namespace qjulia {
 class Integrator {
  public:
   
-  virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
+  CPU_AND_CUDA virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
   
 };
 

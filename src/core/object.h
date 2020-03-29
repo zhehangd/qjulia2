@@ -52,7 +52,6 @@ class Object : public Entity {
   */
   CPU_AND_CUDA Intersection Intersect(const Ray &ray) const;
   
-  void Parse(const Args &args, SceneBuilder *build) override;
   
   CPU_AND_CUDA const Material* GetMaterial(void) const {return data_.material;}
   
@@ -60,7 +59,9 @@ class Object : public Entity {
   
   CPU_AND_CUDA const Transform* GetTransform(void) const {return data_.transform;}
   
- private:
+  void UpdateDevice(Entity *device_ptr) const override;
+  
+  void Parse(const Args &args, SceneBuilder *build) override;
   
   struct Data {
     const Shape *shape = nullptr;

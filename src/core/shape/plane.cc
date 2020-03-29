@@ -67,6 +67,28 @@ CPU_AND_CUDA Intersection PlaneShape::Intersect(const Ray &ray) const {
   return isect;
 }
 
+#ifdef WITH_CUDA
+
+struct PlaneData {
+  Vector3f normal;
+  Float offset;
+};
+
+KERNEL void UpdatePlaneShape(Entity *dst_b, PlaneData params) {
+  auto *dst = static_cast<PlaneShape*>(dst_b);
+  dst->normal = params.normal;
+  dst->offset = params.offset;
+}
+
+void PlaneShape::UpdateDevice(Entity *device_ptr) const {
+  PlaneData params;
+  params.normal = normal;
+  params.offset = offset;
+  UpdatePlaneShape<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
+
 void PlaneShape::Parse(const Args &args, SceneBuilder *build) {
   (void)build;
   if (args.size() == 0) {return;}

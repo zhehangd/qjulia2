@@ -31,6 +31,34 @@ SOFTWARE.
 
 namespace qjulia {
   
+#ifdef WITH_CUDA
+
+struct MaterialData {
+  Vector3f diffuse;
+  Float ks;
+  Float ps;
+  Float reflection;
+};
+
+KERNEL void UpdatePointLight(Entity *dst_b, MaterialData params) {
+  auto *dst = static_cast<Material*>(dst_b);
+  dst->diffuse = params.diffuse;
+  dst->ks = params.ks;
+  dst->ps = params.ps;
+  dst->reflection = params.reflection;
+}
+
+void Material::UpdateDevice(Entity *device_ptr) const {
+  MaterialData params;
+  params.diffuse = diffuse;
+  params.ks = ks;
+  params.ps = ps;
+  params.reflection = reflection;
+  UpdatePointLight<<<1, 1>>>(device_ptr, params);
+}
+
+#endif
+
 void Material::Parse(const Args &args, SceneBuilder *build) {
   (void)build;
   if (args.size() == 0) {return;}
