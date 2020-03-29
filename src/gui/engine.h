@@ -21,7 +21,7 @@ class GUIRenderEngine : public RenderEngineInterface {
   
  private:
    
-  void Run(cv::Size size, cv::Mat &dst, SceneOptions options);
+  void Run(bool preview, cv::Mat &dst, SceneOptions options);
    
   cv::Size size_;
   cv::Size preview_size_;

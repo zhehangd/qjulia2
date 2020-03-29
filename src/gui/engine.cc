@@ -11,7 +11,7 @@ using namespace qjulia;
 void GUIRenderEngine::Init(std::string scene_file) {
   
   size_ = cv::Size(1280, 960);
-  preview_size_ = cv::Size(160, 120);
+  preview_size_ = cv::Size(1280, 960);
   cache_.create(size_, CV_8UC3);
   prev_cache_.create(size_, CV_8UC3);
   
@@ -25,16 +25,16 @@ cv::Size GUIRenderEngine::GetSize(void) const {
 }
 
 cv::Mat GUIRenderEngine::Render(SceneOptions options) {
-  Run(size_, cache_, options);
+  Run(false, cache_, options);
   return cache_;
 }
 
 cv::Mat GUIRenderEngine::Preview(SceneOptions options) {
-  Run(preview_size_, prev_cache_, options);
+  Run(true, prev_cache_, options);
   return prev_cache_;
 }
 
-void GUIRenderEngine::Run(cv::Size size, cv::Mat &dst_image, SceneOptions sopts) {
+void GUIRenderEngine::Run(bool preview, cv::Mat &dst_image, SceneOptions sopts) {
   
   auto *camera = static_cast<Camera3D*>(ParseEntity<Camera>("", &build));
   
@@ -55,10 +55,22 @@ void GUIRenderEngine::Run(cv::Size size, cv::Mat &dst_image, SceneOptions sopts)
   auto *julia3d = static_cast<Julia3DShape*>(ParseEntity<Shape>("fractal_shape_1", &build));
   julia3d->SetConstant(jconst);
   
-  Film film(size.width, size.height);
   RenderOptions options;
   options.cuda = true;
   options.antialias = true;
+  
+  Size size;
+  if (preview) {
+    size.width = preview_size_.width;
+    size.height = preview_size_.height;
+    options.antialias = false;
+  } else {
+    size.width = size_.width;
+    size.height = size_.height;
+    options.antialias = true;
+  }
+  
+  Film film(size.width, size.height);
   
   engine.Render(build, options, film);
   LOG(INFO) << "time: " << engine.LastRenderTime();

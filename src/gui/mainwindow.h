@@ -20,7 +20,7 @@ struct SliderCvt {
   float vsrt = 0;
   float vend = 1;
   int tsrt = 0;
-  int tend = 99;
+  int tend = 100;
 };
 
 namespace Ui {
