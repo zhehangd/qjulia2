@@ -37,11 +37,23 @@ class MainWindow : public QMainWindow {
     
   RenderEngineInterface *engine_;
   
+  RenderEngineInterface::SceneOptions engine_options_;
+  
+  // Send current settings to engine to render a preview
+  void updatePreview(void);
+  
+  // Send current settings to engine to render a full
+  void updateFull(void);
+  
   int value_ = 0;
 
 private slots:
-  void onSliderValueChanged(int position);
-  void onSliderReleased(void);
+  void onSliderAziChanged(int position);
+  void onSliderAziReleased(void);
+  void onSliderAltChanged(int position);
+  void onSliderAltReleased(void);
+  void onSliderDistChanged(int position);
+  void onSliderDistReleased(void);
   void onRenderFinished(void);
 };
 

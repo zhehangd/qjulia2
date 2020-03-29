@@ -18,8 +18,12 @@ MainWindow::MainWindow(QWidget *parent, RenderEngineInterface *engine) :
   ui->graphicsView->setScene(new QGraphicsScene(this));
   ui->graphicsView->scene()->addItem(&pixmap_);
   
-  connect(ui->horizontalSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
-  connect(ui->horizontalSlider, SIGNAL(sliderReleased()), this, SLOT(onSliderReleased()));
+  connect(ui->slider_azi, SIGNAL(valueChanged(int)), this, SLOT(onSliderAziChanged(int)));
+  connect(ui->slider_azi, SIGNAL(sliderReleased()), this, SLOT(onSliderAziReleased()));
+  connect(ui->slider_alt, SIGNAL(valueChanged(int)), this, SLOT(onSliderAltChanged(int)));
+  connect(ui->slider_alt, SIGNAL(sliderReleased()), this, SLOT(onSliderAltReleased()));
+  connect(ui->slider_dist, SIGNAL(valueChanged(int)), this, SLOT(onSliderDistChanged(int)));
+  connect(ui->slider_dist, SIGNAL(sliderReleased()), this, SLOT(onSliderDistReleased()));
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
 }
 
@@ -31,17 +35,42 @@ void MainWindow::showEvent(QShowEvent *ev) {
   DrawImage();
 }
 
-void MainWindow::onSliderValueChanged(int position) {
-  qDebug() << "value changed";
+void MainWindow::onSliderAziChanged(int position) {
   value_ = position;
+  engine_options_.camera_pose[0] = (float)position / 100.0f * 180.0;
   DrawImage(position);
 }
 
-void MainWindow::onSliderReleased(void) {
-  qDebug() << "released";
+void MainWindow::onSliderAziReleased(void) {
   render_watch_.cancel();
   render_watch_.waitForFinished();
-  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngineInterface::Render);
+  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngineInterface::Render, engine_options_);
+  render_watch_.setFuture(future);
+}
+
+void MainWindow::onSliderAltChanged(int position) {
+  value_ = position;
+  engine_options_.camera_pose[1] = (float)position / 100.0f * 90.0 - 10.0;
+  DrawImage(position);
+}
+
+void MainWindow::onSliderAltReleased(void) {
+  render_watch_.cancel();
+  render_watch_.waitForFinished();
+  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngineInterface::Render, engine_options_);
+  render_watch_.setFuture(future);
+}
+
+void MainWindow::onSliderDistChanged(int position) {
+  value_ = position;
+  engine_options_.camera_pose[2] = (float)position / 100.0f * 7 + 1;
+  DrawImage(position);
+}
+
+void MainWindow::onSliderDistReleased(void) {
+  render_watch_.cancel();
+  render_watch_.waitForFinished();
+  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngineInterface::Render, engine_options_);
   render_watch_.setFuture(future);
 }
 
@@ -56,7 +85,7 @@ void MainWindow::onRenderFinished(void) {
 
 void MainWindow::DrawImage(int pos) {
   engine_->SetValue((float)pos);
-  cv::Mat image = engine_->Preview();
+  cv::Mat image = engine_->Preview(engine_options_);
   QImage qt_image(image.data, image.cols, image.rows,
                   image.step, QImage::Format_RGB888);
   

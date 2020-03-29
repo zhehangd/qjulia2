@@ -7,10 +7,10 @@
 
 using namespace qjulia;
 
-void RenderEngine::Init(std::string scene_file) {
+void GUIRenderEngine::Init(std::string scene_file) {
   
   size_ = cv::Size(640, 480);
-  preview_size_ = cv::Size(64, 48);
+  preview_size_ = cv::Size(160, 120);
   cache_.create(size_, CV_8UC3);
   prev_cache_.create(size_, CV_8UC3);
   
@@ -19,40 +19,43 @@ void RenderEngine::Init(std::string scene_file) {
   build.ParseSceneDescr(scene_descr);
 }
   
-void RenderEngine::SetValue(float v) {
+void GUIRenderEngine::SetValue(float v) {
   value_ = v;
 }
 
-cv::Size RenderEngine::GetSize(void) const {
+cv::Size GUIRenderEngine::GetSize(void) const {
   return size_;
 }
 
-cv::Mat RenderEngine::Render(void) {
-  Run(size_, cache_);
+cv::Mat GUIRenderEngine::Render(SceneOptions options) {
+  LOG(INFO) << options.camera_pose[0] << " > " << options.camera_pose[1];
+  Run(size_, cache_, options);
   return cache_;
 }
 
-cv::Mat RenderEngine::Preview(void) {
-  Run(preview_size_, prev_cache_);
+cv::Mat GUIRenderEngine::Preview(SceneOptions options) {
+  Run(preview_size_, prev_cache_, options);
   return prev_cache_;
 }
 
-void RenderEngine::Run(cv::Size size, cv::Mat &dst_image) {
+void GUIRenderEngine::Run(cv::Size size, cv::Mat &dst_image, SceneOptions sopts) {
   
   auto *camera = static_cast<Camera3D*>(ParseEntity<Camera>("", &build));
   
-  float angle = value_ / 99.0 * 3.1416;
-  float dist = 5.3;
-  float z = dist * std::cos(angle);
-  float x = dist * std::sin(angle);
-  camera->LookAt({x,1.2,z}, {0, 1.4, 0}, {0, 1, 0});
+  float dist = sopts.camera_pose[2];
+  float azi = sopts.camera_pose[0] / 180.0f * 3.1416f;
+  float alt = sopts.camera_pose[1] / 180.0f * 3.1416f;
+  float y = dist * std::sin(alt) + 1.2;
+  float z = dist * std::cos(alt) * std::cos(azi);
+  float x = dist * std::cos(alt) * std::sin(azi);
+  camera->LookAt({x, y, z}, {0, 1.4, 0}, {0, 1, 0});
   
   Film film(size.width, size.height);
   RenderOptions options;
   options.cuda = true;
   options.antialias = true;
   
-  RTEngine engine;
+  
   engine.Render(build, options, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   
@@ -70,6 +73,6 @@ void RenderEngine::Run(cv::Size size, cv::Mat &dst_image) {
   cv::resize(cache_small, dst_image, size_);
 }
 
-std::unique_ptr<RenderEngine> CreateDefaultEngine(void) {
-  return std::make_unique<RenderEngine>();
+std::unique_ptr<GUIRenderEngine> CreateDefaultEngine(void) {
+  return std::make_unique<GUIRenderEngine>();
 }

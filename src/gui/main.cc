@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
@@ -27,9 +29,10 @@ int main(int argc, char **argv) {
     return 1;
   }
   
-  auto api = CreateDefaultEngine();
-  api->Init(argv[1]);
-  MainWindow main_win(nullptr, api.get());
+  auto engine_sptr = std::make_unique<GUIRenderEngine>();
+  engine_sptr->Init(argv[1]);
+  
+  MainWindow main_win(nullptr, engine_sptr.get());
   main_win.show();
   return app.exec();
 }

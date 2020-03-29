@@ -7,22 +7,23 @@
 #include "backend_api.h"
 #include "core/qjulia2.h"
 
-class RenderEngine : public RenderEngineInterface {
- public:
 
+class GUIRenderEngine : public RenderEngineInterface {
+ public:
+  
   void Init(std::string scene_file);
   
   void SetValue(float v) override;
   
   cv::Size GetSize(void) const override;
   
-  cv::Mat Render(void) override;
+  cv::Mat Render(SceneOptions options) override;
   
-  cv::Mat Preview(void) override;
+  cv::Mat Preview(SceneOptions options) override;
   
  private:
    
-  void Run(cv::Size size, cv::Mat &dst);
+  void Run(cv::Size size, cv::Mat &dst, SceneOptions options);
    
   float value_ = 0;
   
@@ -30,9 +31,9 @@ class RenderEngine : public RenderEngineInterface {
   cv::Size preview_size_;
   cv::Mat cache_;
   cv::Mat prev_cache_;
+  
+  qjulia::RTEngine engine;
   qjulia::SceneBuilder build;
 };
-
-std::unique_ptr<RenderEngine> CreateDefaultEngine(void);
 
 #endif
