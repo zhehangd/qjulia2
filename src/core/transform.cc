@@ -37,8 +37,8 @@ namespace {
 std::ostream& operator<<(std::ostream &os, const Matrix4x4 &mat) {
   os << '\n';
   for (int i = 0; i < 4; ++i) {
-    os << mat.m[i][0] << ", " << mat.m[i][1] << ", "
-       << mat.m[i][2] << ", " << mat.m[i][3] << "\n";
+    os << mat.At(i, 0) << ", " << mat.At(i, 1) << ", "
+       << mat.At(i, 2) << ", " << mat.At(i, 3) << "\n";
   }
   return os;
 }

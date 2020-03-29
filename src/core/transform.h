@@ -42,6 +42,11 @@ class Matrix4x4 : public Vec_<Float, 16> {
    CPU_AND_CUDA Matrix4x4(void);
    CPU_AND_CUDA Matrix4x4(const std::array<Float, 16> vals);
    
+   CPU_AND_CUDA static int Index(int r, int c) {return r * 4 + c;}
+   
+   CPU_AND_CUDA Float& At(int r, int c) {return vals[Index(r, c)];}
+   CPU_AND_CUDA const Float& At(int r, int c) const {return vals[Index(r, c)];}
+   
    CPU_AND_CUDA static Matrix4x4 Identity(void);
    CPU_AND_CUDA static Matrix4x4 Translate(const Vector3f &T);
    CPU_AND_CUDA static Matrix4x4 Scale(const Vector3f &S);
@@ -57,12 +62,10 @@ class Matrix4x4 : public Vec_<Float, 16> {
    
    // Multiply the transformed matrix by a vector.
    CPU_AND_CUDA Vector3f MulTranspMatVecMatVec(const Vector3f &v, Float w) const;
-   
-   Float m[4][4] = {};
 };
 
 CPU_AND_CUDA inline Matrix4x4::Matrix4x4(void) {
-  m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1;
+  At(0, 0) = At(1, 1) = At(2, 2) = At(3, 3) = 1;
 }
 
 CPU_AND_CUDA inline Matrix4x4::Matrix4x4(const std::array<Float, 16> vals) {
@@ -71,14 +74,14 @@ CPU_AND_CUDA inline Matrix4x4::Matrix4x4(const std::array<Float, 16> vals) {
 
 CPU_AND_CUDA inline Matrix4x4 Matrix4x4::Identity(void) {
   Matrix4x4 mat;
-  mat.m[0][0] = mat.m[1][1] = mat.m[2][2] = mat.m[3][3] = 1;
+  mat.At(0, 0) = mat.At(1, 1) = mat.At(2, 2) = mat.At(3, 3) = 1;
   return mat;
 }
 
 CPU_AND_CUDA inline Matrix4x4 Matrix4x4::Translate(const Vector3f &T) {
   Matrix4x4 mat;
   for (int i = 0; i < 3; ++i) {
-    mat.m[i][3] = T[i];
+    mat.At(i, 3) = T[i];
   }
   return mat;
 }
@@ -86,7 +89,7 @@ CPU_AND_CUDA inline Matrix4x4 Matrix4x4::Translate(const Vector3f &T) {
 CPU_AND_CUDA inline Matrix4x4 Matrix4x4::Scale(const Vector3f &S) {
   Matrix4x4 mat;
   for (int i = 0; i < 3; ++i) {
-    mat.m[i][i] = S[i];
+    mat.At(i, i) = S[i];
   }
   return mat;
 }
@@ -96,10 +99,10 @@ CPU_AND_CUDA inline Matrix4x4 Matrix4x4::RotateX(const Float angle) {
   Float c = std::cos(rad);
   Float s = std::sin(rad);
   Matrix4x4 mat;
-  mat.m[1][1] = c;
-  mat.m[2][2] = c;
-  mat.m[1][2] = -s;
-  mat.m[2][1] = s;
+  mat.At(1, 1) = c;
+  mat.At(2, 2) = c;
+  mat.At(1, 2) = -s;
+  mat.At(2, 1) = s;
   return mat;
 }
 
@@ -108,10 +111,10 @@ CPU_AND_CUDA inline Matrix4x4 Matrix4x4::RotateY(const Float angle) {
   Float c = std::cos(rad);
   Float s = std::sin(rad);
   Matrix4x4 mat;
-  mat.m[0][0] = c;
-  mat.m[2][2] = c;
-  mat.m[0][2] = s;
-  mat.m[2][0] = -s;
+  mat.At(0, 0) = c;
+  mat.At(2, 2) = c;
+  mat.At(0, 2) = s;
+  mat.At(2, 0) = -s;
   return mat;
 }
 
@@ -120,10 +123,10 @@ CPU_AND_CUDA inline Matrix4x4 Matrix4x4::RotateZ(const Float angle) {
   Float c = std::cos(rad);
   Float s = std::sin(rad);
   Matrix4x4 mat;
-  mat.m[0][0] = c;
-  mat.m[1][1] = c;
-  mat.m[0][1] = -s;
-  mat.m[1][0] = s;
+  mat.At(0, 0) = c;
+  mat.At(1, 1) = c;
+  mat.At(0, 1) = -s;
+  mat.At(1, 0) = s;
   return mat;
 }
 
@@ -132,11 +135,11 @@ CPU_AND_CUDA inline Matrix4x4 Matrix4x4::operator*(const Matrix4x4 &mat) const {
   Matrix4x4 o;
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
-      o.m[i][j] = 
-        m[i][0] * mat.m[0][j] +
-        m[i][1] * mat.m[1][j] +
-        m[i][2] * mat.m[2][j] +
-        m[i][3] * mat.m[3][j];
+      o.At(i, j) = 
+        At(i, 0) * mat.At(0, j) +
+        At(i, 1) * mat.At(1, j) +
+        At(i, 2) * mat.At(2, j) +
+        At(i, 3) * mat.At(3, j);
     }
   }
   return o;
@@ -150,10 +153,10 @@ CPU_AND_CUDA inline Matrix4x4& Matrix4x4::operator*=(const Matrix4x4 &mat) {
 CPU_AND_CUDA inline Vector3f Matrix4x4::MulMatVec(const Vector3f &v, Float w) const {
   Vector3f o;
   for (int i = 0; i < 3; ++i) {
-    o[i] = m[i][0] * v[0] + 
-           m[i][1] * v[1] + 
-           m[i][2] * v[2] + 
-           m[i][3] * w;
+    o[i] = At(i, 0) * v[0] + 
+           At(i, 1) * v[1] + 
+           At(i, 2) * v[2] + 
+           At(i, 3) * w;
   }
   return o;
 }
@@ -161,10 +164,10 @@ CPU_AND_CUDA inline Vector3f Matrix4x4::MulMatVec(const Vector3f &v, Float w) co
 CPU_AND_CUDA inline Vector3f Matrix4x4::MulTranspMatVecMatVec(const Vector3f &v, Float w) const {
   Vector3f o;
   for (int i = 0; i < 3; ++i) {
-    o[i] = m[0][i] * v[0] + 
-           m[1][i] * v[1] + 
-           m[2][i] * v[2] + 
-           m[3][i] * w;
+    o[i] = At(0, i) * v[0] + 
+           At(1, i) * v[1] + 
+           At(2, i) * v[2] + 
+           At(3, i) * w;
   }
   return o;
 }
