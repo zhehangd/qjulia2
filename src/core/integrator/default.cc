@@ -73,7 +73,7 @@ CPU_AND_CUDA Spectrum DefaultIntegrator::LiRecursive(
     if (in_cosine <= 0) {continue;}
   
     // Test occlusion
-    Ray in_ray(hit_position + lray.wi * ray_delta_, lray.wi);
+    Ray in_ray(hit_position + hit_normal * ray_delta_, lray.wi);
     Intersection occ_isect;
     const Object *occ_object = scene.Intersect(in_ray, &occ_isect);
     (void)occ_object; // reserved
