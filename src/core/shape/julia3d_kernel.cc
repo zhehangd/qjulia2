@@ -48,7 +48,7 @@ CPU_AND_CUDA FractalTestRet Julia3DIntersectKernel::SearchIntersection(
     Float q_norm = q.Norm(); // TODO: cover 0
     Float qp_norm = qp.Norm();
     Float d = 0.5 * q_norm * std::log(q_norm) / qp_norm;
-    if (d < 1e-3) {
+    if (d < precision_) {
       ret.has_intersection = true;
       ret.isect_position = p;
       ret.dist = (p - start).Norm();
@@ -83,7 +83,7 @@ CPU_AND_CUDA void Julia3DIntersectKernel::Iterate(Quaternion &q, int n) const {
 CPU_AND_CUDA Vector3f Julia3DIntersectKernel::EstimateNormal(
     const Vector3f &v) const {
     
-  Float eps = 1e-3;
+  Float eps = precision_;
   Quaternion q(v[0], v[1], v[2], 0);
   Quaternion neighbors[6];
   
@@ -115,7 +115,8 @@ CPU_AND_CUDA Vector3f Julia3DIntersectKernel::EstimateNormal(
 CPU_AND_CUDA void IsectJulia3D(
     const Julia3DIntersectKernel &kernel, const Ray &ray, Intersection &isect) {
   Float dnear, dfar;
-  bool has_roots = IntersectSphere(ray.start, ray.dir, kernel.GetBoundingRadius(), &dnear, &dfar);
+  bool has_roots = IntersectSphere(ray.start, ray.dir,
+                                   kernel.GetBoundingRadius(), &dnear, &dfar);
   if (has_roots && dfar >= 0) {
     dnear = dnear > 0 ? dnear : 0;
     Vector3f start = ray.start + ray.dir * dnear;

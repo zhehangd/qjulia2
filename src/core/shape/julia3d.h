@@ -44,6 +44,24 @@ class Julia3DShape : public Shape {
   
   CPU_AND_CUDA void SetConstant(Quaternion c) {kernel.SetConstant(c);}
   
+  CPU_AND_CUDA Quaternion GetConstant(void) const {return kernel.GetConstant();}
+  
+  CPU_AND_CUDA void SetPrecision(Float prec) {kernel.SetPrecision(prec);}
+  
+  CPU_AND_CUDA Float GetPrecision(void) const {return kernel.GetPrecision();}
+  
+  CPU_AND_CUDA void SetMaxInterations(int n) {kernel.SetMaxInterations(n);}
+  
+  CPU_AND_CUDA int GetMaxInterations(void) const {return kernel.GetPrecision();}
+  
+  CPU_AND_CUDA void SetEscapeMagnitude(Float r) {kernel.SetEscapeMagnitude(r);}
+  
+  CPU_AND_CUDA Float GetEscapeMagnitude(void) const {return kernel.GetPrecision();}
+  
+  CPU_AND_CUDA void SetBoundingRadius(Float r) {kernel.SetBoundingRadius(r);}
+  
+  CPU_AND_CUDA Float GetBoundingRadius(void) const {return kernel.GetPrecision();}
+  
   CPU_AND_CUDA void UsePreset(int i);
   
   CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override {
