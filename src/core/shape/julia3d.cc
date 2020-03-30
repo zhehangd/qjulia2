@@ -40,16 +40,28 @@ namespace qjulia {
 
 struct Julia3DData {
   Quaternion constant;
+  Float precision;
+  Float max_magnitude;
+  Float bounding_radius;
+  int max_iterations;
 };
 
 KERNEL void UpdateJulia3DShape(Entity *dst_b, Julia3DData params) {
   auto *dst = static_cast<Julia3DShape*>(dst_b);
   dst->SetConstant(params.constant);
+  dst->SetPrecision(params.precision);
+  dst->SetEscapeMagnitude(params.max_magnitude);
+  dst->SetBoundingRadius(params.bounding_radius);
+  dst->SetMaxInterations(params.max_iterations);
 }
 
 void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
   Julia3DData params;
   params.constant = kernel.GetConstant();
+  params.precision = kernel.GetPrecision();
+  params.max_magnitude = kernel.GetEscapeMagnitude();
+  params.bounding_radius = kernel.GetBoundingRadius();
+  params.max_iterations = kernel.GetMaxInterations();
   UpdateJulia3DShape<<<1, 1>>>(device_ptr, params);
 }
 
