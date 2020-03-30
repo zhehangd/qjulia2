@@ -52,15 +52,15 @@ class Julia3DShape : public Shape {
   
   CPU_AND_CUDA void SetMaxInterations(int n) {kernel.SetMaxInterations(n);}
   
-  CPU_AND_CUDA int GetMaxInterations(void) const {return kernel.GetPrecision();}
+  CPU_AND_CUDA int GetMaxInterations(void) const {return kernel.GetMaxInterations();}
   
   CPU_AND_CUDA void SetEscapeMagnitude(Float r) {kernel.SetEscapeMagnitude(r);}
   
-  CPU_AND_CUDA Float GetEscapeMagnitude(void) const {return kernel.GetPrecision();}
+  CPU_AND_CUDA Float GetEscapeMagnitude(void) const {return kernel.GetEscapeMagnitude();}
   
   CPU_AND_CUDA void SetBoundingRadius(Float r) {kernel.SetBoundingRadius(r);}
   
-  CPU_AND_CUDA Float GetBoundingRadius(void) const {return kernel.GetPrecision();}
+  CPU_AND_CUDA Float GetBoundingRadius(void) const {return kernel.GetBoundingRadius();}
   
   CPU_AND_CUDA void UsePreset(int i);
   

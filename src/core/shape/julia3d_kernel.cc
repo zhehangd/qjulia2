@@ -31,6 +31,8 @@ SOFTWARE.
 #include "core/algorithm.h"
 
 namespace qjulia {
+  
+#define SHOW_HALF
 
 CPU_AND_CUDA Julia3DIntersectKernel::Julia3DIntersectKernel(
     Quaternion julia_constant) : julia_constant_(julia_constant) {
@@ -39,8 +41,20 @@ CPU_AND_CUDA Julia3DIntersectKernel::Julia3DIntersectKernel(
 CPU_AND_CUDA FractalTestRet Julia3DIntersectKernel::SearchIntersection(
     const Vector3f &start, const Vector3f &dir, Float max_dist) const {
   FractalTestRet ret;
-  Vector3f p = start;
+  Vector3f p = start; // start must be within the bounding sphere
   while((p - start).Norm() < max_dist) {
+#ifdef SHOW_HALF
+    if (p[2] > 0) {
+      if (dir[2] < 0) {
+        float k = - start[2] / dir[2];
+        p[0] = start[0] + k * dir[0];
+        p[1] = start[1] + k * dir[1];
+        p[2] = 0;
+      } else {
+        break;
+      }
+    }
+#endif
     Quaternion q(p[0], p[1], p[2], 0);
     Quaternion qp(1, 0, 0, 0);
     Iterate(q, qp);
@@ -82,6 +96,10 @@ CPU_AND_CUDA void Julia3DIntersectKernel::Iterate(Quaternion &q, int n) const {
 
 CPU_AND_CUDA Vector3f Julia3DIntersectKernel::EstimateNormal(
     const Vector3f &v) const {
+
+#ifdef SHOW_HALF
+  if (v[2] >= 0) {return {0, 0, 1};}
+#endif
     
   Float eps = precision_;
   Quaternion q(v[0], v[1], v[2], 0);

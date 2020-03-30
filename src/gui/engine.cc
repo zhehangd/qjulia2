@@ -88,7 +88,7 @@ void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopt
   RenderOptions options;
   options.cuda = true;
   options.antialias = true;
-  LOG(INFO) << sopts.precision;
+  
   Size size;
   if (preview) {
     size.width = preview_size_.width;
