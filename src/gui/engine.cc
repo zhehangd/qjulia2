@@ -14,6 +14,12 @@ class RenderEngine::Impl {
   void Init(std::string scene_file);
   
   void Run(bool preview, cv::Mat &dst, SceneOptions options);
+  
+  Julia3DShape* GetJulia3D(void);
+  
+  Camera3D* GetCamera3D(void);
+  
+  RenderEngine::SceneOptions GetDefaultOptions();
    
   cv::Size size_;
   cv::Size preview_size_;
@@ -34,11 +40,35 @@ void RenderEngine::Impl::Init(std::string scene_file) {
   RegisterDefaultEntities(build);
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
+  
+}
+
+Julia3DShape* RenderEngine::Impl::GetJulia3D(void) {
+  auto *julia3d = dynamic_cast<Julia3DShape*>(
+    ParseEntity<Shape>("fractal_shape_1", &build));
+  CHECK_NOTNULL(julia3d);
+  return julia3d;
+}
+
+Camera3D* RenderEngine::Impl::GetCamera3D(void) {
+  auto *camera = dynamic_cast<Camera3D*>(
+    ParseEntity<Camera>("", &build));
+  CHECK_NOTNULL(camera);
+  return camera;
+}
+
+RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
+  auto *camera = GetCamera3D();
+  auto *julia3d = GetJulia3D();
+  Quaternion jconst = julia3d->GetConstant();
+  RenderEngine::SceneOptions opts;
+  opts.julia_constant = jconst;
+  return opts;
 }
 
 void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopts) {
   
-  auto *camera = static_cast<Camera3D*>(ParseEntity<Camera>("", &build));
+  auto *camera = GetCamera3D();
   
   float dist = sopts.camera_pose[2];
   float azi = sopts.camera_pose[0] / 180.0f * 3.1416f;
@@ -49,12 +79,11 @@ void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopt
   Vector3f camera_from(x, y, z);
   camera->LookAt(camera_from, {0, 1.4, 0}, {0, 1, 0});
   
-  Quaternion jconst (sopts.julia_constant[0], sopts.julia_constant[1],
-                     sopts.julia_constant[2], sopts.julia_constant[3]);
+  Quaternion jconst = sopts.julia_constant;
   
   //LOG(INFO) << camera_from << " " << jconst;
   
-  auto *julia3d = static_cast<Julia3DShape*>(ParseEntity<Shape>("fractal_shape_1", &build));
+  auto *julia3d = GetJulia3D();
   julia3d->SetConstant(jconst);
   
   RenderOptions options;
@@ -97,6 +126,10 @@ RenderEngine::~RenderEngine(void) {}
 
 void RenderEngine::Init(std::string scene_file) {
   impl_->Init(scene_file);
+}
+
+RenderEngine::SceneOptions RenderEngine::GetDefaultOptions() {
+  return impl_->GetDefaultOptions();
 }
 
 cv::Size RenderEngine::GetSize(void) const {

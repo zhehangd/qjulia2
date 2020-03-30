@@ -12,14 +12,18 @@ class RenderEngine {
  public:
    
   struct SceneOptions {
-    float julia_constant[4] {0,0,0,0};
+    qjulia::Quaternion julia_constant;
     float camera_pose[3] {10, 0, 5.3}; // azimuth/altitude/distance
+    float precision = 1e-3;
   };
    
   RenderEngine(void);
   ~RenderEngine(void);
   
   void Init(std::string scene_file);
+  
+  /// @brief Gets a copy of options based on the scene file.
+  SceneOptions GetDefaultOptions();
   
   cv::Size GetSize(void) const;
   

@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   ui->graphicsView->setScene(new QGraphicsScene(this));
   ui->graphicsView->scene()->addItem(&pixmap_);
   
+  engine_options_ = engine_->GetDefaultOptions();
   
   slider_azi_cvt_.vsrt = 0;
   slider_azi_cvt_.vend = 180;
