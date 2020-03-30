@@ -63,6 +63,7 @@ RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
   Quaternion jconst = julia3d->GetConstant();
   RenderEngine::SceneOptions opts;
   opts.julia_constant = jconst;
+  opts.precision = julia3d->GetPrecision();
   return opts;
 }
 
@@ -81,15 +82,13 @@ void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopt
   
   Quaternion jconst = sopts.julia_constant;
   
-  //LOG(INFO) << camera_from << " " << jconst;
-  
   auto *julia3d = GetJulia3D();
   julia3d->SetConstant(jconst);
-  
+  julia3d->SetPrecision(sopts.precision);
   RenderOptions options;
   options.cuda = true;
   options.antialias = true;
-  
+  LOG(INFO) << sopts.precision;
   Size size;
   if (preview) {
     size.width = preview_size_.width;

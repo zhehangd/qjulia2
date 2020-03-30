@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   ui->graphicsView->setScene(new QGraphicsScene(this));
   ui->graphicsView->scene()->addItem(&pixmap_);
   
-  engine_options_ = engine_->GetDefaultOptions();
+  
   
   slider_azi_cvt_.vsrt = 0;
   slider_azi_cvt_.vend = 180;
@@ -28,7 +28,10 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   slider_dist_cvt_.vend = 1;
   slider_jconst_cvt_.vsrt = -1;
   slider_jconst_cvt_.vend = 1;
+  slider_precision_cvt_.vsrt = 1e-3;
+  slider_precision_cvt_.vend = 1e-5;
   
+  engine_options_ = engine_->GetDefaultOptions();
   ui->slider_azi->setValue(slider_azi_cvt_.ValueToTick(engine_options_.camera_pose[0]));
   ui->slider_alt->setValue(slider_alt_cvt_.ValueToTick(engine_options_.camera_pose[1]));
   ui->slider_dist->setValue(slider_dist_cvt_.ValueToTick(engine_options_.camera_pose[2]));
@@ -36,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   ui->slider_const2->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[1]));
   ui->slider_const3->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[2]));
   ui->slider_const4->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[3]));
+  ui->slider_precision->setValue(slider_precision_cvt_.ValueToTick(engine_options_.precision));
   
   connect(ui->slider_azi, SIGNAL(valueChanged(int)), this, SLOT(onSliderAziChanged(int)));
   connect(ui->slider_azi, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
@@ -51,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   connect(ui->slider_const3, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(ui->slider_const4, SIGNAL(valueChanged(int)), this, SLOT(onSliderJConst4Changed(int)));
   connect(ui->slider_const4, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
+  connect(ui->slider_precision, SIGNAL(valueChanged(int)), this, SLOT(onSliderPrecisionChanged(int)));
+  connect(ui->slider_precision, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
   renderFull();
 }
@@ -110,6 +116,13 @@ void MainWindow::onSliderJConst4Changed(int position) {
   float val = slider_jconst_cvt_.TickToValue(position);
   engine_options_.julia_constant[3] = val;
   ui->label_const4->setText(QString("%1").arg(val, 0, 'g', 2));
+  DrawImage();
+}
+
+void MainWindow::onSliderPrecisionChanged(int position) {
+  float val = slider_precision_cvt_.TickToValue(position);
+  engine_options_.precision = val;
+  ui->label_precision->setText(QString("%1").arg(val, 0, 'e', 2));
   DrawImage();
 }
 
