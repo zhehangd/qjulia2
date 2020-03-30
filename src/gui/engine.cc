@@ -8,12 +8,18 @@
 
 using namespace qjulia;
 
+enum class RenderType {
+  kPreview,
+  kDisplay,
+  kSave,
+};
+
 class RenderEngine::Impl {
  public:
   
   void Init(std::string scene_file);
   
-  void Run(bool preview, cv::Mat &dst, SceneOptions options);
+  void Run(RenderType rtype, cv::Mat &dst, SceneOptions options);
   
   Julia3DShape* GetJulia3D(void);
   
@@ -23,6 +29,7 @@ class RenderEngine::Impl {
    
   cv::Size size_;
   cv::Size preview_size_;
+  cv::Size save_size_;
   cv::Mat cache_;
   cv::Mat prev_cache_;
   
@@ -34,6 +41,7 @@ void RenderEngine::Impl::Init(std::string scene_file) {
   
   size_ = cv::Size(1280, 960);
   preview_size_ = cv::Size(1280, 960);
+  save_size_ = cv::Size(2560, 1920);
   cache_.create(size_, CV_8UC3);
   prev_cache_.create(size_, CV_8UC3);
   
@@ -67,7 +75,7 @@ RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
   return opts;
 }
 
-void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopts) {
+void RenderEngine::Impl::Run(RenderType rtype, cv::Mat &dst_image, SceneOptions sopts) {
   
   auto *camera = GetCamera3D();
   
@@ -90,14 +98,20 @@ void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopt
   options.antialias = true;
   
   Size size;
-  if (preview) {
+  if (rtype == RenderType::kPreview) {
     size.width = preview_size_.width;
     size.height = preview_size_.height;
     options.antialias = false;
-  } else {
+  } else if (rtype == RenderType::kDisplay) {
     size.width = size_.width;
     size.height = size_.height;
     options.antialias = true;
+  } else if (rtype == RenderType::kSave) {
+    size.width = save_size_.width;
+    size.height = save_size_.height;
+    options.antialias = true;
+  } else {
+    LOG(FATAL) << "Unknown rtype";
   }
   
   Film film(size.width, size.height);
@@ -116,7 +130,11 @@ void RenderEngine::Impl::Run(bool preview, cv::Mat &dst_image, SceneOptions sopt
       }
     }
   }
-  cv::resize(cache_small, dst_image, size_);
+  if (rtype == RenderType::kPreview) {
+    cv::resize(cache_small, dst_image, size_);
+  } else {
+    cache_small.copyTo(dst_image);
+  }
 }
 
 RenderEngine::RenderEngine(void) : impl_(new Impl()) {}
@@ -136,11 +154,17 @@ cv::Size RenderEngine::GetSize(void) const {
 }
 
 cv::Mat RenderEngine::Render(SceneOptions options) {
-  impl_->Run(false, impl_->cache_, options);
+  impl_->Run(RenderType::kDisplay, impl_->cache_, options);
   return impl_->cache_;
 }
 
 cv::Mat RenderEngine::Preview(SceneOptions options) {
-  impl_->Run(true, impl_->prev_cache_, options);
+  impl_->Run(RenderType::kPreview, impl_->prev_cache_, options);
   return impl_->prev_cache_;
+}
+
+void RenderEngine::Save(SceneOptions options) {
+  cv::Mat image;
+  impl_->Run(RenderType::kSave, image, options);
+  cv::imwrite("gui-output.png", image);
 }

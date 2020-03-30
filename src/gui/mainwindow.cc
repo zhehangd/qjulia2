@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   connect(ui->slider_const4, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(ui->slider_precision, SIGNAL(valueChanged(int)), this, SLOT(onSliderPrecisionChanged(int)));
   connect(ui->slider_precision, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
+  connect(ui->pushButton_save, SIGNAL(clicked(bool)), this, SLOT(onPushButtonSaveClicked(bool)));
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
   renderFull();
 }
@@ -124,6 +125,12 @@ void MainWindow::onSliderPrecisionChanged(int position) {
   engine_options_.precision = val;
   ui->label_precision->setText(QString("%1").arg(val, 0, 'e', 2));
   DrawImage();
+}
+
+void MainWindow::onPushButtonSaveClicked(bool checked) {
+  qDebug() << "Save pushed";
+  engine_->Save(engine_options_);
+  qDebug() << "Done";
 }
 
 void MainWindow::onRenderFinished(void) {

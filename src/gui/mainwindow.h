@@ -88,6 +88,7 @@ private slots:
   void onSliderJConst3Changed(int position);
   void onSliderJConst4Changed(int position);
   void onSliderPrecisionChanged(int position);
+  void onPushButtonSaveClicked(bool checked);
   
   // Render a full image
   void renderFull(void);

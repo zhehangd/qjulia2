@@ -31,6 +31,8 @@ class RenderEngine {
   
   cv::Mat Preview(SceneOptions options);
   
+  void Save(SceneOptions options);
+  
  private:
    
   class Impl;
