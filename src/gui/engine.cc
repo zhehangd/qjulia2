@@ -72,6 +72,7 @@ RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
   RenderEngine::SceneOptions opts;
   opts.julia_constant = jconst;
   opts.precision = julia3d->GetPrecision();
+  opts.cross_section = julia3d->GetCrossSectionFlag();
   return opts;
 }
 
@@ -93,6 +94,8 @@ void RenderEngine::Impl::Run(RenderType rtype, cv::Mat &dst_image, SceneOptions 
   auto *julia3d = GetJulia3D();
   julia3d->SetConstant(jconst);
   julia3d->SetPrecision(sopts.precision);
+  julia3d->SetCrossSectionFlag(sopts.cross_section);
+  
   RenderOptions options;
   options.cuda = true;
   options.antialias = true;

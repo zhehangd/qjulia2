@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   ui->slider_const3->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[2]));
   ui->slider_const4->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[3]));
   ui->slider_precision->setValue(slider_precision_cvt_.ValueToTick(engine_options_.precision));
-  
+  ui->checkBoxCrossSection->setChecked(engine_options_.cross_section);
   connect(ui->slider_azi, SIGNAL(valueChanged(int)), this, SLOT(onSliderAziChanged(int)));
   connect(ui->slider_azi, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(ui->slider_alt, SIGNAL(valueChanged(int)), this, SLOT(onSliderAltChanged(int)));
@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   connect(ui->slider_precision, SIGNAL(valueChanged(int)), this, SLOT(onSliderPrecisionChanged(int)));
   connect(ui->slider_precision, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(ui->pushButton_save, SIGNAL(clicked(bool)), this, SLOT(onPushButtonSaveClicked(bool)));
+  connect(ui->checkBoxCrossSection, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxCrossSectionChanged(int)));
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
   renderFull();
 }
@@ -128,9 +129,15 @@ void MainWindow::onSliderPrecisionChanged(int position) {
 }
 
 void MainWindow::onPushButtonSaveClicked(bool checked) {
+  (void)checked;
   qDebug() << "Save pushed";
   engine_->Save(engine_options_);
   qDebug() << "Done";
+}
+
+void MainWindow::onCheckBoxCrossSectionChanged(int state) {
+  engine_options_.cross_section = state;
+  DrawImage();
 }
 
 void MainWindow::onRenderFinished(void) {

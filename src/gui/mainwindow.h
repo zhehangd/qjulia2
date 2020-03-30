@@ -89,6 +89,7 @@ private slots:
   void onSliderJConst4Changed(int position);
   void onSliderPrecisionChanged(int position);
   void onPushButtonSaveClicked(bool checked);
+  void onCheckBoxCrossSectionChanged(int state);
   
   // Render a full image
   void renderFull(void);

@@ -62,6 +62,10 @@ class Julia3DShape : public Shape {
   
   CPU_AND_CUDA Float GetBoundingRadius(void) const {return kernel.GetBoundingRadius();}
   
+  CPU_AND_CUDA void SetCrossSectionFlag(bool enable) {kernel.SetCrossSectionFlag(enable);};
+  
+  CPU_AND_CUDA bool GetCrossSectionFlag(void) const {return kernel.GetCrossSectionFlag();};
+  
   CPU_AND_CUDA void UsePreset(int i);
   
   CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override {

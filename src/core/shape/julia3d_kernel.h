@@ -69,6 +69,10 @@ class Julia3DIntersectKernel {
   
   CPU_AND_CUDA Float GetBoundingRadius(void) const {return bounding_radius_;}
   
+  CPU_AND_CUDA void SetCrossSectionFlag(bool enable) {cross_section_ = enable;};
+  
+  CPU_AND_CUDA bool GetCrossSectionFlag(void) const {return cross_section_;};
+  
   
  private:
   
@@ -85,6 +89,8 @@ class Julia3DIntersectKernel {
   Float max_magnitude_ = 10.0f;
   
   Float bounding_radius_ = 3.0f;
+  
+  bool cross_section_ = false;
 };
 
 CPU_AND_CUDA void IsectJulia3D(

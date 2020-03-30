@@ -44,6 +44,7 @@ struct Julia3DData {
   Float max_magnitude;
   Float bounding_radius;
   int max_iterations;
+  bool cross_section = false;
 };
 
 KERNEL void UpdateJulia3DShape(Entity *dst_b, Julia3DData params) {
@@ -53,6 +54,7 @@ KERNEL void UpdateJulia3DShape(Entity *dst_b, Julia3DData params) {
   dst->SetEscapeMagnitude(params.max_magnitude);
   dst->SetBoundingRadius(params.bounding_radius);
   dst->SetMaxInterations(params.max_iterations);
+  dst->SetCrossSectionFlag(params.cross_section);
 }
 
 void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
@@ -62,6 +64,7 @@ void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
   params.max_magnitude = kernel.GetEscapeMagnitude();
   params.bounding_radius = kernel.GetBoundingRadius();
   params.max_iterations = kernel.GetMaxInterations();
+  params.cross_section = kernel.GetCrossSectionFlag();
   UpdateJulia3DShape<<<1, 1>>>(device_ptr, params);
 }
 

@@ -13,8 +13,9 @@ class RenderEngine {
    
   struct SceneOptions {
     qjulia::Quaternion julia_constant;
-    float camera_pose[3] {10, 0, 5.3}; // azimuth/altitude/distance
-    float precision = 1e-3;
+    qjulia::Vector3f camera_pose {10, 0, 5.3}; // azimuth/altitude/distance
+    float precision;
+    bool cross_section;
   };
    
   RenderEngine(void);
