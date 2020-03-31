@@ -46,6 +46,8 @@ template <typename T>
 class Array2D {
  public:
   
+  CPU_AND_CUDA Array2D(void) {}
+   
   CPU_AND_CUDA Array2D(Size size);
   
   CPU_AND_CUDA Array2D(Size size, T *p);
@@ -53,6 +55,10 @@ class Array2D {
   CPU_AND_CUDA Array2D(const Array2D &src);
   
   CPU_AND_CUDA ~Array2D(void);
+  
+  void Resize(Size size);
+  
+  void CopyTo(Array2D<T> &dst);
   
   CPU_AND_CUDA T& At(SizeType r, SizeType c);
   CPU_AND_CUDA const T& At(SizeType r, SizeType c) const;
@@ -82,7 +88,7 @@ class Array2D {
  private:
   bool managed_ = false;
   Size size_;
-  T *data_; // W x H
+  T *data_ = nullptr; // W x H
 };
 
 template <typename T>
@@ -107,7 +113,7 @@ CPU_AND_CUDA Array2D<T>::Array2D(Size size, T *p) {
 
 template <typename T>
 CPU_AND_CUDA Array2D<T>::~Array2D(void) {
-  if (managed_) {delete[] data_;}
+  if (managed_ && data_) {delete[] data_;}
 }
 
 template <typename T>
@@ -121,6 +127,28 @@ CPU_AND_CUDA Array2D<T>::Array2D(const Array2D &src) {
     managed_ = false;
     size_ = src.size_;
     data_ = src.data_;
+  }
+}
+
+template <typename T>
+void Array2D<T>::Resize(Size size) {
+  if (size.width == size_.width && size.height == size_.height) {
+    return;
+  }
+  if (managed_ && data_) {
+    delete[] data_;
+  }
+  managed_ = true;
+  size_ = size;
+  data_ = new T[size_.Total()]();
+}
+
+template <typename T>
+void Array2D<T>::CopyTo(Array2D<T> &dst) {
+  if (this == &dst) {return;}
+  dst.Resize(dst.ArraySize()); // TODO: memcpy
+  for (int i = 0; i < NumElems(); ++i) {
+    dst(i) = At(i);
   }
 }
 

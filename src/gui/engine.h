@@ -4,8 +4,6 @@
 #include <memory>
 #include <string>
 
-#include <opencv2/opencv.hpp>
-
 #include "core/qjulia2.h"
 
 class RenderEngine {
@@ -26,11 +24,9 @@ class RenderEngine {
   /// @brief Gets a copy of options based on the scene file.
   SceneOptions GetDefaultOptions();
   
-  cv::Size GetSize(void) const;
+  qjulia::Image* Render(SceneOptions options);
   
-  cv::Mat Render(SceneOptions options);
-  
-  cv::Mat Preview(SceneOptions options);
+  qjulia::Image* Preview(SceneOptions options);
   
   void Save(SceneOptions options);
   

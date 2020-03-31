@@ -9,7 +9,6 @@ add_executable(qjulia2-gui
 target_link_libraries(qjulia2-gui
   Qt5::Widgets
   Qt5::Concurrent
-  ${OpenCV_LIBS}
   qjulia2-core
 )
 

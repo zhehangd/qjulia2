@@ -9,8 +9,6 @@
 #include <QtConcurrent>
 #include <QFutureWatcher>
 
-#include <opencv2/opencv.hpp>
-
 #include "engine.h"
 
 struct SliderCvt {
@@ -67,7 +65,7 @@ class MainWindow : public QMainWindow {
     
   QGraphicsPixmapItem pixmap_;
   
-  QFutureWatcher<cv::Mat> render_watch_;
+  QFutureWatcher<qjulia::Image*> render_watch_;
     
   RenderEngine *engine_;
   

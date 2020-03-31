@@ -15,8 +15,6 @@
 #include <QImage>
 #include <QMessageBox>
 
-#include <opencv2/opencv.hpp>
-
 #include "mainwindow.h"
 
 #include "engine.h"

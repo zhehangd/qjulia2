@@ -7,8 +7,6 @@
 #include <QPixmap>
 #include <QMessageBox>
 
-
-
 MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
     QMainWindow(parent), ui(new Ui::MainWindow), render_watch_(this) {
   ui->setupUi(this);
@@ -74,7 +72,8 @@ void MainWindow::showEvent(QShowEvent *ev) {
 void MainWindow::renderFull(void) {
   render_watch_.cancel();
   render_watch_.waitForFinished();
-  QFuture<cv::Mat> future = QtConcurrent::run(engine_, &RenderEngine::Render, engine_options_);
+  QFuture<qjulia::Image*> future = QtConcurrent::run(
+    engine_, &RenderEngine::Render, engine_options_);
   render_watch_.setFuture(future);
 }
 
@@ -142,17 +141,17 @@ void MainWindow::onCheckBoxCrossSectionChanged(int state) {
 
 void MainWindow::onRenderFinished(void) {
   qDebug() << "rendered full";
-  cv::Mat image = render_watch_.result();
-  QImage qt_image(image.data, image.cols, image.rows,
-                  image.step, QImage::Format_RGB888);
+  qjulia::Image& image = *render_watch_.result();
+  QImage qt_image(image.Data()->vals, image.Width(), image.Height(),
+                  image.BytesPerRow(), QImage::Format_RGB888);
   pixmap_.setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
   ui->graphicsView->fitInView(&pixmap_, Qt::KeepAspectRatio);
 }
 
 void MainWindow::DrawImage(void) {
-  cv::Mat image = engine_->Preview(engine_options_);
-  QImage qt_image(image.data, image.cols, image.rows,
-                  image.step, QImage::Format_RGB888);
+  qjulia::Image& image = *engine_->Preview(engine_options_);
+  QImage qt_image(image.Data()->vals, image.Width(), image.Height(),
+                  image.BytesPerRow(), QImage::Format_RGB888);
   
   // QPixmap maintains the image buffer for display.
   // Its data are stored in the graphic card.

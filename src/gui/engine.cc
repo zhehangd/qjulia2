@@ -19,7 +19,7 @@ class RenderEngine::Impl {
   
   void Init(std::string scene_file);
   
-  void Run(RenderType rtype, cv::Mat &dst, SceneOptions options);
+  void Run(RenderType rtype, Image &dst, SceneOptions options);
   
   Julia3DShape* GetJulia3D(void);
   
@@ -27,11 +27,11 @@ class RenderEngine::Impl {
   
   RenderEngine::SceneOptions GetDefaultOptions();
    
-  cv::Size size_;
-  cv::Size preview_size_;
-  cv::Size save_size_;
-  cv::Mat cache_;
-  cv::Mat prev_cache_;
+  Size size_;
+  Size preview_size_;
+  Size save_size_;
+  Image cache_;
+  Image prev_cache_;
   
   qjulia::RTEngine engine;
   qjulia::SceneBuilder build;
@@ -39,11 +39,12 @@ class RenderEngine::Impl {
 
 void RenderEngine::Impl::Init(std::string scene_file) {
   
-  size_ = cv::Size(1280, 960);
-  preview_size_ = cv::Size(1280, 960);
-  save_size_ = cv::Size(2560, 1920);
-  cache_.create(size_, CV_8UC3);
-  prev_cache_.create(size_, CV_8UC3);
+  size_ = Size(1280, 960);
+  preview_size_ = Size(1280, 960);
+  save_size_ = Size(2560, 1920);
+  
+  cache_.Resize(size_);
+  prev_cache_.Resize(size_);
   
   RegisterDefaultEntities(build);
   SceneDescr scene_descr = LoadSceneFile(scene_file);
@@ -76,7 +77,7 @@ RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
   return opts;
 }
 
-void RenderEngine::Impl::Run(RenderType rtype, cv::Mat &dst_image, SceneOptions sopts) {
+void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneOptions sopts) {
   
   auto *camera = GetCamera3D();
   
@@ -122,21 +123,12 @@ void RenderEngine::Impl::Run(RenderType rtype, cv::Mat &dst_image, SceneOptions 
   engine.Render(build, options, film);
   LOG(INFO) << "time: " << engine.LastRenderTime();
   
-  cv::Mat cache_small(size.height, size.width, CV_8UC3);
-  for (int r = 0; r < size.height; ++r) {
-    for (int c = 0; c < size.width; ++c) {
-      const auto &sp = film.At(r, c);
-      float scale = 255;
-      auto &dst = cache_small.at<cv::Vec3b>(r, c);
-      for (int k = 0; k < 3; ++k) {
-        dst[2 - k] = std::min(255, std::max(0, (int)std::round(sp[k] * scale)));
-      }
-    }
-  }
+  Image image(film);
+  
   if (rtype == RenderType::kPreview) {
-    cv::resize(cache_small, dst_image, size_);
+    UpSample(image, dst_image, size_);
   } else {
-    cache_small.copyTo(dst_image);
+    image.CopyTo(dst_image);
   }
 }
 
@@ -152,22 +144,18 @@ RenderEngine::SceneOptions RenderEngine::GetDefaultOptions() {
   return impl_->GetDefaultOptions();
 }
 
-cv::Size RenderEngine::GetSize(void) const {
-  return impl_->size_;
-}
-
-cv::Mat RenderEngine::Render(SceneOptions options) {
+Image* RenderEngine::Render(SceneOptions options) {
   impl_->Run(RenderType::kDisplay, impl_->cache_, options);
-  return impl_->cache_;
+  return &impl_->cache_;
 }
 
-cv::Mat RenderEngine::Preview(SceneOptions options) {
+Image* RenderEngine::Preview(SceneOptions options) {
   impl_->Run(RenderType::kPreview, impl_->prev_cache_, options);
-  return impl_->prev_cache_;
+  return &impl_->prev_cache_;
 }
 
 void RenderEngine::Save(SceneOptions options) {
-  cv::Mat image;
+  Image image;
   impl_->Run(RenderType::kSave, image, options);
-  cv::imwrite("gui-output.png", image);
+  WritePngImage("gui-output.png", image);
 }
