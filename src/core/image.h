@@ -8,9 +8,12 @@
 #include "vector.h"
 
 namespace qjulia {
-  
+
+class Film;
+
 struct Image : public Array2D<Pixel> {
   Image(int w, int h) : Array2D<Pixel>({w, h}) {}
+  Image(const Film &film);
 };
 
 void ReadPngImage(std::string filename); 

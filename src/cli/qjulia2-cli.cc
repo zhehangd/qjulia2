@@ -105,16 +105,7 @@ bool Run(int argc, char **argv) {
   engine.Render(build, option, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   
-  
-  Image image(w, h);
-  for (int i = 0; i < film.NumElems(); ++i) {
-    auto &src = film(i);
-    auto &dst = image(i);
-    for (int k = 0; k < 3; ++k) {
-      dst[k] = (unsigned char)std::round(std::min(255.0f, std::max(0.0f, src[k] * 255)));
-    }
-  }
-  
+  Image image(film);  
   WritePngImage(output_file, image);
   return true;
 }

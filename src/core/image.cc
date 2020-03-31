@@ -8,7 +8,20 @@
 
 #include <glog/logging.h>
 
+#include "film.h"
+
 namespace qjulia {
+
+Image::Image(const Film &film) : Array2D<Pixel>(film.ArraySize()) {
+  for (int i = 0; i < film.NumElems(); ++i) {
+    auto &src = film.At(i);
+    auto &dst = At(i);
+    for (int k = 0; k < 3; ++k) {
+      dst[k] = (unsigned char)std::round(
+        std::min(255.0f, std::max(0.0f, src[k] * 255)));
+    }
+  }
+}  
 
 void ReadPngImage(std::string filename) {
   FILE *fp = fopen(filename.c_str(), "rb");
