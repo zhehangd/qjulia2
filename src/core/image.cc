@@ -8,9 +8,11 @@
 
 #include <glog/logging.h>
 
-Image ReadPngImage(std::string filename) {
+namespace qjulia {
+
+void ReadPngImage(std::string filename) {
   FILE *fp = fopen(filename.c_str(), "rb");
-  CHECK (fp);
+  CHECK(fp);
   
   png_byte header[8];
   CHECK_EQ(8, fread(header, 1, 8, fp));
@@ -45,9 +47,11 @@ Image ReadPngImage(std::string filename) {
   setjmp_ret = setjmp(png_jmpbuf(png_ptr));
   CHECK(setjmp_ret == 0);
   
+  Image image(width, height);
+  
   auto btype_per_row = png_get_rowbytes(png_ptr, info_ptr);
   CHECK((int)btype_per_row == width * 3);
-  auto *data_ptr = new png_byte[btype_per_row * height];
+  auto *data_ptr = image.Data()->vals;
   
   std::vector<png_bytep> row_ptrs(height);
   for (int r = 0; r < height; ++r) {row_ptrs[r] = data_ptr + r * btype_per_row;}
@@ -56,14 +60,11 @@ Image ReadPngImage(std::string filename) {
   png_read_end(png_ptr, info_ptr);
   fclose(fp);
   
-  Image image;
-  image.data = data_ptr;
-  image.w = width;
-  image.h = height;
-  return image;
+  
+  //return Image();
 }
 
-void WritePngImage(std::string filename, Image image) {
+void WritePngImage(std::string filename, Image &image) {
   FILE *fp = fopen(filename.c_str(), "wb");
   CHECK_NOTNULL(fp);
   
@@ -80,17 +81,23 @@ void WritePngImage(std::string filename, Image image) {
   png_byte bit_depth = 8;
   png_byte color_type = PNG_COLOR_TYPE_RGB;
   
-  png_set_IHDR(png_ptr, info_ptr, image.w, image.h,
+  int width = image.Width();
+  int height = image.Height();
+  
+  png_set_IHDR(png_ptr, info_ptr, width, height,
                 bit_depth, color_type, PNG_INTERLACE_NONE,
                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
   png_write_info(png_ptr, info_ptr);
   CHECK_EQ(setjmp(png_jmpbuf(png_ptr)), 0);
 
-  std::vector<png_bytep> row_ptrs(image.h);
-  for (int r = 0; r < image.h; ++r) {row_ptrs[r] = image.data + r * image.w * 3;}
+  auto *data_ptr = image.Data()->vals;
+  std::vector<png_bytep> row_ptrs(height);
+  for (int r = 0; r < height; ++r) {row_ptrs[r] = data_ptr + r * width * 3;}
   png_write_image(png_ptr, row_ptrs.data());
   CHECK_EQ(setjmp(png_jmpbuf(png_ptr)), 0);
   png_write_end(png_ptr, NULL);
   
   fclose(fp);
+}
+
 }

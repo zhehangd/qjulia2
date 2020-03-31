@@ -4,14 +4,19 @@
 #include <string>
 #include <memory>
 
-struct Image {
-  unsigned char *data;
-  int w;
-  int h;
+#include "array2d.h"
+#include "vector.h"
+
+namespace qjulia {
+  
+struct Image : public Array2D<Pixel> {
+  Image(int w, int h) : Array2D<Pixel>({w, h}) {}
 };
 
-Image ReadPngImage(std::string filename); 
+void ReadPngImage(std::string filename); 
 
-void WritePngImage(std::string filename, Image image);
+void WritePngImage(std::string filename, Image &image);
+
+}
 
 #endif

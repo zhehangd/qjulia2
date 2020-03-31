@@ -331,6 +331,7 @@ typedef Vec_<int, 2> Vector2i;
 typedef Vec_<Float, 2> Vector2f;
 typedef Vec_<Float, 3> Vector3f;
 typedef Vec_<Float, 4> Vector4f;
+typedef Vec_<unsigned char, 3> Pixel;
 
 /** \brief Class for complex numbers
 */

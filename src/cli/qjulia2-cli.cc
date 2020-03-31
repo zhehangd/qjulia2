@@ -37,6 +37,7 @@ SOFTWARE.
 
 #include "core/qjulia2.h"
 #include "core/arg_parse.h"
+#include "core/image.h"
 
 using namespace qjulia;
 
@@ -57,7 +58,7 @@ bool Run(int argc, char **argv) {
   ("s,size", "Output image size",
     cxxopts::value<std::string>()->default_value("640x360"))
   ("o,output_file", "Output image filename",
-    cxxopts::value<std::string>()->default_value("output.ppm"))
+    cxxopts::value<std::string>()->default_value("output.png"))
   ("i,scene_file", "Input scene filename",
     cxxopts::value<std::string>()->default_value(""))
   ;
@@ -103,7 +104,18 @@ bool Run(int argc, char **argv) {
   RTEngine engine;
   engine.Render(build, option, film);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
-  SaveToPPM(output_file, film);
+  
+  
+  Image image(w, h);
+  for (int i = 0; i < film.NumElems(); ++i) {
+    auto &src = film(i);
+    auto &dst = image(i);
+    for (int k = 0; k < 3; ++k) {
+      dst[k] = (unsigned char)std::round(std::min(255.0f, std::max(0.0f, src[k] * 255)));
+    }
+  }
+  
+  WritePngImage(output_file, image);
   return true;
 }
 
