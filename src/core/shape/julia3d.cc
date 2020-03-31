@@ -92,6 +92,26 @@ void Julia3DShape::Parse(const Args &args, SceneBuilder *build) {
     Quaternion q;
     ParseArg(args[1], q);
     SetConstant(q);
+  } else if (args[0] == "SetPrecision") {
+    Float precision;
+    ParseArg(args[1], precision);
+    SetPrecision(precision);
+  } else if (args[0] == "SetMaxInterations") {
+    int max_iterations;
+    ParseArg(args[1], max_iterations);
+    SetMaxInterations(max_iterations);
+  } else if (args[0] == "SetEscapeMagnitude") {
+    Float mag;
+    ParseArg(args[1], mag);
+    SetEscapeMagnitude(mag);
+  } else if (args[0] == "SetBoundingRadius") {
+    Float radius;
+    ParseArg(args[1], radius);
+    SetBoundingRadius(radius);
+  } else if (args[0] == "SetCrossSectionFlag") {
+    bool flag;
+    ParseArg(args[1], flag);
+    SetCrossSectionFlag(flag);
   } else {
     throw UnknownCommand(args[0]);
   }
