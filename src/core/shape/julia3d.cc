@@ -89,10 +89,8 @@ void Julia3DShape::Parse(const Args &args, SceneBuilder *build) {
   (void)build;
   if (args.size() == 0) {return;}
   if (args[0] == "SetConstant") {
-    Vector3f v;
-    ParseArg(args[1], v);
     Quaternion q;
-    for (int i = 0; i < 3; ++i) {q[i] = v[i];}
+    ParseArg(args[1], q);
     SetConstant(q);
   } else {
     throw UnknownCommand(args[0]);
