@@ -25,6 +25,7 @@ configure_file(config.h.in config.h)
 set(CPP_ONLY_SOURCE_FILES
   algorithm.cc
   efloat.cc
+  image.cc
   vector.cc
   scene_descr.cc
 )
@@ -72,5 +73,6 @@ target_include_directories(qjulia2-core PUBLIC
 target_link_libraries(qjulia2-core
   fmt
   glog
+  PNG::PNG
   ${CMAKE_THREAD_LIBS_INIT}
 )
