@@ -40,7 +40,7 @@ void ConvertFilmToImage(const Film &film, Image &image) {
   }
 }
 
-void ReadPngImage(std::string filename) {
+Image ReadPNGImage(std::string filename) {
   FILE *fp = fopen(filename.c_str(), "rb");
   CHECK(fp);
   
@@ -90,11 +90,10 @@ void ReadPngImage(std::string filename) {
   png_read_end(png_ptr, info_ptr);
   fclose(fp);
   
-  
-  //return Image();
+  return std::move(image);
 }
 
-void WritePngImage(std::string filename, Image &image) {
+void WritePNGImage(std::string filename, Image &image) {
   FILE *fp = fopen(filename.c_str(), "wb");
   CHECK_NOTNULL(fp);
   

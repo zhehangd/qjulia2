@@ -31,7 +31,7 @@ SOFTWARE.
 
 using namespace qjulia;
 
-TEST(BaseVec, DefaultConstructor) {
+TEST(Array2D, DefaultConstructor) {
   Array2D<Vector3f> array2d;
   EXPECT_EQ(array2d.Width(), 0);
   EXPECT_EQ(array2d.Height(), 0);
@@ -40,7 +40,7 @@ TEST(BaseVec, DefaultConstructor) {
   EXPECT_EQ(array2d.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, NewDataConstructor) {
+TEST(Array2D, NewDataConstructor) {
   Array2D<Vector3f> array2d({48, 36});
   EXPECT_EQ(array2d.Width(), 48);
   EXPECT_EQ(array2d.Height(), 36);
@@ -54,7 +54,7 @@ TEST(BaseVec, NewDataConstructor) {
   EXPECT_EQ(array2d.GetDeleteCount(), 1);
 }
 
-TEST(BaseVec, ExistingDataConstructor) {
+TEST(Array2D, ExistingDataConstructor) {
   Vector3f data[12];
   Array2D<Vector3f> array2d(data, {4, 3});
   EXPECT_EQ(array2d.ArraySize(), Size(4, 3));
@@ -67,7 +67,7 @@ TEST(BaseVec, ExistingDataConstructor) {
   EXPECT_EQ(array2d.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, CopyConstructor1) {
+TEST(Array2D, CopyConstructor1) {
   Array2D<Vector3f> a1({64, 48});
   Array2D<Vector3f> a2(a1);
   EXPECT_NE(a1.Data(), nullptr);
@@ -85,7 +85,7 @@ TEST(BaseVec, CopyConstructor1) {
   EXPECT_EQ(a2.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, CopyConstructor2) {
+TEST(Array2D, CopyConstructor2) {
   Vector3f data[18];
   Array2D<Vector3f> a1(data, {6, 3});
   Array2D<Vector3f> a2(a1);
@@ -104,13 +104,13 @@ TEST(BaseVec, CopyConstructor2) {
   EXPECT_EQ(a2.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, MoveConstructor1) {
+TEST(Array2D, MoveConstructor1) {
   Array2D<Vector3f> a1 = Array2D<Vector3f>({6, 3});
   EXPECT_TRUE(a1.HasOwnership());
   EXPECT_NE(a1.Data(), nullptr);
 }
 
-TEST(BaseVec, MoveConstructor2) {
+TEST(Array2D, MoveConstructor2) {
   Array2D<Vector3f> a1 = Array2D<Vector3f>({6, 3});
   Array2D<Vector3f> a2 = std::move(a1);
   EXPECT_FALSE(a1.HasOwnership());
@@ -121,7 +121,7 @@ TEST(BaseVec, MoveConstructor2) {
   EXPECT_EQ(a2.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, CopyAssignment) {
+TEST(Array2D, CopyAssignment) {
   Array2D<Vector3f> a1({6, 3});
   Array2D<Vector3f> a2;
   a2 = a1;
@@ -133,7 +133,7 @@ TEST(BaseVec, CopyAssignment) {
   EXPECT_EQ(a2.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, MoveAssignment1) {
+TEST(Array2D, MoveAssignment1) {
   EXPECT_TRUE(std::is_move_assignable<Array2D<Vector3f>>::value);
   Array2D<Vector3f> a1({6, 3});
   Array2D<Vector3f> a2;
@@ -146,7 +146,7 @@ TEST(BaseVec, MoveAssignment1) {
   EXPECT_EQ(a2.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, MoveAssignment2) {
+TEST(Array2D, MoveAssignment2) {
   EXPECT_TRUE(std::is_move_assignable<Array2D<Vector3f>>::value);
   Array2D<Vector3f> a1({6, 3});
   Array2D<Vector3f> a2({6, 3});
@@ -159,7 +159,7 @@ TEST(BaseVec, MoveAssignment2) {
   EXPECT_EQ(a2.GetDeleteCount(), 1);
 }
 
-TEST(BaseVec, CopyToWithResize) {
+TEST(Array2D, CopyToWithResize) {
   Array2D<Vector3f> a1({640, 360});
   Array2D<Vector3f> a2({1920, 1080});
   a1.CopyTo(a2);
@@ -167,4 +167,28 @@ TEST(BaseVec, CopyToWithResize) {
   EXPECT_EQ(a2.GetDeleteCount(), 1);
 }
 
+TEST(Array2D, ReturnArray2D1) {
+  struct Foo {
+    static Array2D<int> Create(void) {Array2D<int> array({3, 4}); return std::move(array);}
+  };
+  Array2D<int> a1 = Foo::Create();
+  EXPECT_TRUE(a1.HasOwnership());
+  EXPECT_NE(a1.Data(), nullptr);
+  EXPECT_EQ(a1.GetDeleteCount(), 0);
+  a1.Release();
+  EXPECT_EQ(a1.GetDeleteCount(), 1);
+}
 
+TEST(Array2D, ReturnArray2D2) {
+  struct Foo {
+    static Array2D<int> Create(void) {Array2D<int> array({3, 4}); return std::move(array);}
+  };
+  Array2D<int> a1({3, 4});
+  EXPECT_EQ(a1.GetDeleteCount(), 0);
+  a1 = Foo::Create();
+  EXPECT_TRUE(a1.HasOwnership());
+  EXPECT_NE(a1.Data(), nullptr);
+  EXPECT_EQ(a1.GetDeleteCount(), 1);
+  a1.Release();
+  EXPECT_EQ(a1.GetDeleteCount(), 2);
+}

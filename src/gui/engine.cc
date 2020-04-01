@@ -157,5 +157,5 @@ Image* RenderEngine::Preview(SceneOptions options) {
 void RenderEngine::Save(SceneOptions options) {
   Image image;
   impl_->Run(RenderType::kSave, image, options);
-  WritePngImage("gui-output.png", image);
+  WritePNGImage("gui-output.png", image);
 }

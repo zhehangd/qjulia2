@@ -106,7 +106,7 @@ bool Run(int argc, char **argv) {
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   
   Image image(film);  
-  WritePngImage(output_file, image);
+  WritePNGImage(output_file, image);
   return true;
 }
 

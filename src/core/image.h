@@ -23,9 +23,9 @@ void UpSample(const Image &src, Image &dst, Size size);
 
 void ConvertFilmToImage(const Film &film, Image &image);
 
-void ReadPngImage(std::string filename); 
+Image ReadPNGImage(std::string filename); 
 
-void WritePngImage(std::string filename, Image &image);
+void WritePNGImage(std::string filename, Image &image);
 
 }
 
