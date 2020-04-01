@@ -38,7 +38,7 @@ namespace qjulia {
 class Film : public Array2D<Spectrum> {
  public:
   CPU_AND_CUDA Film(int w, int h) : Array2D<Spectrum>({w, h}) {Relocate();}
-  CPU_AND_CUDA Film(int w, int h, Spectrum *p) : Array2D<Spectrum>({w, h}, p) {Relocate();}
+  CPU_AND_CUDA Film(Spectrum *p, int w, int h) : Array2D<Spectrum>(p, {w, h}) {Relocate();}
   
   CPU_AND_CUDA void Relocate(void);
   CPU_AND_CUDA void Relocate(int x, int y, int w, int h);

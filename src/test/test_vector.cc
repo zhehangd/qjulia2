@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "core/vector.h"
 
+using namespace qjulia;
+
 TEST(BaseVec, Constructors) {
   qjulia::Point2i p1(142, 127);
   EXPECT_EQ(p1[0], 142);
@@ -55,6 +57,10 @@ TEST(BaseVec, Constructors) {
   EXPECT_EQ(p5[1], -527.f);
   EXPECT_EQ(p5[2], 5.5f);
   EXPECT_EQ(p5[3], -5.f);
+}
+
+TEST(BaseVec, MemorySize) {
+  EXPECT_EQ(sizeof(Vector3f), 3 * sizeof(Float));
 }
 
 TEST(BaseVec, Equality) {

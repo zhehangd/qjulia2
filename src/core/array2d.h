@@ -28,8 +28,10 @@ SOFTWARE.
 #define QJULIA_ARRAY2D_H_
 
 #include <vector>
+#include "stdlib.h"
 
 #include "base.h"
+
 
 namespace qjulia {
 
@@ -37,10 +39,24 @@ class Size {
  public:
   CPU_AND_CUDA Size(void) {}
   CPU_AND_CUDA Size(SizeType width, SizeType height) : width(width), height(height) {}
+  
   CPU_AND_CUDA SizeType Total(void) const {return width * height;}
+  
+  CPU_AND_CUDA bool IsZero(void) const;
+  
+  CPU_AND_CUDA bool operator==(const Size &src) const;
+  
   SizeType width = 0;
   SizeType height = 0;
 };
+
+inline CPU_AND_CUDA bool Size::IsZero(void) const {
+  return width == 0 && height == 0;
+}
+
+inline CPU_AND_CUDA bool Size::operator==(const Size &src) const {
+  return width == src.width && height == src.height;
+}
 
 template <typename T>
 class Array2D {
@@ -50,14 +66,25 @@ class Array2D {
    
   CPU_AND_CUDA Array2D(Size size);
   
-  CPU_AND_CUDA Array2D(Size size, T *p);
+  CPU_AND_CUDA Array2D(T *p, Size size);
   
+  /// @brief Make the array points to the same data as src does
+  /// but does not hold the ownership.
+  ///
+  ///
   CPU_AND_CUDA Array2D(const Array2D &src);
   
   CPU_AND_CUDA ~Array2D(void);
   
+  /// @brief Assignment is not allowed
+  CPU_AND_CUDA Array2D<T>& operator=(const Array2D &src) = delete;
+  
   void Resize(Size size);
   
+  /// @brief Copy the content of an array
+  ///
+  /// If dst has proper size, data are directly copied to the memory
+  /// dst is holding. Otherwise, new memory is allocated for dst.
   void CopyTo(Array2D<T> &dst);
   
   CPU_AND_CUDA T& At(SizeType r, SizeType c);
@@ -85,49 +112,70 @@ class Array2D {
   CPU_AND_CUDA T* Data(void) {return data_;}
   CPU_AND_CUDA const T* Data(void) const {return data_;}
   
+  CPU_AND_CUDA int GetDeleteCount(void) const {return delete_count_;}
+  
+  CPU_AND_CUDA bool HasOwnership(void) const {return ownership_;}
+  
+  CPU_AND_CUDA void Release(void);
+  
  private:
-  bool managed_ = false;
+   
+  // If the object owns the data memory
+  bool ownership_ = false;
+  
+  // Size of the array
   Size size_;
+  
+  // Data memory
   T *data_ = nullptr; // W x H
+  
+  // This variable records the number of delete calls
+  // This should not be overwritten by copying arrays.
+  // This is used for debugging and testing
+  int delete_count_ = 0;
 };
 
 template <typename T>
 CPU_AND_CUDA Array2D<T>::Array2D(Size size) {
   if (size.Total() == 0) {
-    managed_ = false;
+    ownership_ = false;
     size_ = size;
     data_ = nullptr;
   } else {
-    managed_ = true;
+    ownership_ = true;
     size_ = size;
     data_ = new T[size.Total()]();
   }
 }
 
 template <typename T>
-CPU_AND_CUDA Array2D<T>::Array2D(Size size, T *p) {
-  managed_ = false;
+CPU_AND_CUDA Array2D<T>::Array2D(T *p, Size size) {
+  ownership_ = false;
   size_ = size;
   data_ = p;
 }
 
 template <typename T>
 CPU_AND_CUDA Array2D<T>::~Array2D(void) {
-  if (managed_ && data_) {delete[] data_;}
+  Release();
 }
 
 template <typename T>
 CPU_AND_CUDA Array2D<T>::Array2D(const Array2D &src) {
-  if (src.managed_) {
-    managed_ = true;
-    size_ = src.size_;
-    data_ = new T[size_.Total()]();
-    for (int i = 0; i < size_.Total(); ++i) {data_[i] = src(i);}
-  } else {
-    managed_ = false;
-    size_ = src.size_;
-    data_ = src.data_;
+  ownership_ = false;
+  size_ = src.size_;
+  data_ = src.data_;
+}
+
+template <typename T>
+CPU_AND_CUDA void Array2D<T>::Release(void) {
+  if (ownership_ && data_) {
+    delete[] data_;
+    ++delete_count_;
   }
+  data_ = nullptr;
+  size_ = {};
+  ownership_ = false;
 }
 
 template <typename T>
@@ -135,10 +183,11 @@ void Array2D<T>::Resize(Size size) {
   if (size.width == size_.width && size.height == size_.height) {
     return;
   }
-  if (managed_ && data_) {
+  if (ownership_ && data_) {
     delete[] data_;
+    ++delete_count_;
   }
-  managed_ = true;
+  ownership_ = true;
   size_ = size;
   data_ = new T[size_.Total()]();
 }
@@ -146,10 +195,8 @@ void Array2D<T>::Resize(Size size) {
 template <typename T>
 void Array2D<T>::CopyTo(Array2D<T> &dst) {
   if (this == &dst) {return;}
-  dst.Resize(dst.ArraySize()); // TODO: memcpy
-  for (int i = 0; i < NumElems(); ++i) {
-    dst(i) = At(i);
-  }
+  dst.Resize(ArraySize());
+  memcpy(dst.Data(), Data(), sizeof(T) * NumElems());
 }
 
 template <typename T>

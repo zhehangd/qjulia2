@@ -128,7 +128,7 @@ void CUDAImpl::Render(SceneBuilder &build,
     cu_film_data_.reset(spectrum_ptr);
   }
   
-  Film cu_film(w, h, cu_film_data_.get());  
+  Film cu_film(cu_film_data_.get(), w, h);  
   
   BuildSceneParams params;
   params.cuda = true;

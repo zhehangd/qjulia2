@@ -24,6 +24,7 @@
 
 add_executable(test_all
   test_main.cc
+  test_array2d.cc
   test_efloat.cc
   test_vector.cc
   test_algorithm.cc
