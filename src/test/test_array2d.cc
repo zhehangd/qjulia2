@@ -104,12 +104,59 @@ TEST(BaseVec, CopyConstructor2) {
   EXPECT_EQ(a2.GetDeleteCount(), 0);
 }
 
-TEST(BaseVec, CopyAssignmentDisabled) {
-  EXPECT_FALSE(std::is_copy_assignable<Array2D<Vector3f>>::value);
+TEST(BaseVec, MoveConstructor1) {
+  Array2D<Vector3f> a1 = Array2D<Vector3f>({6, 3});
+  EXPECT_TRUE(a1.HasOwnership());
+  EXPECT_NE(a1.Data(), nullptr);
 }
 
-TEST(BaseVec, MoveAssignmentDisabled) {
-  EXPECT_FALSE(std::is_move_assignable<Array2D<Vector3f>>::value);
+TEST(BaseVec, MoveConstructor2) {
+  Array2D<Vector3f> a1 = Array2D<Vector3f>({6, 3});
+  Array2D<Vector3f> a2 = std::move(a1);
+  EXPECT_FALSE(a1.HasOwnership());
+  EXPECT_TRUE(a2.HasOwnership());
+  EXPECT_EQ(a1.Data(), nullptr);
+  EXPECT_NE(a2.Data(), nullptr);
+  EXPECT_EQ(a1.GetDeleteCount(), 0);
+  EXPECT_EQ(a2.GetDeleteCount(), 0);
+}
+
+TEST(BaseVec, CopyAssignment) {
+  Array2D<Vector3f> a1({6, 3});
+  Array2D<Vector3f> a2;
+  a2 = a1;
+  EXPECT_TRUE(a1.HasOwnership());
+  EXPECT_FALSE(a2.HasOwnership());
+  EXPECT_NE(a1.Data(), nullptr);
+  EXPECT_EQ(a1.Data(), a2.Data());
+  EXPECT_EQ(a1.GetDeleteCount(), 0);
+  EXPECT_EQ(a2.GetDeleteCount(), 0);
+}
+
+TEST(BaseVec, MoveAssignment1) {
+  EXPECT_TRUE(std::is_move_assignable<Array2D<Vector3f>>::value);
+  Array2D<Vector3f> a1({6, 3});
+  Array2D<Vector3f> a2;
+  a2 = std::move(a1);
+  EXPECT_FALSE(a1.HasOwnership());
+  EXPECT_TRUE(a2.HasOwnership());
+  EXPECT_EQ(a1.Data(), nullptr);
+  EXPECT_NE(a2.Data(), nullptr);
+  EXPECT_EQ(a1.GetDeleteCount(), 0);
+  EXPECT_EQ(a2.GetDeleteCount(), 0);
+}
+
+TEST(BaseVec, MoveAssignment2) {
+  EXPECT_TRUE(std::is_move_assignable<Array2D<Vector3f>>::value);
+  Array2D<Vector3f> a1({6, 3});
+  Array2D<Vector3f> a2({6, 3});
+  a2 = std::move(a1);
+  EXPECT_FALSE(a1.HasOwnership());
+  EXPECT_TRUE(a2.HasOwnership());
+  EXPECT_EQ(a1.Data(), nullptr);
+  EXPECT_NE(a2.Data(), nullptr);
+  EXPECT_EQ(a1.GetDeleteCount(), 0);
+  EXPECT_EQ(a2.GetDeleteCount(), 1);
 }
 
 TEST(BaseVec, CopyToWithResize) {

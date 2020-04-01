@@ -58,6 +58,18 @@ inline CPU_AND_CUDA bool Size::operator==(const Size &src) const {
   return width == src.width && height == src.height;
 }
 
+/// @brief 2D Array container
+///
+/// It is expected to run on CUDA as well, so it cannot use
+/// STL containers. We need to implement ourselves. An Array2D
+/// may or may not own the data memory. If it is constructed
+/// given only a size, or get resized, it will new a block of
+/// memory and owns it (meaning it will release it on destruction).
+/// If it is assigned from another array, or the data pointer is
+/// provided, it will not manage that memory but just pointing to
+/// it. So a block of data memory is either owned by only one
+/// Array2D or is completely external. This is more like a mix of
+/// unique_ptr and shared_ptr.
 template <typename T>
 class Array2D {
  public:
@@ -74,10 +86,18 @@ class Array2D {
   ///
   CPU_AND_CUDA Array2D(const Array2D &src);
   
+  CPU_AND_CUDA Array2D(Array2D &&src);
+  
   CPU_AND_CUDA ~Array2D(void);
   
-  /// @brief Assignment is not allowed
-  CPU_AND_CUDA Array2D<T>& operator=(const Array2D &src) = delete;
+  /// @brief Make the array points to the same data as src does
+  CPU_AND_CUDA Array2D<T>& operator=(const Array2D &src);
+  
+  /// @brief Move image
+  ///
+  /// Points to the same data as src does.
+  /// If src owns the data the ownership is moved as well.
+  CPU_AND_CUDA Array2D<T>& operator=(Array2D &&src);
   
   void Resize(Size size);
   
@@ -102,8 +122,6 @@ class Array2D {
   
   CPU_AND_CUDA SizeType GetIndex(SizeType r, SizeType c) const {return size_.width * r + c;}
   CPU_AND_CUDA bool IsValidCoords(SizeType r, SizeType c) const;
-  
-  //void Resize(SizeType width, SizeType height);
   
   CPU_AND_CUDA int Width(void) const {return size_.width;}
   CPU_AND_CUDA int Height(void) const {return size_.height;}
@@ -168,6 +186,15 @@ CPU_AND_CUDA Array2D<T>::Array2D(const Array2D &src) {
 }
 
 template <typename T>
+CPU_AND_CUDA Array2D<T>::Array2D(Array2D &&src) {
+  ownership_ = src.ownership_;
+  src.ownership_ = false;
+  data_ = src.data_;
+  size_ = src.size_;
+  src.Release();
+}
+
+template <typename T>
 CPU_AND_CUDA void Array2D<T>::Release(void) {
   if (ownership_ && data_) {
     delete[] data_;
@@ -197,6 +224,26 @@ void Array2D<T>::CopyTo(Array2D<T> &dst) {
   if (this == &dst) {return;}
   dst.Resize(ArraySize());
   memcpy(dst.Data(), Data(), sizeof(T) * NumElems());
+}
+
+template <typename T>
+CPU_AND_CUDA Array2D<T>& Array2D<T>::operator=(const Array2D &src) {
+  Release();
+  ownership_ = false;
+  size_ = src.size_;
+  data_ = src.data_;
+  return *this;
+}
+
+template <typename T>
+CPU_AND_CUDA Array2D<T>& Array2D<T>::operator=(Array2D &&src) {
+  Release();
+  ownership_ = src.ownership_;
+  src.ownership_ = false;
+  data_ = src.data_;
+  size_ = src.size_;
+  src.Release();
+  return *this;
 }
 
 template <typename T>
