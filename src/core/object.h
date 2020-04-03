@@ -35,6 +35,7 @@ SOFTWARE.
 #include "intersection.h"
 #include "ray.h"
 #include "spectrum.h"
+#include "texture.h"
 #include "vector.h"
 
 namespace qjulia {

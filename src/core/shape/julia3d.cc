@@ -45,6 +45,8 @@ struct Julia3DData {
   Float bounding_radius;
   int max_iterations;
   bool cross_section = false;
+  Float uv_black;
+  Float uv_white;
 };
 
 KERNEL void UpdateJulia3DShape(Entity *dst_b, Julia3DData params) {
@@ -55,6 +57,8 @@ KERNEL void UpdateJulia3DShape(Entity *dst_b, Julia3DData params) {
   dst->SetBoundingRadius(params.bounding_radius);
   dst->SetMaxInterations(params.max_iterations);
   dst->SetCrossSectionFlag(params.cross_section);
+  dst->SetUVBlack(params.uv_black);
+  dst->SetUVWhite(params.uv_white);
 }
 
 void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
@@ -65,6 +69,8 @@ void Julia3DShape::UpdateDevice(Entity *device_ptr) const {
   params.bounding_radius = kernel.GetBoundingRadius();
   params.max_iterations = kernel.GetMaxInterations();
   params.cross_section = kernel.GetCrossSectionFlag();
+  params.uv_black = kernel.GetUVBlack();
+  params.uv_white = kernel.GetUVWhite();
   UpdateJulia3DShape<<<1, 1>>>(device_ptr, params);
 }
 
@@ -112,7 +118,15 @@ void Julia3DShape::Parse(const Args &args, SceneBuilder *build) {
     bool flag;
     ParseArg(args[1], flag);
     SetCrossSectionFlag(flag);
-  } else {
+  } else if (args[0] == "SetUVBlack") {
+    Float val;
+    ParseArg(args[1], val);
+    SetUVBlack(val);
+  }  else if (args[0] == "SetUVWhite") {
+    Float val;
+    ParseArg(args[1], val);
+    SetUVWhite(val);
+  }  else {
     throw UnknownCommand(args[0]);
   }
 }

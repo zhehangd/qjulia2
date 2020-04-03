@@ -74,6 +74,8 @@ RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
   opts.julia_constant = jconst;
   opts.precision = julia3d->GetPrecision();
   opts.cross_section = julia3d->GetCrossSectionFlag();
+  opts.uv_black = julia3d->GetUVBlack();
+  opts.uv_white = julia3d->GetUVWhite();
   return opts;
 }
 
@@ -96,6 +98,8 @@ void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneOptions so
   julia3d->SetConstant(jconst);
   julia3d->SetPrecision(sopts.precision);
   julia3d->SetCrossSectionFlag(sopts.cross_section);
+  julia3d->SetUVBlack(sopts.uv_black);
+  julia3d->SetUVWhite(sopts.uv_white);
   
   RenderOptions options;
   options.cuda = true;

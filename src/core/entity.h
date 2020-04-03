@@ -60,7 +60,7 @@ class Entity {
 
 // Six basic entity types
 class Camera; class Light; class Material; class Object;
-class Shape; class Transform; class World;
+class Shape; class Texture; class Transform; class World;
 
 /// @brief Gets the ID of a basic type
 ///
@@ -71,8 +71,9 @@ template <> struct EntityTypeID<Light> {static const size_t val = 1;};
 template <> struct EntityTypeID<Material> {static const size_t val = 2;};
 template <> struct EntityTypeID<Object> {static const size_t val = 3;};
 template <> struct EntityTypeID<Shape> {static const size_t val = 4;};
-template <> struct EntityTypeID<Transform> {static const size_t val = 5;};
-template <> struct EntityTypeID<World> {static const size_t val = 6;};
+template <> struct EntityTypeID<Texture> {static const size_t val = 5;};
+template <> struct EntityTypeID<Transform> {static const size_t val = 6;};
+template <> struct EntityTypeID<World> {static const size_t val = 7;};
 
 /// @brief Gets the basic type from its ID
 template <size_t N> struct EntityType;
@@ -81,13 +82,14 @@ template <> struct EntityType<1> {typedef Light type;};
 template <> struct EntityType<2> {typedef Material type;};
 template <> struct EntityType<3> {typedef Object type;};
 template <> struct EntityType<4> {typedef Shape type;};
-template <> struct EntityType<5> {typedef Transform type;};
-template <> struct EntityType<6> {typedef World type;};
+template <> struct EntityType<5> {typedef Texture type;};
+template <> struct EntityType<6> {typedef Transform type;};
+template <> struct EntityType<7> {typedef World type;};
 
 /// @brief Name table of the basic types
 /// It is used to match of description text
 constexpr const char *kEntityTypeNames[] = {
-    "Camera", "Light", "Material", "Object", "Shape", "Transform", "World"};
+    "Camera", "Light", "Material", "Object", "Shape", "Texture", "Transform", "World"};
 
 /// @brief Trait of an entity type
 /// The template argument can be either a basic or a specific type.
@@ -105,8 +107,9 @@ struct EntityTrait {
     typename std::conditional<std::is_base_of<Object, T>::value, Object,
     typename std::conditional<std::is_base_of<World, T>::value, World,
     typename std::conditional<std::is_base_of<Shape, T>::value, Shape,
+    typename std::conditional<std::is_base_of<Texture, T>::value, Texture,
     typename std::conditional<std::is_base_of<Transform, T>::value, Transform,
-    void>::type>::type>::type>::type>::type>::type>::type;
+    void>::type>::type>::type>::type>::type>::type>::type>::type;
   
   /// @brief ID of the basic type
   static const size_t btype_id = EntityTypeID<BaseType>::val;

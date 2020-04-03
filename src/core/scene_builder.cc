@@ -33,6 +33,7 @@ SOFTWARE.
 #include "core/object.h"
 #include "core/scene.h"
 #include "core/world.h"
+#include "core/texture.h"
 #include "core/transform.h"
 
 #include "core/camera/camera3d.h"
@@ -76,6 +77,8 @@ EntityNode* SceneBuilder::CreateEntity(
     return CreateEntity<Object>(stype, name);
   } else if (btype == EntityTrait<Shape>::name) {
     return CreateEntity<Shape>(stype, name);
+  } else if (btype == EntityTrait<Texture>::name) {
+    return CreateEntity<Texture>(stype, name);
   } else if (btype == EntityTrait<Transform>::name) {
     return CreateEntity<Transform>(stype, name);
   } else if (btype == EntityTrait<World>::name) {
@@ -134,6 +137,7 @@ Scene SceneBuilder::BuildScene(BuildSceneParams params) const {
 void RegisterDefaultEntities(SceneBuilder &build) {
   build.Register<Object>("");
   build.Register<Material>("");
+  build.Register<Texture>("");
   build.Register<Transform>("");
   build.Register<World>("");
   build.Register<PerspectiveCamera>("Perspective");

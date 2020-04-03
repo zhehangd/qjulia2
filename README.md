@@ -15,7 +15,8 @@ while the distance estimation algorithm was learnt from [1] and [2].
 
 Since 2020-03-29 CUDA support is added to grealy accelerate the rendering.
 
-Currently the only supported image format is PNG.
+Currently the only supported image format is [PPM](http://netpbm.sourceforge.net/doc/ppm.html).
+You will need to do conversion yourself to get any other format.
 
 ## Install
 
@@ -24,7 +25,6 @@ This project is developed and tested on Ubuntu 18.04 with CUDA 10.0.
 
 In addition, there are a few more dependencies:
 
-* [libpng](http://www.libpng.org/pub/png/libpng.html)
 * [libfmt](https://github.com/fmtlib/fmt)
 * [glog](https://github.com/google/glog) (my plan is to remove it in the future)
 * [CUDA](https://developer.nvidia.com/cuda-zone) (optional, if you want GPU acceleration)
@@ -70,8 +70,8 @@ There are a few options can be used:
 
 * `-o <file>, --output_file <n>`
 
-  Specifies the output file name, which should end with ".png".
-  By default "output.png".
+  Specifies the output file name, which should end with ".ppm".
+  By default "output.ppm".
 
 For example, after you build the project under `<project_dir>/build`, you can do
 ```bash

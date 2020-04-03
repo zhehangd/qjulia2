@@ -58,6 +58,7 @@ CPU_AND_CUDA Spectrum DefaultIntegrator::LiRecursive(
   const Vector3f &hit_normal = isect.normal;
   
   const Material *material = hit_object->GetMaterial();
+  const Texture *texture = material->GetTexture();
   
   // Light illumination
   for (int i = 0; i < scene.NumLights(); ++i) {
@@ -89,8 +90,13 @@ CPU_AND_CUDA Spectrum DefaultIntegrator::LiRecursive(
     reflect = reflect > 0 ? reflect : 0;
     reflect = std::pow(reflect, material->ps);
     
+    Spectrum spec_diffuse = lray.spectrum * material->diffuse * in_cosine;
+    if (texture) {
+      spec_diffuse *= texture->At(isect.uv);
+    }
+    
     final_spectrum += lray.spectrum * material->ks * reflect;
-    final_spectrum += lray.spectrum * material->diffuse * in_cosine;
+    final_spectrum += spec_diffuse;
   }
   
   // Reflection

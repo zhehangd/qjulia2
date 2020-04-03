@@ -38,6 +38,8 @@ struct MaterialData {
   Float ks;
   Float ps;
   Float reflection;
+  Texture *texure_device;
+  Texture *texure_host;
 };
 
 KERNEL void UpdatePointLight(Entity *dst_b, MaterialData params) {
@@ -46,6 +48,8 @@ KERNEL void UpdatePointLight(Entity *dst_b, MaterialData params) {
   dst->ks = params.ks;
   dst->ps = params.ps;
   dst->reflection = params.reflection;
+  dst->texure_device = params.texure_device;
+  dst->texure_host = params.texure_host;
 }
 
 void Material::UpdateDevice(Entity *device_ptr) const {
@@ -54,9 +58,10 @@ void Material::UpdateDevice(Entity *device_ptr) const {
   params.ks = ks;
   params.ps = ps;
   params.reflection = reflection;
+  params.texure_device = texure_device;
+  params.texure_host = texure_host;
   UpdatePointLight<<<1, 1>>>(device_ptr, params);
 }
-
 
 #else
 
@@ -73,6 +78,10 @@ void Material::Parse(const Args &args, SceneBuilder *build) {
     ParseArg(args[1], reflection);
   } else if (args[0] == "SetSpecular") {
     ParseArg(args[1], ks);
+  } else if (args[0] == "SetTexture") {
+    auto *node = ParseEntityNode<Texture>(args[1], build);
+    texure_host = node->Get();
+    texure_device = node->GetDevice();
   } else {
     throw UnknownCommand(args[0]);
   }

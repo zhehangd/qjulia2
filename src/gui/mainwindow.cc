@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   slider_jconst_cvt_.vend = 1;
   slider_precision_cvt_.vsrt = 1e-3;
   slider_precision_cvt_.vend = 1e-5;
+  slider_uv_cvt_.vsrt = 0;
+  slider_uv_cvt_.vend = 1;
   
   engine_options_ = engine_->GetDefaultOptions();
   ui->slider_azi->setValue(slider_azi_cvt_.ValueToTick(engine_options_.camera_pose[0]));
@@ -38,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   ui->slider_const3->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[2]));
   ui->slider_const4->setValue(slider_jconst_cvt_.ValueToTick(engine_options_.julia_constant[3]));
   ui->slider_precision->setValue(slider_precision_cvt_.ValueToTick(engine_options_.precision));
+  ui->slider_uv1->setValue(slider_uv_cvt_.ValueToTick(engine_options_.uv_black));
+  ui->slider_uv2->setValue(slider_uv_cvt_.ValueToTick(engine_options_.uv_white));
   ui->checkBoxCrossSection->setChecked(engine_options_.cross_section);
   connect(ui->slider_azi, SIGNAL(valueChanged(int)), this, SLOT(onSliderAziChanged(int)));
   connect(ui->slider_azi, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
@@ -55,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   connect(ui->slider_const4, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(ui->slider_precision, SIGNAL(valueChanged(int)), this, SLOT(onSliderPrecisionChanged(int)));
   connect(ui->slider_precision, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
+  connect(ui->slider_uv1, SIGNAL(valueChanged(int)), this, SLOT(onSliderUV1Changed(int)));
+  connect(ui->slider_uv1, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
+  connect(ui->slider_uv2, SIGNAL(valueChanged(int)), this, SLOT(onSliderUV2Changed(int)));
+  connect(ui->slider_uv2, SIGNAL(sliderReleased()), this, SLOT(renderFull()));
   connect(ui->pushButton_save, SIGNAL(clicked(bool)), this, SLOT(onPushButtonSaveClicked(bool)));
   connect(ui->checkBoxCrossSection, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxCrossSectionChanged(int)));
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
@@ -123,7 +131,21 @@ void MainWindow::onSliderJConst4Changed(int position) {
 void MainWindow::onSliderPrecisionChanged(int position) {
   float val = slider_precision_cvt_.TickToValue(position);
   engine_options_.precision = val;
-  ui->label_precision->setText(QString("%1").arg(val, 0, 'e', 2));
+  ui->label_precision->setText(QString("%1").arg(val, 0, 'g', 2));
+  DrawImage();
+}
+
+void MainWindow::onSliderUV1Changed(int position) {
+  float val = slider_uv_cvt_.TickToValue(position);
+  engine_options_.uv_black = val;
+  ui->label_uv1->setText(QString("%1").arg(val, 0, 'g', 2));
+  DrawImage();
+}
+
+void MainWindow::onSliderUV2Changed(int position) {
+  float val = slider_uv_cvt_.TickToValue(position);
+  engine_options_.uv_white = val;
+  ui->label_uv2->setText(QString("%1").arg(val, 0, 'e', 2));
   DrawImage();
 }
 
@@ -144,7 +166,7 @@ void MainWindow::onRenderFinished(void) {
   qjulia::Image& image = *render_watch_.result();
   QImage qt_image(image.Data()->vals, image.Width(), image.Height(),
                   image.BytesPerRow(), QImage::Format_RGB888);
-  pixmap_.setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
+  pixmap_.setPixmap(QPixmap::fromImage(qt_image));
   ui->graphicsView->fitInView(&pixmap_, Qt::KeepAspectRatio);
 }
 
@@ -157,7 +179,7 @@ void MainWindow::DrawImage(void) {
   // Its data are stored in the graphic card.
   // It seems not be a good solution:
   // TODO: https://stackoverflow.com/questions/33781485/qgraphicspixmapitemsetpixmap-performance
-  pixmap_.setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
+  pixmap_.setPixmap(QPixmap::fromImage(qt_image));
   ui->graphicsView->fitInView(&pixmap_, Qt::KeepAspectRatio);
 }
 

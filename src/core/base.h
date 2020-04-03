@@ -44,10 +44,6 @@ SOFTWARE.
 #define KERNEL
 #endif
 
-#ifdef __CUDACC__
-#define CUDA_BLOCK
-#endif
-
 namespace qjulia {
 
 typedef int SizeType;
@@ -71,6 +67,13 @@ CPU_AND_CUDA inline Float Degree2Rad(Float d) {return d * kPi / 180.0f;}
 CPU_AND_CUDA inline constexpr Float kGamma(int n) {
   return (n * kEpsilon) / (1 - n * kEpsilon);
 }
+
+#ifdef __CUDACC__
+inline void CUDACheckError(int line, cudaError_t err) {
+  if (err == cudaSuccess) {return;}
+  LOG(FATAL) << "Line #" << line << " " << cudaGetErrorName(err) << ":" << cudaGetErrorString(err);
+};
+#endif
 
 }
 

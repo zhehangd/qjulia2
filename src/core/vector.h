@@ -52,7 +52,7 @@ class Vec_ {
   CPU_AND_CUDA Vec_(T v0, T v1, T v2) {v(0) = v0; v(1) = v1; v(2) = v2;}
   CPU_AND_CUDA Vec_(T v0, T v1, T v2, T v3) {assert(C >= 4); v(0) = v0; v(1) = v1; v(2) = v2; v(3) = v3;}
   
-  CPU_AND_CUDA Vec_(const Vec_<T, C> &src) {std::memcpy(vals, src.vals, sizeof(Float) * C);}
+  CPU_AND_CUDA Vec_(const Vec_<T, C> &src) {std::memcpy(vals, src.vals, sizeof(T) * C);}
   
   CPU_AND_CUDA const T& operator[](int i) const {return v(i);}
   CPU_AND_CUDA T& operator[](int i) {return v(i);}
@@ -268,7 +268,7 @@ This is made compatible with the scene description format.
 template<typename T, int C> inline
 std::ostream& operator<<(std::ostream &os, const Vec_<T, C> &p) {
   for (int i = 0; i < C; ++i) {
-    os << p[i];
+    os << (p[i] + 0); // +0 is a trick to avoid showing characters when T=char
     if (i != (C - 1)) {os << ',';}
   }
   return os;
@@ -327,6 +327,8 @@ typedef Vec_<int, 2> Point2i;
 typedef Vec_<Float, 2> Point2f;
 typedef Vec_<Float, 3> Point3f;
 typedef Vec_<Float, 4> Point4f;
+typedef Vec_<std::uint8_t, 3> Vector3b;
+typedef Vec_<std::uint8_t, 4> Vector4b;
 typedef Vec_<int, 2> Vector2i;
 typedef Vec_<Float, 2> Vector2f;
 typedef Vec_<Float, 3> Vector3f;

@@ -57,7 +57,7 @@ CPU_AND_CUDA FractalTestRet Julia3DIntersectKernel::SearchIntersection(
     }
     Quaternion q(p[0], p[1], p[2], 0);
     Quaternion qp(1, 0, 0, 0);
-    Iterate(q, qp);
+    int n = Iterate(q, qp);
     // Esitmate distance.
     Float q_norm = q.Norm(); // TODO: cover 0
     Float qp_norm = qp.Norm();
@@ -66,6 +66,7 @@ CPU_AND_CUDA FractalTestRet Julia3DIntersectKernel::SearchIntersection(
       ret.has_intersection = true;
       ret.isect_position = p;
       ret.dist = (p - start).Norm();
+      ret.escape_time = n;
       return ret;
     }
     p += dir * d;
@@ -145,6 +146,14 @@ CPU_AND_CUDA void IsectJulia3D(
     isect.dist = dnear + ret.dist;
     isect.position = ret.isect_position;
     isect.normal = kernel.EstimateNormal(isect.position);
+    //float u = log((float)ret.escape_time) / log((float)kernel.GetMaxInterations());
+    Float u = (float)ret.escape_time / (float)kernel.GetMaxInterations();
+    Float u_min = kernel.GetUVBlack();
+    Float u_max = kernel.GetUVWhite();
+    u = (u - u_min) / (u_max - u_min + 1e-5);
+    if (u > 1) {u = 1;}
+    if (u < 0) {u = 0;}
+    isect.uv = {u, 0};
   } else {
     isect.good = false;
   }

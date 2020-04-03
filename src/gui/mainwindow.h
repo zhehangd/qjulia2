@@ -76,6 +76,7 @@ class MainWindow : public QMainWindow {
   LinearSliderCvt slider_dist_cvt_;
   LinearSliderCvt slider_jconst_cvt_;
   LogSliderCvt slider_precision_cvt_;
+  LinearSliderCvt slider_uv_cvt_;
 
 private slots:
   void onSliderAziChanged(int position);
@@ -86,6 +87,8 @@ private slots:
   void onSliderJConst3Changed(int position);
   void onSliderJConst4Changed(int position);
   void onSliderPrecisionChanged(int position);
+  void onSliderUV1Changed(int position);
+  void onSliderUV2Changed(int position);
   void onPushButtonSaveClicked(bool checked);
   void onCheckBoxCrossSectionChanged(int state);
   

@@ -46,6 +46,7 @@ class Intersection {
   Float dist = 0;
   Point3f position;
   Vector3f normal;
+  Vector2f uv;
 };
 
 }

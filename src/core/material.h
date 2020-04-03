@@ -37,10 +37,18 @@ class Material : public Entity {
  public:
   CPU_AND_CUDA Material(void) {}
   CPU_AND_CUDA Material(Spectrum diffuse) : diffuse(diffuse) {}
-  
+
+#if defined(__CUDACC__)
+  CPU_AND_CUDA const Texture* GetTexture(void) const {return texure_device;}
+#else
+  CPU_AND_CUDA const Texture* GetTexture(void) const {return texure_host;}
+#endif  
   void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
+  
+  Texture *texure_device = nullptr;
+  Texture *texure_host = nullptr;
   
   Spectrum diffuse;
   Float ks = 0.6;

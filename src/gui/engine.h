@@ -14,6 +14,8 @@ class RenderEngine {
     qjulia::Vector3f camera_pose {10, 0, 5.3}; // azimuth/altitude/distance
     float precision;
     bool cross_section;
+    float uv_white;
+    float uv_black;
   };
    
   RenderEngine(void);

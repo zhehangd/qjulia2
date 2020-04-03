@@ -38,6 +38,7 @@ set(SHARED_SOURCE_FILES
   scene.cc
   world.cc
   scene_builder.cc
+  texture.cc
   transform.cc
   camera/camera3d.cc
   light/simple.cc

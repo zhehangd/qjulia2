@@ -38,6 +38,7 @@ struct FractalTestRet {
   bool has_intersection = false;
   Vector3f isect_position;
   Float dist;
+  Float escape_time = 0; // [0, 1]
 };
 
 class Julia3DIntersectKernel {
@@ -73,6 +74,13 @@ class Julia3DIntersectKernel {
   
   CPU_AND_CUDA bool GetCrossSectionFlag(void) const {return cross_section_;};
   
+  CPU_AND_CUDA void SetUVBlack(float black) {uv_black_ = black;}
+  
+  CPU_AND_CUDA void SetUVWhite(float white) {uv_white_ = white;}
+  
+  CPU_AND_CUDA Float GetUVBlack(void) const {return uv_black_;}
+  
+  CPU_AND_CUDA Float GetUVWhite(void) const {return uv_white_;}
   
  private:
   
@@ -91,6 +99,9 @@ class Julia3DIntersectKernel {
   Float bounding_radius_ = 3.0f;
   
   bool cross_section_ = false;
+  
+  Float uv_black_ = 0.0f;
+  Float uv_white_ = 1.0f;
 };
 
 CPU_AND_CUDA void IsectJulia3D(
