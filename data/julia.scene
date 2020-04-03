@@ -1,6 +1,8 @@
 Shape.Julia3D fractal_shape_1 {
   SetConstant -0.3,0.68,0.08,-0.34
   SetPrecision 1e-4
+  SetUVBlack 0.25
+  SetUVWhite 0.6
 }
 
 Texture fractal_texture {

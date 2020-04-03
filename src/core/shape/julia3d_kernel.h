@@ -92,7 +92,7 @@ class Julia3DIntersectKernel {
   
   Float precision_ = 1e-3;
   
-  int max_iterations_ = 200;
+  int max_iterations_ = 50;
   
   Float max_magnitude_ = 10.0f;
   
