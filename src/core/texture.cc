@@ -58,10 +58,13 @@ void Texture::Release(void) {
 }
 
 void Texture::LoadImage(std::string filename) {
+  Image image = ReadPNGImage(filename);
+  LoadImage(image);
+}
+
+void Texture::LoadImage(const Image &image) {
   Release();
   
-  // Read the image and convert to texture data
-  Image image = ReadPNGImage(filename);
   auto *tex_image = new HostTextureImg({image.Width(), image.Height()});
   for (int i = 0; i < image.NumElems(); ++i) {
     const auto &src = image.At(i);
@@ -79,9 +82,8 @@ void Texture::LoadImage(std::string filename) {
   const cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar4>();
   CUDACheckError(__LINE__, cudaMallocArray(&cu_array, &channelDesc, w, h));
   CUDACheckError(__LINE__, cudaMemcpyToArray(
-    cu_array, 0, 0, tex_image->Data(), tex_image->NumElems() * 3,
-    cudaMemcpyHostToDevice)
-  );
+    cu_array, 0, 0, tex_image->Data(), tex_image->NumElems() * 4,
+    cudaMemcpyHostToDevice));
   device_tex_image = cu_array;
   
   // Create texture object
@@ -92,8 +94,8 @@ void Texture::LoadImage(std::string filename) {
   
   struct cudaTextureDesc texDesc;
   memset(&texDesc, 0, sizeof(texDesc));
-  texDesc.addressMode[0]   = cudaAddressModeWrap;
-  texDesc.addressMode[1]   = cudaAddressModeWrap;
+  texDesc.addressMode[0]   = cudaAddressModeClamp;
+  texDesc.addressMode[1]   = cudaAddressModeClamp;
   texDesc.filterMode       = cudaFilterModePoint;
   texDesc.readMode         = cudaReadModeNormalizedFloat;
   texDesc.normalizedCoords = 1;

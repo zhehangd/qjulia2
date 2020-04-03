@@ -40,6 +40,7 @@ class Texture : public Entity {
   CPU_AND_CUDA void Release(void); // only called in host
   
   void LoadImage(std::string filename);
+  void LoadImage(const Image &image);
   
   void UpdateDevice(Entity *device_ptr) const override;
   

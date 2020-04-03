@@ -151,8 +151,6 @@ CPU_AND_CUDA void IsectJulia3D(
     Float u_min = kernel.GetUVBlack();
     Float u_max = kernel.GetUVWhite();
     u = (u - u_min) / (u_max - u_min + 1e-5);
-    if (u > 1) {u = 1;}
-    if (u < 0) {u = 0;}
     isect.uv = {u, 0};
   } else {
     isect.good = false;

@@ -26,6 +26,7 @@ add_executable(test_all
   test_main.cc
   test_array2d.cc
   test_efloat.cc
+  test_texture.cc
   test_vector.cc
   test_algorithm.cc
   test_camera.cc
@@ -35,6 +36,7 @@ add_executable(test_all
 
 if (WITH_CUDA)
   set_source_files_properties(
+    test_texture.cc
     test_scene_builder.cc
     PROPERTIES LANGUAGE CUDA
   )
