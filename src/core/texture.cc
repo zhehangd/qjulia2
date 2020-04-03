@@ -47,7 +47,7 @@ void Texture::Release(void) {
     delete host_tex_image;
     host_tex_image = nullptr;
   }
-#if WITH_CUDA
+#ifdef WITH_CUDA
   if (device_tex_image) {
     cudaFreeArray(device_tex_image);
     device_tex_image = nullptr;
@@ -79,7 +79,7 @@ void Texture::LoadImage(const Image &image) {
   int w = tex_image->Width();
   int h = tex_image->Height();
 
-#if WITH_CUDA  
+#ifdef WITH_CUDA  
   // Upload to GPU
   cudaArray *cu_array;
   const cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar4>();
