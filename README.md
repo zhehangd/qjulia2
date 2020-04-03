@@ -4,19 +4,21 @@
 
 ## Overview
 
-**Update 2020-03-05: Added a toy GUI based on Qt**
+**Update 2020-04-03: Added Texture**
 
 **Update 2020-03-29: Added CUDA support**
 
+**Update 2020-03-05: Added a toy GUI based on Qt**
+
+
 qjulia2 is a command-line ray-tracing program for rendering quaternion julia set.
 
-The ray-tracing pipeline is inspired heavily from [*PBRT*](https://www.pbrt.org/),
+The ray-tracing architecture is inspired heavily from [*PBRT*](https://www.pbrt.org/),
 while the distance estimation algorithm was learnt from [1] and [2].
 
-Since 2020-03-29 CUDA support is added to grealy accelerate the rendering.
+The program can use CUDA to accelerate the rendering.
 
-Currently the only supported image format is [PPM](http://netpbm.sourceforge.net/doc/ppm.html).
-You will need to do conversion yourself to get any other format.
+The program cnrrently only supports PNG format.
 
 ## Install
 
@@ -98,8 +100,12 @@ An example has been given in the `<project_dir>/data/example.scene`.
 
 ## TODOList
 
-* Animation support
 * Better GUI
+* Resolution of fractals
+* Better Camera control
+* Depth of Field
+* Animation support
+
 
 ## Reference
 
