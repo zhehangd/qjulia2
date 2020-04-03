@@ -73,8 +73,14 @@ CPU_AND_CUDA inline Vector3f Texture::At(float u, float v) const {
   float4 color4 = tex2D<float4>(tex_object, u, v);
   return {(float)color4.x, (float)color4.y, (float)color4.z};
 #else
-  int c = static_cast<int>((u * host_tex_image->Width()));
-  int r = static_cast<int>((v * host_tex_image->Height()));
+  int w = host_tex_image->Width();
+  int h = host_tex_image->Height();
+  int c = static_cast<int>((u * w));
+  int r = static_cast<int>((v * h));
+  if (c >= w) {c = w - 1;}
+  if (c <= 0) {c = 0;}
+  if (r >= h) {r = h - 1;}
+  if (r <= 0) {r = 0;}
   Vector4b color4 = host_tex_image->At(r, c);
   Vector3f color;
   color[0] = color4[0] / 255.0f;

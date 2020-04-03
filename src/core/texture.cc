@@ -47,6 +47,7 @@ void Texture::Release(void) {
     delete host_tex_image;
     host_tex_image = nullptr;
   }
+#if WITH_CUDA
   if (device_tex_image) {
     cudaFreeArray(device_tex_image);
     device_tex_image = nullptr;
@@ -54,6 +55,7 @@ void Texture::Release(void) {
   if (tex_object) {
     cudaDestroyTextureObject(tex_object);
   }
+#endif 
 #endif
 }
 
@@ -76,7 +78,8 @@ void Texture::LoadImage(const Image &image) {
   CHECK(tex_image->Data() != nullptr);
   int w = tex_image->Width();
   int h = tex_image->Height();
-  
+
+#if WITH_CUDA  
   // Upload to GPU
   cudaArray *cu_array;
   const cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar4>();
@@ -103,6 +106,7 @@ void Texture::LoadImage(const Image &image) {
   cudaTextureObject_t texObj = 0;
   CUDACheckError(__LINE__, cudaCreateTextureObject(&texObj, &resDesc, &texDesc, NULL));
   tex_object = texObj;
+#endif
 }
 
 #ifdef WITH_CUDA
