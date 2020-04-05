@@ -58,6 +58,11 @@ inline CPU_AND_CUDA bool Size::operator==(const Size &src) const {
   return width == src.width && height == src.height;
 }
 
+inline std::ostream& operator<<(std::ostream &os, Size size) {
+  os << "(" << size.width << ", " << size.height << ")";
+  return os;
+}
+
 /// @brief 2D Array container
 ///
 /// It is expected to run on CUDA as well, so it cannot use

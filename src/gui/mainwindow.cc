@@ -42,8 +42,9 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::onRenderFinished(void) {
-  qDebug() << "rendered full";
+  if (render_watch_.isCanceled()) {return;}
   qjulia::Image& image = *render_watch_.result();
+  CHECK(image.Data() != nullptr);
   QImage qt_image(image.Data()->vals, image.Width(), image.Height(),
                   image.BytesPerRow(), QImage::Format_RGB888);
   pixmap_.setPixmap(QPixmap::fromImage(qt_image));
@@ -64,12 +65,14 @@ void MainWindow::DrawImage(void) {
 }
 
 void MainWindow::onRealtimeParamsChanging(void) {
-  qDebug() << "Changing";
+  //qDebug() << "Changing";
+  render_watch_.cancel();
+  render_watch_.waitForFinished();
   DrawImage();
 }
 
 void MainWindow::onRealtimeParamsChanged(void) {
-  qDebug() << "Changed";
+  //qDebug() << "Changed";
   render_watch_.cancel();
   render_watch_.waitForFinished();
   QFuture<qjulia::Image*> future = QtConcurrent::run(

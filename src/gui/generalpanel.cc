@@ -20,6 +20,8 @@ void GeneralPanel::LinkToOptions(SceneCtrlParams *opts) {
     QString::number(opts_->offline_image_size.width));
   ui->lineEditOfflineResHeight->setText(
     QString::number(opts_->offline_image_size.height));
+  ui->lineEditOfflineFilename->setText(
+    QString::fromStdString(opts_->offline_filename));
 }
 
 void GeneralPanel::CollectParams(void) {

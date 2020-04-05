@@ -119,11 +119,10 @@ void CUDAImpl::Render(SceneBuilder &build,
   int w = film.Width();
   int h = film.Height();
   const int spectrum_bytes = w * h * sizeof(Spectrum);
-  
   if (!cu_film_data_ || (cu_film_data_size_ != w * h)) {
     cu_film_data_.reset();
     Spectrum *spectrum_ptr;
-    cudaMalloc((void**)&spectrum_ptr, spectrum_bytes);
+    CUDACheckError(__LINE__, cudaMalloc((void**)&spectrum_ptr, spectrum_bytes));
     CHECK_NOTNULL(spectrum_ptr);
     cu_film_data_.reset(spectrum_ptr);
   }
@@ -142,11 +141,9 @@ void CUDAImpl::Render(SceneBuilder &build,
   
   AASample *cu_aa_samples = nullptr;
   if (options.antialias) {cu_aa_samples = cu_aa_samples_.get();}
-  
   GPUKernel<<<grid_size, block_size>>>(cu_film, scene, cu_aa_samples);
-  cudaMemcpy(film.Data(), cu_film_data_.get(),
-             spectrum_bytes,
-             cudaMemcpyDeviceToHost);
+  CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
+             spectrum_bytes, cudaMemcpyDeviceToHost));
   cudaDeviceSynchronize();
 }
 
