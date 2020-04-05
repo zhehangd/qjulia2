@@ -238,10 +238,10 @@
      <item>
       <widget class="ControlBar" name="controlBarCamDist">
        <property name="valSrt" stdset="0">
-        <double>0.100000001490116</double>
+        <double>6.000000000000000</double>
        </property>
        <property name="valEnd" stdset="0">
-        <double>6.000000000000000</double>
+        <double>0.100000001490116</double>
        </property>
        <property name="useLogScale" stdset="0">
         <bool>true</bool>
