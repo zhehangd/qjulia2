@@ -27,9 +27,6 @@ class RenderEngine::Impl {
   
   SceneCtrlParams GetDefaultOptions();
    
-  Size size_;
-  Size preview_size_;
-  Size save_size_;
   Image cache_;
   Image prev_cache_;
   
@@ -38,13 +35,6 @@ class RenderEngine::Impl {
 };
 
 void RenderEngine::Impl::Init(std::string scene_file) {
-  size_ = Size(1280, 960);
-  preview_size_ = Size(1280, 960);
-  save_size_ = Size(2560, 1920);
-  
-  cache_.Resize(size_);
-  prev_cache_.Resize(size_);
-  
   RegisterDefaultEntities(build);
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
@@ -109,12 +99,10 @@ void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParams
   
   Size size;
   if (rtype == RenderType::kPreview) {
-    size.width = preview_size_.width;
-    size.height = preview_size_.height;
+    size = sopts.realtime_fast_image_size;
     options.antialias = false;
   } else if (rtype == RenderType::kDisplay) {
-    size.width = size_.width;
-    size.height = size_.height;
+    size = sopts.realtime_image_size;
     options.antialias = true;
   } else if (rtype == RenderType::kSave) {
     size = sopts.offline_image_size;
@@ -131,7 +119,7 @@ void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParams
   Image image(film);
   
   if (rtype == RenderType::kPreview) {
-    UpSample(image, dst_image, size_);
+    UpSample(image, dst_image, sopts.realtime_image_size);
   } else {
     image.CopyTo(dst_image);
   }

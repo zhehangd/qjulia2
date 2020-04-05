@@ -7,6 +7,11 @@ GeneralPanel::GeneralPanel(QWidget *parent)
     : Panel(parent), ui(new Ui::GeneralPanel) {
   ui->setupUi(this);
   
+  connect(ui->lineEditReadtimeResWidth, SIGNAL(editingFinished(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  connect(ui->lineEditReadtimeResHeight, SIGNAL(editingFinished(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  connect(ui->lineEditReadtimeFastResWidth, SIGNAL(editingFinished(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  connect(ui->lineEditReadtimeFastResHeight, SIGNAL(editingFinished(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  
   connect(ui->pushButtonOfflineRender, SIGNAL(clicked(bool)), this, SLOT(onSave(bool)));
 }
 
@@ -16,6 +21,14 @@ GeneralPanel::~GeneralPanel() {
 
 void GeneralPanel::LinkToOptions(SceneCtrlParams *opts) {
   opts_ = opts;
+  ui->lineEditReadtimeResWidth->setText(
+    QString::number(opts_->realtime_image_size.width));
+  ui->lineEditReadtimeResHeight->setText(
+    QString::number(opts_->realtime_image_size.height));
+  ui->lineEditReadtimeFastResWidth->setText(
+    QString::number(opts_->realtime_fast_image_size.width));
+  ui->lineEditReadtimeFastResHeight->setText(
+    QString::number(opts_->realtime_fast_image_size.height));
   ui->lineEditOfflineResWidth->setText(
     QString::number(opts_->offline_image_size.width));
   ui->lineEditOfflineResHeight->setText(
@@ -25,6 +38,10 @@ void GeneralPanel::LinkToOptions(SceneCtrlParams *opts) {
 }
 
 void GeneralPanel::CollectParams(void) {
+  opts_->realtime_image_size.width = ui->lineEditReadtimeResWidth->text().toInt();
+  opts_->realtime_image_size.height = ui->lineEditReadtimeResHeight->text().toInt();
+  opts_->realtime_fast_image_size.width = ui->lineEditReadtimeFastResWidth->text().toInt();
+  opts_->realtime_fast_image_size.height = ui->lineEditReadtimeFastResHeight->text().toInt();
 }
 
 void GeneralPanel::onSave(bool) {
