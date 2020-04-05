@@ -1,6 +1,7 @@
 
 add_executable(qjulia2-gui
   mainwindow.cc
+  panel.cc
   camerapanel.cc
   controlbar.cc
   fractalpanel.cc

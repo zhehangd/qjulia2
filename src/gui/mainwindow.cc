@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
+#include <QImage>
+#include <QPixmap>
+#include <QMessageBox>
+
 MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
     QMainWindow(parent), ui(new Ui::MainWindow), render_watch_(this) {
   ui->setupUi(this);
@@ -10,10 +16,23 @@ MainWindow::MainWindow(QWidget *parent, RenderEngine *engine) :
   ui->graphicsView->setScene(new QGraphicsScene(this));
   ui->graphicsView->scene()->addItem(&pixmap_);
   
-  engine_options_ = engine_->GetDefaultOptions();
+  scene_params_ = engine_->GetDefaultOptions();
+  
+  ui->tab_fractal->LinkToOptions(&scene_params_);
+  ui->tab_camera->LinkToOptions(&scene_params_);
+  ui->tab_general->LinkToOptions(&scene_params_);
+  
+  connect(ui->tab_fractal, SIGNAL(RealtimeParamsChanging(void)), this, SLOT(onRealtimeParamsChanging(void)));
+  connect(ui->tab_fractal, SIGNAL(RealtimeParamsChanged(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  connect(ui->tab_camera, SIGNAL(RealtimeParamsChanging(void)), this, SLOT(onRealtimeParamsChanging(void)));
+  connect(ui->tab_camera, SIGNAL(RealtimeParamsChanged(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  connect(ui->tab_general, SIGNAL(RealtimeParamsChanging(void)), this, SLOT(onRealtimeParamsChanging(void)));
+  connect(ui->tab_general, SIGNAL(RealtimeParamsChanged(void)), this, SLOT(onRealtimeParamsChanged(void)));
+  
+  connect(ui->tab_general, SIGNAL(Save(void)), this, SLOT(onRenderAndSave(void)));
   
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
-  renderFull();
+  onRealtimeParamsChanged();
   
 }
 
@@ -32,7 +51,7 @@ void MainWindow::onRenderFinished(void) {
 }
 
 void MainWindow::DrawImage(void) {
-  qjulia::Image& image = *engine_->Preview(engine_options_);
+  qjulia::Image& image = *engine_->Preview(scene_params_);
   QImage qt_image(image.Data()->vals, image.Width(), image.Height(),
                   image.BytesPerRow(), QImage::Format_RGB888);
   
@@ -44,10 +63,20 @@ void MainWindow::DrawImage(void) {
   ui->graphicsView->fitInView(&pixmap_, Qt::KeepAspectRatio);
 }
 
-void MainWindow::renderFull(void) {
+void MainWindow::onRealtimeParamsChanging(void) {
+  qDebug() << "Changing";
+  DrawImage();
+}
+
+void MainWindow::onRealtimeParamsChanged(void) {
+  qDebug() << "Changed";
   render_watch_.cancel();
   render_watch_.waitForFinished();
   QFuture<qjulia::Image*> future = QtConcurrent::run(
-    engine_, &RenderEngine::Render, engine_options_);
+    engine_, &RenderEngine::Render, scene_params_);
   render_watch_.setFuture(future);
+}
+
+void MainWindow::onRenderAndSave(void) {
+  engine_->Save(scene_params_);
 }

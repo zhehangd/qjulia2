@@ -77,7 +77,7 @@ private:
 private slots:
   void onSliderActed(int action);
   void onEditChanged(void);
-  void SendValueChangedSignal(void) {emit valueChanged(value_);}
+  void SendValueChangedSignal(void);
 };
 
 

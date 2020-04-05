@@ -8,6 +8,7 @@
 #include <QFutureWatcher>
 
 #include "engine.h"
+#include "scene_ctrl_params.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,18 +30,21 @@ private:
     
   RenderEngine *engine_;
   
-  RenderEngine::SceneOptions engine_options_;
+  SceneCtrlParams scene_params_;
   
   void DrawImage(void);
   
-  
 private slots:
-  // Render a full image
-  void renderFull(void);
   
   // Called when engine finishes the rendering,
   // this functions will draw it on the screen.
   void onRenderFinished(void);
+  
+  
+  void onRealtimeParamsChanging(void);
+  void onRealtimeParamsChanged(void);
+  void onRenderAndSave(void);
+  
 };
 
 #endif // MAINWINDOW_H

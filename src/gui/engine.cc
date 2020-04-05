@@ -19,13 +19,13 @@ class RenderEngine::Impl {
   
   void Init(std::string scene_file);
   
-  void Run(RenderType rtype, Image &dst, SceneOptions options);
+  void Run(RenderType rtype, Image &dst, SceneCtrlParams options);
   
   Julia3DShape* GetJulia3D(void);
   
   Camera3D* GetCamera3D(void);
   
-  RenderEngine::SceneOptions GetDefaultOptions();
+  SceneCtrlParams GetDefaultOptions();
    
   Size size_;
   Size preview_size_;
@@ -38,7 +38,6 @@ class RenderEngine::Impl {
 };
 
 void RenderEngine::Impl::Init(std::string scene_file) {
-  
   size_ = Size(1280, 960);
   preview_size_ = Size(1280, 960);
   save_size_ = Size(2560, 1920);
@@ -49,7 +48,6 @@ void RenderEngine::Impl::Init(std::string scene_file) {
   RegisterDefaultEntities(build);
   SceneDescr scene_descr = LoadSceneFile(scene_file);
   build.ParseSceneDescr(scene_descr);
-  
 }
 
 Julia3DShape* RenderEngine::Impl::GetJulia3D(void) {
@@ -66,18 +64,18 @@ Camera3D* RenderEngine::Impl::GetCamera3D(void) {
   return camera;
 }
 
-RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
+SceneCtrlParams RenderEngine::Impl::GetDefaultOptions() {
   //auto *camera = GetCamera3D();
   auto *julia3d = GetJulia3D();
   Quaternion jconst = julia3d->GetConstant();
-  RenderEngine::SceneOptions opts;
+  SceneCtrlParams opts;
   opts.fractal_constant = jconst;
   opts.fractal_precision = julia3d->GetPrecision();
   opts.fractal_cross_section = julia3d->GetCrossSectionFlag();
   opts.fractal_uv_black = julia3d->GetUVBlack();
   opts.fractal_uv_white = julia3d->GetUVWhite();
   opts.camera_pose = {10, 0, 5.3};
-  opts.camera_target = {0, 1.2, 0};
+  opts.camera_target = {0, 0, 0};
   opts.realtime_image_size = {640, 360};
   opts.realtime_fast_image_size = {640, 360};
   opts.offline_image_size = {1920, 1080};
@@ -85,7 +83,7 @@ RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
   return opts;
 }
 
-void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneOptions sopts) {
+void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParams sopts) {
   Vector3f camera_target = sopts.camera_target;
   Vector3f camera_position;
   float dist = sopts.camera_pose[2];
@@ -119,8 +117,7 @@ void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneOptions so
     size.height = size_.height;
     options.antialias = true;
   } else if (rtype == RenderType::kSave) {
-    size.width = save_size_.width;
-    size.height = save_size_.height;
+    size = sopts.offline_image_size;
     options.antialias = true;
   } else {
     LOG(FATAL) << "Unknown rtype";
@@ -148,21 +145,21 @@ void RenderEngine::Init(std::string scene_file) {
   impl_->Init(scene_file);
 }
 
-RenderEngine::SceneOptions RenderEngine::GetDefaultOptions() {
+SceneCtrlParams RenderEngine::GetDefaultOptions() {
   return impl_->GetDefaultOptions();
 }
 
-Image* RenderEngine::Render(SceneOptions options) {
+Image* RenderEngine::Render(SceneCtrlParams options) {
   impl_->Run(RenderType::kDisplay, impl_->cache_, options);
   return &impl_->cache_;
 }
 
-Image* RenderEngine::Preview(SceneOptions options) {
+Image* RenderEngine::Preview(SceneCtrlParams options) {
   impl_->Run(RenderType::kPreview, impl_->prev_cache_, options);
   return &impl_->prev_cache_;
 }
 
-void RenderEngine::Save(SceneOptions options) {
+void RenderEngine::Save(SceneCtrlParams options) {
   Image image;
   impl_->Run(RenderType::kSave, image, options);
   WritePNGImage(options.offline_filename, image);

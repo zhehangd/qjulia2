@@ -89,3 +89,8 @@ int ControlBar::ValueToTick(float value) const {
     return t;
   }
 }
+
+void ControlBar::SendValueChangedSignal(void) {
+  value_changed_timer_->stop();
+  emit valueChanged(value_);
+}

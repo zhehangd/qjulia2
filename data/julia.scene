@@ -16,15 +16,9 @@ Material material_fractal {
   SetTexture fractal_texture
 }
 
-Transform fractal_transform {
-  SetRotate y -30
-  SetTranslate 0,1.5,0
-}
-
 Object fractal_1 {
   SetShape fractal_shape_1
   SetMaterial material_fractal
-  SetTransform fractal_transform
 }
 
 Light.Sun sun {
@@ -48,7 +42,7 @@ Light.Point bulb2 {
 }
 
 Camera.Perspective camera_1 {
-  LookAt 2,1.2,5  0,1.4,0  0,1,0
+  LookAt 2,0,5  0,0.0,0  0,1,0
   SetFocus 1.8
 }
 
