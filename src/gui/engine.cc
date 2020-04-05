@@ -67,39 +67,43 @@ Camera3D* RenderEngine::Impl::GetCamera3D(void) {
 }
 
 RenderEngine::SceneOptions RenderEngine::Impl::GetDefaultOptions() {
-  auto *camera = GetCamera3D();
+  //auto *camera = GetCamera3D();
   auto *julia3d = GetJulia3D();
   Quaternion jconst = julia3d->GetConstant();
   RenderEngine::SceneOptions opts;
-  opts.julia_constant = jconst;
-  opts.precision = julia3d->GetPrecision();
-  opts.cross_section = julia3d->GetCrossSectionFlag();
-  opts.uv_black = julia3d->GetUVBlack();
-  opts.uv_white = julia3d->GetUVWhite();
+  opts.fractal_constant = jconst;
+  opts.fractal_precision = julia3d->GetPrecision();
+  opts.fractal_cross_section = julia3d->GetCrossSectionFlag();
+  opts.fractal_uv_black = julia3d->GetUVBlack();
+  opts.fractal_uv_white = julia3d->GetUVWhite();
+  opts.camera_pose = {10, 0, 5.3};
+  opts.camera_target = {0, 1.2, 0};
+  opts.realtime_image_size = {640, 360};
+  opts.realtime_fast_image_size = {640, 360};
+  opts.offline_image_size = {1920, 1080};
+  opts.offline_filename = "output.png";
   return opts;
 }
 
 void RenderEngine::Impl::Run(RenderType rtype, Image &dst_image, SceneOptions sopts) {
-  
-  auto *camera = GetCamera3D();
-  
+  Vector3f camera_target = sopts.camera_target;
+  Vector3f camera_position;
   float dist = sopts.camera_pose[2];
   float azi = sopts.camera_pose[0] / 180.0f * 3.1416f;
   float alt = sopts.camera_pose[1] / 180.0f * 3.1416f;
-  float y = dist * std::sin(alt) + 1.2;
-  float z = dist * std::cos(alt) * std::cos(azi);
-  float x = dist * std::cos(alt) * std::sin(azi);
-  Vector3f camera_from(x, y, z);
-  camera->LookAt(camera_from, {0, 1.4, 0}, {0, 1, 0});
-  
-  Quaternion jconst = sopts.julia_constant;
+  camera_position[1] = std::sin(alt);
+  camera_position[2] = std::cos(alt) * std::cos(azi);
+  camera_position[0] = std::cos(alt) * std::sin(azi);
+  camera_position = camera_position * dist + camera_target;
+  auto *camera = GetCamera3D();
+  camera->LookAt(camera_position, camera_target, {0, 1, 0});
   
   auto *julia3d = GetJulia3D();
-  julia3d->SetConstant(jconst);
-  julia3d->SetPrecision(sopts.precision);
-  julia3d->SetCrossSectionFlag(sopts.cross_section);
-  julia3d->SetUVBlack(sopts.uv_black);
-  julia3d->SetUVWhite(sopts.uv_white);
+  julia3d->SetConstant(sopts.fractal_constant);
+  julia3d->SetPrecision(sopts.fractal_precision);
+  julia3d->SetCrossSectionFlag(sopts.fractal_cross_section);
+  julia3d->SetUVBlack(sopts.fractal_uv_black);
+  julia3d->SetUVWhite(sopts.fractal_uv_white);
   
   RenderOptions options;
   options.cuda = true;
@@ -161,5 +165,5 @@ Image* RenderEngine::Preview(SceneOptions options) {
 void RenderEngine::Save(SceneOptions options) {
   Image image;
   impl_->Run(RenderType::kSave, image, options);
-  WritePNGImage("gui-output.png", image);
+  WritePNGImage(options.offline_filename, image);
 }

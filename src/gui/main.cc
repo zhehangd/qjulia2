@@ -22,13 +22,8 @@
 int main(int argc, char **argv) {
   QApplication app(argc, argv);
   
-  if (argc <= 1) {
-    std::cerr << "usage: qjulia2 [SCENE-FILE]" << std::endl;
-    return 1;
-  }
-  
   auto engine_sptr = std::make_unique<RenderEngine>();
-  engine_sptr->Init(argv[1]);
+  engine_sptr->Init("../data/julia.scene");
   
   MainWindow main_win(nullptr, engine_sptr.get());
   main_win.show();

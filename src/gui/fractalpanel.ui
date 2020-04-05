@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FractalPanel</class>
+ <widget class="QWidget" name="FractalPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>491</width>
+    <height>544</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Hypercomplex Constant</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarConst0">
+     <property name="valSrt" stdset="0">
+      <double>-1.200000047683716</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>1.200000047683716</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarConst1">
+     <property name="valSrt" stdset="0">
+      <double>-1.200000047683716</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>1.200000047683716</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarConst2">
+     <property name="valSrt" stdset="0">
+      <double>-1.200000047683716</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>1.200000047683716</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarConst3">
+     <property name="valSrt" stdset="0">
+      <double>-1.200000047683716</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>1.200000047683716</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Precision</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarPrecision">
+     <property name="valSrt" stdset="0">
+      <double>0.009999999776483</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>0.000009999999747</double>
+     </property>
+     <property name="useLogScale" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="value" stdset="0">
+      <double>0.000099999997474</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>UV Normalization</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarUVNormMin">
+     <property name="valSrt" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ControlBar" name="controlBarUVNormMax">
+     <property name="valSrt" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Other</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxCorssSection">
+     <property name="text">
+      <string>Cross Section</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ControlBar</class>
+   <extends>QWidget</extends>
+   <header>controlbar.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

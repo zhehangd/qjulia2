@@ -8,14 +8,23 @@
 
 class RenderEngine {
  public:
-   
+  
   struct SceneOptions {
-    qjulia::Quaternion julia_constant;
-    qjulia::Vector3f camera_pose {10, 0, 5.3}; // azimuth/altitude/distance
-    float precision;
-    bool cross_section;
-    float uv_white;
-    float uv_black;
+    qjulia::Quaternion fractal_constant;
+    float fractal_precision;
+    bool fractal_cross_section;
+    float fractal_uv_black;
+    float fractal_uv_white;
+    
+    qjulia::Size realtime_image_size;
+    qjulia::Size realtime_fast_image_size;
+    qjulia::Size offline_image_size;
+    std::string offline_filename;
+    
+    qjulia::Vector3f camera_target;
+    qjulia::Vector3f camera_pose; // azimuth/altitude/distance
+    float camera_fov;
+    float camera_headlight_lumin;
   };
    
   RenderEngine(void);
