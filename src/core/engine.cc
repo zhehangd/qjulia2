@@ -125,6 +125,7 @@ void CUDAImpl::Render(SceneBuilder &build,
     CUDACheckError(__LINE__, cudaMalloc((void**)&spectrum_ptr, spectrum_bytes));
     CHECK_NOTNULL(spectrum_ptr);
     cu_film_data_.reset(spectrum_ptr);
+    cu_film_data_size_ = w * h;
   }
   
   Film cu_film(cu_film_data_.get(), w, h);  
