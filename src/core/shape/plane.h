@@ -50,7 +50,7 @@ class PlaneShape : public Shape {
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Vector3f normal;
-  float offset;
+  Float offset;
 };
 
 }

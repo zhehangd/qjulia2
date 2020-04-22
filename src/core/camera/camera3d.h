@@ -31,29 +31,9 @@ SOFTWARE.
 
 namespace qjulia {
 
-class Camera3D : public Camera {
- public:
-  
-  CPU_AND_CUDA Camera3D(void);
-  
-  CPU_AND_CUDA void LookAt(Vector3f position, Vector3f at, Vector3f up);
-  
-  CPU_AND_CUDA void CenterAround(Float h, Float v, Float radius);
-  
-  // TODO: what to do if parsed from file?
-  CPU_AND_CUDA void Update(void);
-  
-  void Parse(const Args &args, SceneBuilder *build) override;
-  
-  Point3f position;
-  Point3f orientation;
-  Point3f up;
-  Point3f right;
-};
-
 /** \brief Standard 3D camera with orthogonal projection
 */
-class OrthoCamera : public Camera3D {
+class OrthoCamera : public Camera {
  public:
   CPU_AND_CUDA OrthoCamera(void) {}
   
@@ -68,7 +48,7 @@ class OrthoCamera : public Camera3D {
 
 /** \brief Standard 3D camera with perspective projection
 */
-class PerspectiveCamera : public Camera3D {
+class PerspectiveCamera : public Camera {
  public:
   CPU_AND_CUDA PerspectiveCamera(void);
   

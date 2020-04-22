@@ -14,6 +14,8 @@ class ControlBar : public QWidget {
   Q_PROPERTY(double valEnd READ GetEndValue WRITE SetEndValue)
   Q_PROPERTY(bool useLogScale READ GetLogScale WRITE SetLogScale)
   Q_PROPERTY(double value READ GetValue WRITE SetValue)
+  Q_PROPERTY(QString name READ GetName WRITE SetName)
+  Q_PROPERTY(int nameWidth READ GetNameWidth WRITE SetNameWidth)
 
 public:
   explicit ControlBar(QWidget *parent = 0);
@@ -36,7 +38,15 @@ public:
   
   void SetLogScale(bool enable);
   
-  bool GetLogScale(void) const {return use_log_;}
+  bool GetLogScale(void) const;
+  
+  QString GetName(void) const;
+  
+  void SetName(QString name);
+  
+  int GetNameWidth(void) const;
+  
+  void SetNameWidth(int w);
   
 signals:
   void valueChanging(float);

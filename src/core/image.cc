@@ -35,7 +35,7 @@ void ConvertFilmToImage(const Film &film, Image &image) {
     auto &dst = image.At(i);
     for (int k = 0; k < 3; ++k) {
       dst[k] = (unsigned char)std::round(
-        std::min(255.0f, std::max(0.0f, src[k] * 255)));
+        std::min((Float)255, std::max((Float)0.0, src[k] * 255)));
     }
   }
 }

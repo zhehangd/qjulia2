@@ -1,0 +1,7 @@
+{
+  "Name" : "ColorLCHPlugin",
+  "Version" : "1.0.0",
+  "Dependencies" : [
+    {"Name": "ControlBarPlugin", "Version": "1.0.0"}
+  ]
+}

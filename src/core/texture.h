@@ -47,7 +47,7 @@ class Texture : public Entity {
   void Parse(const Args &args, SceneBuilder *build) override;
   
   /// @brief Read-only sampling
-  CPU_AND_CUDA Vector3f At(float u, float v) const;
+  CPU_AND_CUDA Vector3f At(Float u, Float v) const;
   CPU_AND_CUDA Vector3f At(Vector2f uv) const {return At(uv[0], uv[1]);}
   
   using HostTextureImg = Array2D<Vector4b>;
@@ -68,10 +68,10 @@ class Texture : public Entity {
 #endif
 };
 
-CPU_AND_CUDA inline Vector3f Texture::At(float u, float v) const {
+CPU_AND_CUDA inline Vector3f Texture::At(Float u, Float v) const {
 #if defined(__CUDA_ARCH__)
   float4 color4 = tex2D<float4>(tex_object, u, v);
-  return {(float)color4.x, (float)color4.y, (float)color4.z};
+  return {(Float)color4.x, (Float)color4.y, (Float)color4.z};
 #else
   int w = host_tex_image->Width();
   int h = host_tex_image->Height();

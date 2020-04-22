@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FractalPanel</class>
- <widget class="QWidget" name="FractalPanel">
+ <class>Julia3DShapeModule</class>
+ <widget class="QWidget" name="Julia3DShapeModule">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -29,6 +29,9 @@
      <property name="valEnd" stdset="0">
       <double>1.200000047683716</double>
      </property>
+     <property name="name" stdset="0">
+      <string>r</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -38,6 +41,9 @@
      </property>
      <property name="valEnd" stdset="0">
       <double>1.200000047683716</double>
+     </property>
+     <property name="name" stdset="0">
+      <string>i</string>
      </property>
     </widget>
    </item>
@@ -49,6 +55,9 @@
      <property name="valEnd" stdset="0">
       <double>1.200000047683716</double>
      </property>
+     <property name="name" stdset="0">
+      <string>j</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -58,6 +67,9 @@
      </property>
      <property name="valEnd" stdset="0">
       <double>1.200000047683716</double>
+     </property>
+     <property name="name" stdset="0">
+      <string>k</string>
      </property>
     </widget>
    </item>
@@ -71,16 +83,19 @@
    <item>
     <widget class="ControlBar" name="controlBarPrecision">
      <property name="valSrt" stdset="0">
-      <double>0.009999999776483</double>
+      <double>0.001000000047497</double>
      </property>
      <property name="valEnd" stdset="0">
-      <double>0.000009999999747</double>
+      <double>0.000000999999997</double>
      </property>
      <property name="useLogScale" stdset="0">
       <bool>true</bool>
      </property>
      <property name="value" stdset="0">
       <double>0.000099999997474</double>
+     </property>
+     <property name="name" stdset="0">
+      <string/>
      </property>
     </widget>
    </item>
@@ -102,6 +117,9 @@
      <property name="value" stdset="0">
       <double>0.000000000000000</double>
      </property>
+     <property name="name" stdset="0">
+      <string>u</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -114,6 +132,9 @@
      </property>
      <property name="value" stdset="0">
       <double>0.000000000000000</double>
+     </property>
+     <property name="name" stdset="0">
+      <string>v</string>
      </property>
     </widget>
    </item>
@@ -150,7 +171,7 @@
   <customwidget>
    <class>ControlBar</class>
    <extends>QWidget</extends>
-   <header>controlbar.h</header>
+   <header>widgets/controlbar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

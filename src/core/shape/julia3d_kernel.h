@@ -74,9 +74,9 @@ class Julia3DIntersectKernel {
   
   CPU_AND_CUDA bool GetCrossSectionFlag(void) const {return cross_section_;};
   
-  CPU_AND_CUDA void SetUVBlack(float black) {uv_black_ = black;}
+  CPU_AND_CUDA void SetUVBlack(Float black) {uv_black_ = black;}
   
-  CPU_AND_CUDA void SetUVWhite(float white) {uv_white_ = white;}
+  CPU_AND_CUDA void SetUVWhite(Float white) {uv_white_ = white;}
   
   CPU_AND_CUDA Float GetUVBlack(void) const {return uv_black_;}
   

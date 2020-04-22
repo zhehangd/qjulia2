@@ -57,7 +57,11 @@ struct SceneDescr {
   std::vector<EntityDescr> entities;
 };
 
-SceneDescr LoadSceneFile(const std::string &filename);
+SceneDescr LoadSceneFromStream(std::istream &is);
+
+SceneDescr LoadSceneFromString(const std::string &text);
+
+SceneDescr LoadSceneFromFile(const std::string &filename);
 
 std::string EntityStatement2Str(const EntityStatement &tokens);
 

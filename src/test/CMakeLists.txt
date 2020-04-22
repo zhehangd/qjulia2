@@ -25,12 +25,12 @@
 add_executable(test_all
   test_main.cc
   test_array2d.cc
-  test_efloat.cc
   test_texture.cc
   test_vector.cc
   test_algorithm.cc
   test_camera.cc
   test_scene_builder.cc
+  test_color.cc
   $<TARGET_OBJECTS:qjulia2-core>
 )
 

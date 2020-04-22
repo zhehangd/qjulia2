@@ -23,7 +23,7 @@
       <widget class="QGraphicsView" name="graphicsView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>2</horstretch>
+         <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -37,7 +37,7 @@
       <widget class="QTabWidget" name="tabWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>1</horstretch>
+         <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -55,17 +55,12 @@
        </property>
        <widget class="GeneralPanel" name="tab_general">
         <attribute name="title">
-         <string>General</string>
+         <string>Render</string>
         </attribute>
        </widget>
-       <widget class="CameraPanel" name="tab_camera">
+       <widget class="DevPanel" name="tab_dev">
         <attribute name="title">
-         <string>Camera</string>
-        </attribute>
-       </widget>
-       <widget class="FractalPanel" name="tab_fractal">
-        <attribute name="title">
-         <string>Fractal</string>
+         <string>Scene</string>
         </attribute>
        </widget>
       </widget>
@@ -120,21 +115,15 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>FractalPanel</class>
-   <extends>QWidget</extends>
-   <header>fractalpanel.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CameraPanel</class>
-   <extends>QWidget</extends>
-   <header>camerapanel.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>GeneralPanel</class>
    <extends>QWidget</extends>
    <header>generalpanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DevPanel</class>
+   <extends>QWidget</extends>
+   <header>panel_dev.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

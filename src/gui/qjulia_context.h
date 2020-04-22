@@ -5,15 +5,19 @@
 #include <string>
 
 #include "core/image.h"
+#include "core/scene_builder.h"
 #include "scene_ctrl_params.h"
+#include "module_base.h"
 
-class RenderEngine {
+class QWidget;
+
+class QJuliaContext {
  public:
   
-  RenderEngine(void);
-  ~RenderEngine(void);
+  QJuliaContext(void);
+  ~QJuliaContext(void);
   
-  void Init(std::string scene_file);
+  void Init(void);
   
   /// @brief Gets a copy of options based on the scene file.
   SceneCtrlParams GetDefaultOptions();
@@ -24,8 +28,14 @@ class RenderEngine {
   
   void Save(SceneCtrlParams options);
   
+  qjulia::SceneBuilder* GetSceneBuilder(void);
+  
+  BaseModule* NewControlWidgetForBaseType(int btype_id);
+  
+  BaseModule* NewControlWidgetForSpecificType(int stype_id);
+  
  private:
-   
+  
   class Impl;
   std::unique_ptr<Impl> impl_;
 };

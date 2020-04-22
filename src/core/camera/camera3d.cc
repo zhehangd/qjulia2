@@ -30,57 +30,6 @@ SOFTWARE.
 
 namespace qjulia {
 
-CPU_AND_CUDA Camera3D::Camera3D(void) {
-  position = {0, 0, 1};
-  orientation = {0, 0, -1};
-  up = {0, 1, 0};
-}
-
-CPU_AND_CUDA void Camera3D::Update(void) {
-  orientation = Normalize(orientation);
-  up = up - Project(up, orientation);
-  up = Normalize(up);
-  right = Cross(orientation, up);
-}
-
-CPU_AND_CUDA void Camera3D::LookAt(Vector3f position, Vector3f at, Vector3f up) {
-  this->position = position;
-  orientation = at - position;
-  this->up = up;
-  Update();
-}
-
-CPU_AND_CUDA void Camera3D::CenterAround(Float h, Float v, Float radius) {
-  h *= kPi / 180.0f;
-  v *= kPi / 180.0f;
-  Float x = std::cos(h) * std::cos(v) * radius;
-  Float z = std::sin(h) * std::cos(v) * radius;
-  Float y = std::sin(v) * std::sin(v) * radius;
-  LookAt({x, y, z}, {0, 0, 0}, {0, 1, 0});
-}
-
-void Camera3D::Parse(const Args &args, SceneBuilder *build) {
-  (void)build;
-  
-  CHECK(args.size() > 0);
-  if (args[0] == "LookAt") {
-    Vector3f v3[3];
-    bool good = true;
-    ParseArg(args[1], v3[0]);
-    ParseArg(args[2], v3[1]);
-    ParseArg(args[3], v3[2]);
-    if (good) {
-      LookAt(v3[0], v3[1], v3[2]);
-    } else {
-      LOG(FATAL) << "Not GOOD instruction";
-    }
-  } else if (args[0] == "SetPosition") {
-    ParseArg(args[1], position);
-  } else {
-    throw UnknownCommand(args[0]);
-  }
-}
-
 struct Camera3DData {
   Point3f position;
   Point3f orientation;
@@ -134,7 +83,7 @@ void OrthoCamera::Parse(const Args &args, SceneBuilder *build) {
   if (args[0] == "SetScale") {
     ParseArg(args[1], scale);
   } else {
-    Camera3D::Parse(args, build);
+    Camera::Parse(args, build);
   }
 }
 
@@ -185,7 +134,7 @@ void PerspectiveCamera::Parse(const Args &args, SceneBuilder *build) {
   if (args[0] == "SetFocus") {
     ParseArg(args[1], focus);
   } else {
-    Camera3D::Parse(args, build);
+    Camera::Parse(args, build);
   }
 }
 

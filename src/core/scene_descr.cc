@@ -299,18 +299,27 @@ bool TestParamLength(const EntityStatement &statement,
   }
 }
 
-SceneDescr LoadSceneFile(const std::string &filename) {
-  std::ifstream file(filename);
-  if (!file.good()) {LOG(FATAL) << fmt::format("Cannot open {}.", filename);}
+SceneDescr LoadSceneFromStream(std::istream &is) {
+  if (!is.good()) {LOG(FATAL) << fmt::format("Cannot open stream.");}
   SceneDescr scene;
   
   Tokenizer tokenizer(scene.entities);
-  bool good = tokenizer.Parse(file);
+  bool good = tokenizer.Parse(is);
   if (!good) {
     LOG(FATAL) << tokenizer.GetErrorMssage();
     std::cerr << "Encounter error in tokenize the stream." << std::endl;
   }
   return scene;
+}
+
+SceneDescr LoadSceneFromString(const std::string &text) {
+  std::istringstream iss(text);
+  return LoadSceneFromStream(iss);
+}
+
+SceneDescr LoadSceneFromFile(const std::string &filename) {
+  std::ifstream file(filename);
+  return LoadSceneFromStream(file);
 }
 
 

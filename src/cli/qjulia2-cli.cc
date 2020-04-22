@@ -78,7 +78,7 @@ bool Run(int argc, char **argv) {
   SceneBuilder build;
   RegisterDefaultEntities(build);
   
-  SceneDescr scene_descr = LoadSceneFile(scene_file);
+  SceneDescr scene_descr = LoadSceneFromFile(scene_file);
   build.ParseSceneDescr(scene_descr);
   
   RenderOptions option;

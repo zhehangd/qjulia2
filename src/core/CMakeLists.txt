@@ -24,7 +24,6 @@ configure_file(config.h.in config.h)
 
 set(CPP_ONLY_SOURCE_FILES
   algorithm.cc
-  efloat.cc
   image.cc
   vector.cc
   scene_descr.cc
@@ -34,6 +33,7 @@ set(SHARED_SOURCE_FILES
   engine.cc
   film.cc
   material.cc
+  camera.cc
   object.cc
   scene.cc
   world.cc

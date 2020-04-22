@@ -17,13 +17,13 @@
 
 #include "mainwindow.h"
 
-#include "engine.h"
+#include "qjulia_context.h"
 
 int main(int argc, char **argv) {
   QApplication app(argc, argv);
   
-  auto engine_sptr = std::make_unique<RenderEngine>();
-  engine_sptr->Init("../data/julia.scene");
+  auto engine_sptr = std::make_unique<QJuliaContext>();
+  engine_sptr->Init();
   
   MainWindow main_win(nullptr, engine_sptr.get());
   main_win.show();

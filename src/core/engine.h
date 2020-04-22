@@ -54,13 +54,13 @@ class RTEngine {
   void Render(SceneBuilder &build,
               const RenderOptions &option, Film &film);
   
-  float LastRenderTime(void) const {return (float)last_render_time_;}
+  Float LastRenderTime(void) const {return (Float)last_render_time_;}
   
  private:
   
   class Impl;
   std::unique_ptr<Impl> impl_;
-  float last_render_time_ = 0;
+  Float last_render_time_ = 0;
 };
 
 }

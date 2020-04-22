@@ -34,6 +34,27 @@ void ControlBar::SetLogScale(bool enable) {
   ShowSliderPosition();
 }
 
+
+bool ControlBar::GetLogScale(void) const {
+  return use_log_;
+}
+
+QString ControlBar::GetName(void) const {
+  return ui->name->text();
+}
+
+void ControlBar::SetName(QString name) {
+  ui->name->setText(name);
+}
+
+int ControlBar::GetNameWidth(void) const {
+  return ui->name->minimumWidth();
+}
+
+void ControlBar::SetNameWidth(int w) {
+  ui->name->setMinimumWidth(w);
+}
+
 void ControlBar::onSliderActed(int action) {
   (void)action;
   value_ = TickToValue(ui->slider->sliderPosition());

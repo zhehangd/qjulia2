@@ -84,9 +84,9 @@ void Transform::Parse(const Args &args, SceneBuilder *build) {
     mat_wo_ = mat_wo_ * Matrix4x4::Scale({1/s, 1/s, 1/s});
   } else if (args[0] == "SetRotate") {
     std::string axis = args[1];
-    float angle;
+    Float angle;
     ParseArg(args[2], angle);
-    Matrix4x4 (*rot)(const float) = nullptr;
+    Matrix4x4 (*rot)(const Float) = nullptr;
     if (axis == "x") {
       rot = Matrix4x4::RotateX;
     } else if (axis == "y") {

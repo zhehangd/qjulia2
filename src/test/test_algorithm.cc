@@ -54,3 +54,38 @@ TEST(SolveQuadratic, Q3) {
   EXPECT_EQ(t0, 66);
   EXPECT_EQ(t1, 42);
 }
+
+TEST(SphericalCoords2Cartesian, S2C1) {
+  qjulia::Vector3f c1(std::sqrt(3), 2, 1);
+  qjulia::Vector3f s1 = qjulia::Cartesian2SphericalCoords(c1);
+  qjulia::Vector3f c2 = qjulia::Spherical2CartesianCoords(s1);
+  EXPECT_NEAR(s1[0], 60, 1e-1);
+  EXPECT_NEAR(s1[1], 45, 1e-1);
+  EXPECT_NEAR(s1[2], 2 * std::sqrt(2), 1e-1);
+  EXPECT_NEAR(c1[0], c2[0], 1e-1);
+  EXPECT_NEAR(c1[1], c2[1], 1e-1);
+  EXPECT_NEAR(c1[2], c2[2], 1e-1);
+}
+
+TEST(SphericalCoords2Cartesian, S2C2) {
+  qjulia::Vector3f c1(0, 0, 0);
+  qjulia::Vector3f s1 = qjulia::Cartesian2SphericalCoords(c1);
+  qjulia::Vector3f c2 = qjulia::Spherical2CartesianCoords(s1);
+  EXPECT_NEAR(s1[2], 0, 1e-3);
+  EXPECT_NEAR(c1[0], c2[0], 1e-3);
+  EXPECT_NEAR(c1[1], c2[1], 1e-3);
+  EXPECT_NEAR(c1[2], c2[2], 1e-3);
+}
+
+TEST(SphericalCoords2Cartesian, S2C3) {
+  qjulia::Vector3f c1(0, -4.2, 0);
+  qjulia::Vector3f s1 = qjulia::Cartesian2SphericalCoords(c1);
+  qjulia::Vector3f c2 = qjulia::Spherical2CartesianCoords(s1);
+  EXPECT_NEAR(s1[2], 4.2, 1e-3);
+  EXPECT_NEAR(s1[1], -90, 1e-3);
+  EXPECT_NEAR(c1[0], c2[0], 1e-3);
+  EXPECT_NEAR(c1[1], c2[1], 1e-3);
+  EXPECT_NEAR(c1[2], c2[2], 1e-3);
+}
+
+

@@ -38,6 +38,14 @@ SOFTWARE.
 #include "vector.h"
 
 namespace qjulia {
+  
+CPU_AND_CUDA inline Float Deg2Rad(Float a) {
+  return a * 3.14159265 / 180;
+}
+
+CPU_AND_CUDA inline Float Rad2Deg(Float a) {
+  return a * 180 / 3.14159265;
+}
 
 /** \brief Solve a quadratic equation
 
@@ -104,6 +112,23 @@ std::vector<Vec_<Float, C>> ProduceOrthogonalBasis(const Vec_<Float, C> &vec) {
     basis.push_back(basis_vec);
   }
   return basis;
+}
+
+inline Vector3f Spherical2CartesianCoords(Vector3f src) {
+  Float dist = src[2];
+  Float vdist = dist * std::sin(Deg2Rad(src[1]));
+  Float hdist = dist * std::cos(Deg2Rad(src[1]));
+  Float x = hdist * std::sin(Deg2Rad(src[0]));
+  Float z = hdist * std::cos(Deg2Rad(src[0]));
+  return {x, vdist, z};
+}
+
+inline Vector3f Cartesian2SphericalCoords(Vector3f src) {
+  Float dist = std::sqrt(src[0] * src[0] + src[1] * src[1] + src[2] * src[2]);
+  if (dist == 0) {return {0, 0, 0};}
+  Float azi = Rad2Deg(std::atan2(src[0], src[2]));
+  Float alt = Rad2Deg(std::asin(src[1] / dist));
+  return {azi, alt, dist};
 }
 
 }

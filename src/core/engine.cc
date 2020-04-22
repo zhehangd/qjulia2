@@ -35,7 +35,6 @@ SOFTWARE.
 
 #include "core/algorithm.h"
 #include "core/camera.h"
-#include "core/efloat.h"
 #include "core/film.h"
 #include "core/integrator.h"
 #include "core/light.h"

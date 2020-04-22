@@ -38,7 +38,7 @@ namespace qjulia {
 class SphereShape : public Shape {
  public:
   CPU_AND_CUDA SphereShape(void) {}
-  CPU_AND_CUDA SphereShape(Point3f pos, float radius) : position(pos), radius(radius) {}
+  CPU_AND_CUDA SphereShape(Point3f pos, Float radius) : position(pos), radius(radius) {}
   
   CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override;
   
@@ -47,7 +47,7 @@ class SphereShape : public Shape {
   void Parse(const Args &args, SceneBuilder *build) override;
   
   Point3f position;
-  float radius = 1.0f;
+  Float radius = 1.0f;
   
 };
 

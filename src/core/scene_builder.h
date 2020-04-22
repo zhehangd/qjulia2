@@ -57,6 +57,10 @@ struct EntityNode {
   
   std::string GetName(void) const {return name_;}
   
+  int GetBaseTypeID(void) const {return btype_id_;}
+  
+  int GetSpecificTypeID(void) const {return stype_id_;}
+    
   virtual void AllocateHost(void) = 0;
   
   virtual void ReleaseHost(void) = 0;
@@ -98,16 +102,6 @@ struct BuildSceneParams {
 class SceneBuilder {
  public:
   
-  /// @brief Register an entity type
-  ///
-  /// The basic type class is given as a template argument as its name is
-  /// given as a parameter. Specific types of a particular basic type 
-  /// must be unique. If a basic type itself is to be registered,
-  /// the name should be left empty.
-  /// Code that calls this should include \file scene_builder_register.h 
-  /// and if CUDA is enabled the file must be compiled with NVCC.
-  template <typename ST>
-  bool Register(std::string stype_name = {});
   
   /// @brief Parses a SceneDescr object
   void ParseSceneDescr(const SceneDescr &descr);
@@ -122,11 +116,10 @@ class SceneBuilder {
   
   /// @brief Creates a new entity
   /// Calls with the names of the basic and specific types and
-  /// the name assigned to this entity. The name must have not
-  /// been used for any other of the same basic type.
+  /// the name assigned to this entity. The name must be unique.
   EntityNode* CreateEntity(std::string btype, std::string stype, std::string name);
   
-  /// @brief Creates a new entity
+  /// @brief Creates a new entity. The name must be unique.
   template <typename BT>
   EntityNodeBT<BT>* CreateEntity(std::string stype, std::string name);
   
@@ -140,7 +133,13 @@ class SceneBuilder {
   /// @
   Scene BuildScene(BuildSceneParams params) const;
   
- private:
+  
+  ///@ Get the number of entities
+  int NumEntities(void) const {return nodes_.size();}
+  
+  EntityNode* GetNode(int i) {return nodes_[i].get();}
+  
+  const EntityNode* GetNode(int i) const {return nodes_[i].get();}
   
   /// @brief Info of a registered type
   struct RegRecord {
@@ -149,6 +148,20 @@ class SceneBuilder {
     std::string stype_name; // Registered name
     EntityNode*(*fn_create)(void) = nullptr; // function to new such an entity
   };
+  
+  
+  /// @brief Register an entity type
+  ///
+  /// The basic type class is given as a template argument as its name is
+  /// given as a parameter. Specific types of a particular basic type 
+  /// must be unique. If a basic type itself is to be registered,
+  /// the name should be left empty.
+  /// Code that calls this should include \file scene_builder_register.h 
+  /// and if CUDA is enabled the file must be compiled with NVCC.
+  template <typename ST>
+  const RegRecord* Register(std::string stype_name = {});
+  
+ private:
   
   /// @brief Info of all registered types
   std::vector<RegRecord> reg_table_;
@@ -191,16 +204,19 @@ struct UnknownEntityExcept : public std::exception {
 
 /// @brief Exception for unknown entity
 struct OccupiedEntityNameExcept : public std::exception {
-  OccupiedEntityNameExcept(std::string bname, std::string name)
-    : msg(fmt::format("There is already a {} entity named \"{}\".", bname, name)) {}
+  OccupiedEntityNameExcept(std::string name)
+    : msg(fmt::format("There is already an entity named \"{}\".", name)) {}
   const char* what() const noexcept override {return msg.c_str();}
   std::string msg;
 };
 
 template <typename BT>
 EntityNodeBT<BT>* SceneBuilder::CreateEntity(std::string stype, std::string name) {
-  if (SearchEntityByName<BT>(name)) {
-    throw OccupiedEntityNameExcept(EntityTrait<BT>::name, name);
+  if (name.empty()) {throw std::runtime_error("Name must not be empty");}
+  for (auto &node : nodes_) {
+    if (node->GetName() == name) {
+      throw OccupiedEntityNameExcept(name);
+    }
   }
   for (const auto &record : reg_table_) {
     if (record.btype_id != EntityTrait<BT>::btype_id) {continue;}

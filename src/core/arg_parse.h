@@ -53,7 +53,11 @@ struct UnknownCommand : public std::exception {
 
 inline void ParseArg(std::string arg, Float &dst) {
   try {
+#ifdef DOUBLE_PRECISION
+    dst = std::stod(arg);
+#else
     dst = std::stof(arg);
+#endif
   }
   catch (const std::invalid_argument& ia) {
     throw ParseFailure(arg, "float");

@@ -7,7 +7,7 @@
 #include <QtConcurrent>
 #include <QFutureWatcher>
 
-#include "engine.h"
+#include "qjulia_context.h"
 #include "scene_ctrl_params.h"
 
 namespace Ui {
@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent, RenderEngine *engine);
+  explicit MainWindow(QWidget *parent, QJuliaContext *engine);
   ~MainWindow();
 
 private:
@@ -28,7 +28,7 @@ private:
   
   QFutureWatcher<qjulia::Image*> render_watch_;
     
-  RenderEngine *engine_;
+  QJuliaContext *ctx_;
   
   SceneCtrlParams scene_params_;
   

@@ -104,7 +104,7 @@ EntityNodeST<ST>::EntityNodeST(void) {
 }
 
 template <typename ST>
-bool SceneBuilder::Register(std::string stype_name) {
+const SceneBuilder::RegRecord* SceneBuilder::Register(std::string stype_name) {
   auto btype_id = EntityTrait<ST>::btype_id;
   for (const auto &record : reg_table_) {
     if (record.btype_id != btype_id) {continue;}
@@ -118,7 +118,7 @@ bool SceneBuilder::Register(std::string stype_name) {
   record.stype_id = reg_table_.size(); // equal to the index in reg_table 
   record.fn_create = []() -> EntityNode* {return new EntityNodeST<ST>();};
   reg_table_.push_back(record);
-  return true;
+  return &reg_table_.back();
 }
 
 }

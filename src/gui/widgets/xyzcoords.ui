@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>XyzCoords</class>
+ <widget class="QWidget" name="XyzCoords">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>484</width>
+    <height>120</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <widget class="ControlBar" name="z">
+     <property name="valSrt" stdset="0">
+      <double>-5.000000000000000</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="name" stdset="0">
+      <string>z</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="ControlBar" name="x">
+     <property name="valSrt" stdset="0">
+      <double>-5.000000000000000</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="name" stdset="0">
+      <string>x</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="ControlBar" name="y">
+     <property name="valSrt" stdset="0">
+      <double>-5.000000000000000</double>
+     </property>
+     <property name="valEnd" stdset="0">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="name" stdset="0">
+      <string>y</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ControlBar</class>
+   <extends>QWidget</extends>
+   <header>widgets/controlbar.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

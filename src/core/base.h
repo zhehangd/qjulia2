@@ -47,8 +47,14 @@ SOFTWARE.
 namespace qjulia {
 
 typedef int SizeType;
-  
+
+//#define DOUBLE_PRECISION
+
+#ifdef DOUBLE_PRECISION
+typedef double Float;
+#else
 typedef float Float;
+#endif
 
 typedef std::numeric_limits<Float> FloatLimits;
 

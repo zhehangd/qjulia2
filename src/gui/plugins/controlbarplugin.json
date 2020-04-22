@@ -1,0 +1,7 @@
+{
+  "Name" : "ControlBarPlugin",
+  "Version" : "1.0.0",
+  "Description" : [
+    "Widget plugin for qjulia2 project."
+  ]
+}
