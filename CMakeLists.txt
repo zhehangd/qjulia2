@@ -81,6 +81,3 @@ if (WITH_DOC)
   add_subdirectory(doc)
 endif()
 
-file(COPY "${PROJECT_SOURCE_DIR}/data"
-  DESTINATION ${PROJECT_BINARY_DIR})
-

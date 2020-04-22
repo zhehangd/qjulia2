@@ -1,24 +1,22 @@
 # qjulia2
 
-![qjulia-title](data/example.jpg)
+![qjulia-title](data/title.jpg)
 
 ## Overview
+
+**Update 2020-04-21: Experimental GUI based on Qt5**
 
 **Update 2020-04-03: Added Texture**
 
 **Update 2020-03-29: Added CUDA support**
 
-**Update 2020-03-05: Added a toy GUI based on Qt**
+qjulia2 is a program for rendering quaternion julia set based on
+ray-marching and distance estimation technologies. 
+The code architecture is heavily inspired by [*PBRT*](https://www.pbrt.org/).
+In addition, it can optionally use CUDA to accelerate the rendering.
 
-
-qjulia2 is a command-line ray-tracing program for rendering quaternion julia set.
-
-The ray-tracing architecture is inspired heavily from [*PBRT*](https://www.pbrt.org/),
-while the distance estimation algorithm was learnt from [1] and [2].
-
-The program can use CUDA to accelerate the rendering.
-
-The program cnrrently only supports PNG format.
+The program was originally for command-line only.
+Recently an experimental GUI based on Qt5 has been developed.
 
 ## Install
 
@@ -33,29 +31,31 @@ In addition, there are a few more dependencies:
 * [gtest](https://github.com/google/googletest) (optional, if you want unit tests)
 * [doxygen](http://www.doxygen.nl/) (optional, if you want its documentation)
 * [Qt5](https://www.qt.io/) (optional, if you want the GUI, which is currently only a toy)
-
-Also [cxxopts](https://github.com/jarro2783/cxxopts) is shipped as a submoudle,
-I am thinking to switch to [CLI11](https://github.com/CLIUtils/CLI11) in the future.
+* [cxxopts](https://github.com/jarro2783/cxxopts) (shipped and compiled as a submoudle)
 
 The following CMake options are available to turn on/off optional features:
 
 * *WITH_CUDA* CUDA acceleration
-* *WITH_GUI* A toy GUI based on Qt
+* *WITH_GUI* GUI based on Qt (CUDA must be on)
 * *WITH_TEST* Unit test
-* *WITH_DOC* Documentation pages
+* *WITH_DOC* Doxugen Documentation
 
-For example, if you want CUDA, you should do something like
+For example
 ```bash
 mkdir build && cd build
-cmake -DWITH_CUDA=ON ..
+cmake -DWITH_CUDA=ON -DWITH_GUI=ON -DWITH_TEST=ON -DWITH_DOC=ON ..
 make -j8
 ```
 
+I haven't written the CMake script for installing the program yet.
+But you can directly run the program from the build directory.
 
-## Usage
+## Command-line Usage
+
+### Rendering an image
 
 ```bash
-./src/qjulia2-cli -i ../data/example_scene.txt
+./src/qjulia2-cli -i ../data/example2.scene
 ```
 There are a few options can be used:
 * `-i <file>, --scene_file <file>`
@@ -80,7 +80,7 @@ For example, after you build the project under `<project_dir>/build`, you can do
 ./src/cli/qjulia-cli -i ../data/example.scene
 ```
 
-## Scene Description
+### Scene Description
 
 A scene description file consists a set of blocks, such as
 ```
@@ -96,16 +96,43 @@ A block begins with a line of header, in the following format
 }
 ```
 
-An example has been given in the `<project_dir>/data/example.scene`.
+Examples have been given in `<project_dir>/data/*.scene`.
+
+
+## GUI Usage
+
+The GUI is currently experimental.
+There isn't much of control at this moment but is enough to do some simple,
+realtime interaction with the scene.
+
+In the *Scene* tab you may select an entity
+from the list and adjust its parameters.
+Right now I only implement the control widgets for lights, cameras
+and the fractal shapes.
+
+![qjulia-title](data/GUI-image-01.jpg)
+
+In the *Render* tab you may specify the preview resolution when you are dragging the parameter sliders and the resolution when you stop adjusting.
+High resolution image is slow to render in realtime even if you use CUDA acceleration.
+Once you have made a good scene and found a good view, you may do an offline rendering and save it to an PNG file (PNG is the only supported format at this moment). This time you may use a higher resolution as you don't have to see it immediately.
+
+![qjulia-title](data/GUI-image-02.jpg)
 
 ## TODOList
 
-* Better GUI
-* Resolution of fractals
-* Better Camera control
 * Depth of Field
 * Animation support
+* More resolution and less artifact
 
+## Gallery
+
+![qjulia-title](data/Gallery-01.jpg)
+
+![qjulia-title](data/Gallery-02.jpg)
+
+![qjulia-title](data/Gallery-03.jpg)
+
+![qjulia-title](data/Gallery-04.jpg)
 
 ## Reference
 
