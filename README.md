@@ -72,8 +72,8 @@ There are a few options can be used:
 
 * `-o <file>, --output_file <n>`
 
-  Specifies the output file name, which should end with ".ppm".
-  By default "output.ppm".
+  Specifies the output file name, which should end with ".png".
+  By default "output.png".
 
 For example, after you build the project under `<project_dir>/build`, you can do
 ```bash
