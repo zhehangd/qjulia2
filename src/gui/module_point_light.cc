@@ -29,5 +29,6 @@ void PointLightModule::UpdateWidget(void) {
 void PointLightModule::UpdateEntity(void) {
   entity_->position = ui->position->GetCoords();
   entity_->intensity = ui->color->GetRGBColor();
-  qDebug() << entity_->intensity[0] << " " << entity_->intensity[1] << " " << entity_->intensity[2] << " ";
+  qDebug() << "PointLight Intensity: " << entity_->intensity[0] << " " << entity_->intensity[1] << " " << entity_->intensity[2];
+  qDebug() << "PointLight Position: " << entity_->position[0] << " " << entity_->position[1] << " " << entity_->position[2];
 }

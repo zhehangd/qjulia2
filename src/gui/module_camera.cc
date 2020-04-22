@@ -39,4 +39,6 @@ void CameraModule::UpdateEntity(void) {
   auto target = ui->target->GetCoords();
   auto position = ui->polPosition->GetCartesianCoords() + target;
   entity_->LookAt(position, target, {0, 1, 0});
+  qDebug() << "Camera Position: " << position[0] << " " << position[1] << " " << position[2];
+  qDebug() << "Camera Target: " << target[0] << " " << target[1] << " " << target[2];
 }

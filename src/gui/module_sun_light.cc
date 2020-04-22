@@ -29,5 +29,6 @@ void SunLightModule::UpdateWidget(void) {
 void SunLightModule::UpdateEntity(void) {
   entity_->orientation = -ui->position->GetCoords();
   entity_->intensity = ui->color->GetRGBColor();
-  qDebug() << entity_->intensity[0] << " " << entity_->intensity[1] << " " << entity_->intensity[2] << " ";
+  qDebug() << "SunLight Intensity: " << entity_->intensity[0] << " " << entity_->intensity[1] << " " << entity_->intensity[2];
+  qDebug() << "SunLight Orientation: " << entity_->orientation[0] << " " << entity_->orientation[1] << " " << entity_->orientation[2];
 }
