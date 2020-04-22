@@ -208,9 +208,9 @@ SceneCtrlParams QJuliaContext::Impl::GetDefaultOptions() {
   opts.fractal_uv_white = julia3d->GetUVWhite();
   opts.camera_pose = {10, 0, 5.3};
   opts.camera_target = {0, 0, 0};
-  opts.realtime_image_size = {640, 360};
+  opts.realtime_image_size = {1920, 1080};
   opts.realtime_fast_image_size = {640, 360};
-  opts.offline_image_size = {1920, 1080};
+  opts.offline_image_size = {3840, 2160};
   opts.offline_filename = "output.png";
   return opts;
 }
