@@ -29,12 +29,12 @@ SOFTWARE.
 
 #include <memory>
 
-#include "spectrum.h"
+#include "base.h"
 
 namespace qjulia {
 
 class Scene;
-class Film;
+class Image;
 class Integrator;
 class SceneBuilder;
 
@@ -52,7 +52,7 @@ class RTEngine {
   ~RTEngine(void);
   
   void Render(SceneBuilder &build,
-              const RenderOptions &option, Film &film);
+              const RenderOptions &option, Image &image);
   
   Float LastRenderTime(void) const {return (Float)last_render_time_;}
   

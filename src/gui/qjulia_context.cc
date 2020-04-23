@@ -234,12 +234,9 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
     LOG(FATAL) << "Unknown rtype";
   }
   
-  Film film(size.width, size.height);
-  
-  engine.Render(build, options, film);
+  Image image(size.width, size.height);
+  engine.Render(build, options, image);
   LOG(INFO) << "time: " << engine.LastRenderTime();
-  
-  Image image(film);
   
   if (rtype == RenderType::kPreview) {
     UpSample(image, dst_image, sopts.realtime_image_size);

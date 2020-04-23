@@ -24,20 +24,26 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_INTEGRATOR_
-#define QJULIA_INTEGRATOR_
+#ifndef QJULIA_DEVELOPER_H_
+#define QJULIA_DEVELOPER_H_
 
 #include "base.h"
-#include "spectrum.h"
+#include "film.h"
+#include "image.h"
 #include "vector.h"
-#include "scene.h"
 
 namespace qjulia {
 
-class Integrator {
+/// @brief A Developer process a film into an image
+///
+/// After an rendering engine uses an integrator to produce a film
+/// which contains more or less physically based information of each
+/// pixel, a developer is responsible for making an image from the
+/// information in the film.
+class Developer {
  public:
-  CPU_AND_CUDA virtual ~Integrator(void) {}
-  CPU_AND_CUDA virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
+  CPU_AND_CUDA virtual ~Developer(void) {}
+  CPU_AND_CUDA virtual void Develop(const Film &film, Image &dst) = 0;
 };
 
 }

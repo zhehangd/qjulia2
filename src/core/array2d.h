@@ -104,7 +104,7 @@ class Array2D {
   /// If src owns the data the ownership is moved as well.
   CPU_AND_CUDA Array2D<T>& operator=(Array2D &&src);
   
-  void Resize(Size size);
+  CPU_AND_CUDA void Resize(Size size);
   
   /// @brief Copy the content of an array
   ///
@@ -211,7 +211,7 @@ CPU_AND_CUDA void Array2D<T>::Release(void) {
 }
 
 template <typename T>
-void Array2D<T>::Resize(Size size) {
+CPU_AND_CUDA void Array2D<T>::Resize(Size size) {
   if (size.width == size_.width && size.height == size_.height) {
     return;
   }

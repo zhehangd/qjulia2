@@ -45,6 +45,7 @@ SOFTWARE.
 
 #include "core/integrator/default.h"
 #include "core/integrator/normal.h"
+#include "core/developer/default.h"
 
 namespace qjulia {
 
@@ -67,7 +68,7 @@ struct CUDAImpl {
   CUDAImpl(void);
   ~CUDAImpl(void) {}
   
-  void Render(SceneBuilder &build, const RenderOptions &options, Film &film);
+  void Render(SceneBuilder &build, const RenderOptions &options, Image &image);
   
   int cu_film_data_size_ = 0;
   
@@ -114,9 +115,9 @@ KERNEL void GPUKernel(Film film, Scene scene, AASample *cu_aa_samples) {
 }
 
 void CUDAImpl::Render(SceneBuilder &build,
-                      const RenderOptions &options, Film &film) {
-  int w = film.Width();
-  int h = film.Height();
+                      const RenderOptions &options, Image &image) {
+  int w = image.Width();
+  int h = image.Height();
   const int spectrum_bytes = w * h * sizeof(Spectrum);
   if (!cu_film_data_ || (cu_film_data_size_ != w * h)) {
     cu_film_data_.reset();
@@ -127,6 +128,7 @@ void CUDAImpl::Render(SceneBuilder &build,
     cu_film_data_size_ = w * h;
   }
   
+  Film film(image.ArraySize());
   Film cu_film(cu_film_data_.get(), w, h);  
   
   BuildSceneParams params;
@@ -145,6 +147,9 @@ void CUDAImpl::Render(SceneBuilder &build,
   CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
              spectrum_bytes, cudaMemcpyDeviceToHost));
   cudaDeviceSynchronize();
+  
+  DefaultDeveloper developer;
+  developer.Develop(film, image);
 }
 
 #endif
@@ -154,18 +159,18 @@ struct CPUImpl {
   CPUImpl(void) {}
   ~CPUImpl(void) {}
   
-  void Render(SceneBuilder &build, const RenderOptions &options, Film &film);
+  void Render(SceneBuilder &build, const RenderOptions &options, Image &image);
 };
 
 void CPUImpl::Render(
-    SceneBuilder &build, const RenderOptions &options, Film &film) {
+    SceneBuilder &build, const RenderOptions &options, Image &image) {
   BuildSceneParams params;
   params.cuda = false;
   Scene scene = build.BuildScene(params);
   
   DefaultIntegrator integrator;
   const Camera *camera = scene.GetCamera();
-  
+  Film film(image.ArraySize());
   std::atomic<int> row_cursor(0);
   auto RunThread = [&](void) {
     while(true) {
@@ -209,13 +214,16 @@ void CPUImpl::Render(
     }
     for (auto &thread : threads) {thread.join();}
   }
+  
+  DefaultDeveloper developer;
+  developer.Develop(film, image);
 }
 
 class RTEngine::Impl {
  public:
   Impl(void);
   
-  void Render(SceneBuilder &build, const RenderOptions &options, Film &film);
+  void Render(SceneBuilder &build, const RenderOptions &options, Image &image);
 #ifdef WITH_CUDA  
   CUDAImpl cuda_impl;
 #endif
@@ -228,15 +236,15 @@ RTEngine::Impl::Impl(void) {
 
 void RTEngine::Impl::Render(
     SceneBuilder &build,
-    const RenderOptions &options, Film &film) {
+    const RenderOptions &options, Image &image) {
   if (options.cuda) {
 #ifdef WITH_CUDA
-    cuda_impl.Render(build, options, film);
+    cuda_impl.Render(build, options, image);
 #else
     LOG(FATAL) << "qjulia2 is not compiled with CUDA support.";
 #endif
   } else {
-    cpu_impl.Render(build, options, film);
+    cpu_impl.Render(build, options, image);
   }
 }
 
@@ -248,10 +256,10 @@ RTEngine::~RTEngine(void) {
 }
 
 void RTEngine::Render(SceneBuilder &build,
-                      const RenderOptions &options, Film &film) {
+                      const RenderOptions &options, Image &image) {
   Timer timer;
   timer.Start();
-  impl_->Render(build, options, film);
+  impl_->Render(build, options, image);
   last_render_time_ = timer.End();
 }
 

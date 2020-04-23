@@ -97,15 +97,11 @@ bool Run(int argc, char **argv) {
     return false;
   }
   
-  int w = size[0];
-  int h = size[1];
-  Film film(w, h);
-  
+  Image image(Size(size[0], size[1]));  
   RTEngine engine;
-  engine.Render(build, option, film);
+  engine.Render(build, option, image);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   
-  Image image(film);  
   WritePNGImage(output_file, image);
   return true;
 }

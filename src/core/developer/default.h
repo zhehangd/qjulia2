@@ -24,20 +24,17 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_INTEGRATOR_
-#define QJULIA_INTEGRATOR_
+#ifndef QJULIA_DEVELOPER_DEFAULT_H_
+#define QJULIA_DEVELOPER_DEFAULT_H_
 
-#include "base.h"
-#include "spectrum.h"
-#include "vector.h"
-#include "scene.h"
+#include "core/developer.h"
 
 namespace qjulia {
 
-class Integrator {
+class DefaultDeveloper : public Developer {
  public:
-  CPU_AND_CUDA virtual ~Integrator(void) {}
-  CPU_AND_CUDA virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
+  
+  CPU_AND_CUDA void Develop(const Film &film, Image &dst) override;
 };
 
 }

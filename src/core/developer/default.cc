@@ -24,22 +24,24 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_INTEGRATOR_
-#define QJULIA_INTEGRATOR_
-
-#include "base.h"
-#include "spectrum.h"
-#include "vector.h"
-#include "scene.h"
+#include "core/developer/default.h"
 
 namespace qjulia {
 
-class Integrator {
- public:
-  CPU_AND_CUDA virtual ~Integrator(void) {}
-  CPU_AND_CUDA virtual Spectrum Li(const Ray &ray, const Scene &scene) = 0;
-};
+namespace {
+}
+
+CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, Image &image) {
+  image.Resize(film.ArraySize());
+  for (int i = 0; i < film.NumElems(); ++i) {
+    auto &src = film.At(i);
+    auto &dst = image.At(i);
+    for (int k = 0; k < 3; ++k) {
+      dst[k] = (unsigned char)round(
+        min((Float)255, max((Float)0.0, src[k] * 255)));
+    }
+  }
+}
 
 }
 
-#endif

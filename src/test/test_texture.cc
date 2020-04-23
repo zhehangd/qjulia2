@@ -65,7 +65,7 @@ TEST(Texture, SamplingCUDA) {
   
   NewTextureKernel<<<1, 1>>>(tex_device);
   
-  Image image({8, 1});
+  Image image(Size(8, 1));
   image.At(0, 0) = {255, 128, 0};
   image.At(0, 1) = {64, 10, 100};
   image.At(0, 2) = {255, 128, 50};

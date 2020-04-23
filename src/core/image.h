@@ -14,7 +14,8 @@ class Film;
 struct Image : public Array2D<Pixel> {
   Image(void) {}
   Image(int w, int h) : Array2D<Pixel>({w, h}) {}
-  Image(const Film &film);
+  Image(Size size) : Array2D<Pixel>(size) {}
+  //Image(const Film &film);
   
   int BytesPerRow(void) const {return 3 * Width();}
 };
