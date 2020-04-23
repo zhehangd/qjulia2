@@ -38,7 +38,7 @@ class DefaultIntegrator : public Integrator {
 
  private:
    
-  CPU_AND_CUDA Sample LiRecursive(const Ray &ray, const Scene &scene, int depth);
+  CPU_AND_CUDA Sample LiRecursive(const Ray &ray, const Scene &scene, int fork_depth);
   
   Float ray_delta_ = 5e-3; // TODO: Use EFloat to bound the error.
 };

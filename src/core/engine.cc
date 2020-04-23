@@ -88,6 +88,8 @@ CUDAImpl::CUDAImpl(void) {
   cu_aa_samples_.reset(aa_set_ptr);
 }
 
+//CPU_AND_CUDA void MergeSample
+
 KERNEL void GPUKernel(Film film, Scene scene, AASample *cu_aa_samples) {
   int r = blockIdx.y * blockDim.y + threadIdx.y;
   int c = blockIdx.x * blockDim.x + threadIdx.x;
@@ -95,20 +97,32 @@ KERNEL void GPUKernel(Film film, Scene scene, AASample *cu_aa_samples) {
   int i = film.GetIndex(r, c);
   DefaultIntegrator integrator; // TODO
   
+  
+  
   Float fr, fc, x, y;
   if (cu_aa_samples) {
-    Sample result;
+    
+    Sample sample;
+    sample.depth = 0;
+    Float depth_w_sum = 0;
+    
     for (int k = 0; k < 6; ++k) {
       const auto &aa = cu_aa_samples[k];
       fr = r + aa.offset[0];
       fc = c + aa.offset[1];
       film.GenerateCameraCoords(fr, fc, &x, &y);
       Ray ray = scene.GetCamera()->CastRay({x, y});
-      Sample sample = integrator.Li(ray, scene);
-      result.spectrum += sample.spectrum * aa.w;
-      result.depth += sample.depth * aa.w;
+      
+      Sample subsample = integrator.Li(ray, scene);
+      sample.spectrum += subsample.spectrum * aa.w;
+      sample.has_isect |= subsample.has_isect;
+      if (subsample.has_isect) {
+        depth_w_sum += aa.w;
+        sample.depth += subsample.depth * aa.w;
+      }
     }
-    film(i) = result;
+    sample.depth /= depth_w_sum;
+    film(i) = sample;
   } else {
     film.GenerateCameraCoords(i, &x, &y);
     Ray ray = scene.GetCamera()->CastRay({x, y});
@@ -180,9 +194,11 @@ void CPUImpl::Render(
       if (r >= film.Height()) {break;}
       auto *row = film.Row(r);
       for (int c = 0; c < film.Width(); ++c) {
-        Sample &pix = row[c];
+        Sample &sample = row[c];
+        sample.depth = 0;
         Float x, y, fr, fc;
         if (options.antialias) {
+          Float depth_w_sum = 0;
           for (int i = 0; i < 6; ++i) {
             const auto &aa = aa_samples[i];
             fr = r + aa.offset[0];
@@ -190,9 +206,15 @@ void CPUImpl::Render(
             film.GenerateCameraCoords(fr, fc, &x, &y);
             Vector2f p = Vector2f(x, y);
             Ray ray = camera->CastRay(p);
-            Sample local_pix = integrator.Li(ray, scene);
-            pix.spectrum += local_pix.spectrum * aa.w;
-            pix.depth += local_pix.depth * aa.w;
+            
+            Sample subsample = integrator.Li(ray, scene);
+            sample.spectrum += subsample.spectrum * aa.w;
+            sample.has_isect |= subsample.has_isect;
+            if (subsample.has_isect) {
+              depth_w_sum += aa.w;
+              sample.depth += subsample.depth * aa.w;
+            }
+            sample.depth /= depth_w_sum;
           }
         } else {
           fr = r;
@@ -200,7 +222,7 @@ void CPUImpl::Render(
           film.GenerateCameraCoords(fr, fc, &x, &y);
           Vector2f p = Vector2f(x, y);
           Ray ray = camera->CastRay(p);
-          pix = integrator.Li(ray, scene);
+          sample = integrator.Li(ray, scene);
         }
       }
     }

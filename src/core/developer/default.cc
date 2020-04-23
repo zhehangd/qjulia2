@@ -25,21 +25,59 @@ SOFTWARE.
 */
 
 #include "core/developer/default.h"
+#include "core/color.h"
 
 namespace qjulia {
 
 namespace {
 }
 
+
+CPU_AND_CUDA unsigned char ClipTo8Bit(Float v) {
+  return (unsigned char)round(min((Float)255, max((Float)0.0, v)));
+}
+
+CPU_AND_CUDA Pixel DevelopPixel(const Sample &sample) {
+  Pixel pix;
+  for (int k = 0; k < 3; ++k) {
+    pix[k] = (unsigned char)round(
+      min((Float)255, max((Float)0.0, sample.spectrum[k] * 255)));
+  }
+  return pix;
+}
+
+CPU_AND_CUDA Pixel DevelopPixel2(const Sample &sample) {
+  Pixel pix(0, 0, 0);
+  if (!sample.has_isect) {return pix;}
+  Float lumin = (sample.spectrum[0] + sample.spectrum[1] + sample.spectrum[2]) / 3.0;
+  Float dist = sample.depth;
+  Float min_dist = 1;
+  Float max_dist = 6;
+  Float hue = (dist - min_dist) / (max_dist - min_dist) * 360;
+  hue = max(min(hue, (Float)360.0), (Float)0);
+  auto color = LCH2RGB({lumin, 0.4, hue});
+  for (int k = 0; k < 3; ++k) {pix[k] = ClipTo8Bit(color[k] * 255);}
+  return pix;
+}
+
+CPU_AND_CUDA void Blur(const Film &src, Film &dst) {
+  dst.Resize(src.ArraySize());
+  int w = src.Width();
+  int h = src.Height();
+  for (int r = 5; r < h - 5; ++r) {
+    for (int c = 5; c < w - 5; ++c) {
+      dst.At(r, c) = src.At(r, c);
+    }
+  }
+}
+
 CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, Image &image) {
+  Film cache(film.ArraySize());
   image.Resize(film.ArraySize());
   for (int i = 0; i < film.NumElems(); ++i) {
     auto &src = film.At(i);
     auto &dst = image.At(i);
-    for (int k = 0; k < 3; ++k) {
-      dst[k] = (unsigned char)round(
-        min((Float)255, max((Float)0.0, src.spectrum[k] * 255)));
-    }
+    dst = DevelopPixel(src);
   }
 }
 

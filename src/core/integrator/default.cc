@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace qjulia {
 
-CPU_AND_CUDA Vector3f ReflectVector(const Vector3f &vin, const Vector3f &normal) {
+CPU_AND_CUDA Vector3f MakeReflectionVector(const Vector3f &vin, const Vector3f &normal) {
   return normal * (2 * Dot(vin, normal)) - vin;
 }
 
@@ -42,20 +42,17 @@ CPU_AND_CUDA Sample DefaultIntegrator::Li(const Ray &ray, const Scene &scene) {
 }
 
 CPU_AND_CUDA Sample DefaultIntegrator::LiRecursive(
-    const Ray &ray, const Scene &scene, int depth) {
+    const Ray &ray, const Scene &scene, int fork_depth) {
   
+  Sample sample;
+  
+  // Accumulate the light from various sources
   Spectrum final_spectrum;
   
-  // Find the nearest intersection.
-  // If no intersection found, return empty spectrum.
+  // Find intersection.
   Intersection isect;
   const Object* hit_object = scene.Intersect(ray, &isect);
-  if (hit_object == nullptr) {
-    return {final_spectrum, 0};
-  }
-  
-  const Vector3f &hit_position = isect.position;
-  const Vector3f &hit_normal = isect.normal;
+  if (hit_object == nullptr) {return sample;}
   
   const Material *material = hit_object->GetMaterial();
   const Texture *texture = material->GetTexture();
@@ -64,52 +61,52 @@ CPU_AND_CUDA Sample DefaultIntegrator::LiRecursive(
   for (int i = 0; i < scene.NumLights(); ++i) {
     // Compute the incident ray from a light.
     const Light *light = scene.GetLight(i);
-    LightRay lray = light->Li(hit_position);    
+    LightRay lray = light->Li(isect.position);    
     
     // Cosine of the incident ray.
     // This is used to decide whether the light shines the front
     // face of the surface, and decide the illuminance on the
     // surface.
-    Float in_cosine = Dot(lray.wi, hit_normal);
+    Float in_cosine = Dot(lray.wi, isect.normal);
     if (in_cosine <= 0) {continue;}
-  
-    // Test occlusion
-    Ray in_ray(hit_position + hit_normal * ray_delta_, lray.wi);
+    
+    // Test if the light is occluded
+    auto occ_start = isect.position + isect.normal * ray_delta_;
+    auto occ_dir = lray.wi;
+    Ray occ_ray(occ_start, occ_dir);
     Intersection occ_isect;
-    const Object *occ_object = scene.Intersect(in_ray, &occ_isect);
-    (void)occ_object; // reserved
-    
-    // If occluded
-    if (occ_isect.good) {
-      if (occ_isect.dist <= lray.dist) {
-        continue;
-      }
+    const Object *occ_object = scene.Intersect(occ_ray, &occ_isect);
+    (void)occ_object;
+    if (occ_isect.good && occ_isect.dist <= lray.dist) {
+      continue;
     }
     
-    Float reflect = Dot(-ray.dir, ReflectVector(lray.wi, hit_normal));
-    reflect = reflect > 0 ? reflect : 0;
-    reflect = std::pow(reflect, material->ps);
-    
+    // Diffusion
     Spectrum spec_diffuse = lray.spectrum * material->diffuse * in_cosine;
-    if (texture) {
-      spec_diffuse *= texture->At(isect.uv);
-    }
+    if (texture) {spec_diffuse *= texture->At(isect.uv);}
+    sample.spectrum += spec_diffuse;
     
-    final_spectrum += lray.spectrum * material->ks * reflect;
-    final_spectrum += spec_diffuse;
+    // Specular
+    Float specular_cosine = Dot(-ray.dir, MakeReflectionVector(lray.wi, isect.normal));
+    specular_cosine = specular_cosine > 0 ? specular_cosine : 0;
+    specular_cosine = std::pow(specular_cosine, material->ps);
+    Spectrum spec_specular = lray.spectrum * material->ks * specular_cosine;
+    sample.spectrum += spec_specular;
   }
   
   // Reflection
-  if (material->reflection > 0 && depth > 0) {
-    Vector3f ray_dir = ReflectVector(-ray.dir, hit_normal);
-    Sample recret = LiRecursive(
-      Ray(hit_position + ray_dir * ray_delta_, ray_dir),
-      scene, depth - 1);
-    recret.spectrum *= material->reflection;
-    final_spectrum += recret.spectrum;
+  if (material->reflection > 0 && fork_depth > 0) {
+    auto ref_dir = MakeReflectionVector(-ray.dir, isect.normal);
+    auto ref_start = isect.position + ref_dir * ray_delta_;
+    Ray ref_ray(ref_start, ref_dir);
+    Sample ref_sample = LiRecursive(ref_ray, scene, fork_depth - 1);
+    ref_sample.spectrum *= material->reflection;
+    sample.spectrum += ref_sample.spectrum;
   }
   
-  return Sample{final_spectrum, 0};
+  sample.depth = Dist(isect.position, ray.start);
+  sample.has_isect = true;
+  return sample;
 }
 
 }

@@ -62,6 +62,8 @@ typedef std::uint32_t BinaryFloat;
 
 static constexpr Float kEpsilon = std::numeric_limits<Float>::epsilon() * 0.5f;
 
+constexpr Float kNaN = std::numeric_limits<Float>::quiet_NaN();
+
 constexpr Float kInf = std::numeric_limits<Float>::infinity();
 
 constexpr Float kNInf = - std::numeric_limits<Float>::infinity();

@@ -1,6 +1,8 @@
 #ifndef QJULIA_INTEGRATOR_RETURN_H_
 #define QJULIA_INTEGRATOR_RETURN_H_
 
+#include "spectrum.h"
+
 namespace qjulia {
 
 /// @brief Data returned by integrators
@@ -11,13 +13,13 @@ namespace qjulia {
 struct Sample {
   
   // Light collected by the ray
-  Spectrum spectrum;
+  Spectrum spectrum {0, 0, 0};
   
   // Depth of the first intersection
-  Float depth;
+  Float depth = kNaN;
   
   // If the ray has made an intersection
-  bool has_isect;
+  bool has_isect = false;
 };
 
 }
