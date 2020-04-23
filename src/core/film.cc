@@ -73,7 +73,7 @@ CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *r, int *c) co
   *r = round(y * s  + (relocation_h_ - 1) * 0.5f) - relocation_y_;
   return CheckRange(*r, *c);
 }
-
+/*
 void SaveToPPM(const std::string &filename, const Film &film, Float scale) {
   int w = film.Width();
   int h = film.Height();
@@ -91,6 +91,6 @@ void SaveToPPM(const std::string &filename, const Film &film, Float scale) {
   std::ofstream file_stream(filename, std::ofstream::binary);
   file_stream.write(header.c_str(), header.size());
   file_stream.write(reinterpret_cast<const char*>(buf.data()), buf.size());
-}
+}*/
 
 }

@@ -32,14 +32,15 @@ SOFTWARE.
 
 #include "spectrum.h"
 #include "array2d.h"
+#include "integrator_return.h"
 
 namespace qjulia {
 
-class Film : public Array2D<Spectrum> {
+class Film : public Array2D<IntegratorReturn> {
  public:
-  CPU_AND_CUDA Film(int w, int h) : Array2D<Spectrum>({w, h}) {Relocate();}
-  CPU_AND_CUDA Film(Size size) : Array2D<Spectrum>(size) {Relocate();}
-  CPU_AND_CUDA Film(Spectrum *p, int w, int h) : Array2D<Spectrum>(p, {w, h}) {Relocate();}
+  CPU_AND_CUDA Film(int w, int h) : Array2D<IntegratorReturn>({w, h}) {Relocate();}
+  CPU_AND_CUDA Film(Size size) : Array2D<IntegratorReturn>(size) {Relocate();}
+  CPU_AND_CUDA Film(IntegratorReturn *p, int w, int h) : Array2D<IntegratorReturn>(p, {w, h}) {Relocate();}
   
   CPU_AND_CUDA void Relocate(void);
   CPU_AND_CUDA void Relocate(int x, int y, int w, int h);
@@ -60,8 +61,8 @@ class Film : public Array2D<Spectrum> {
   int relocation_s_ = 0;
 };
 
-void SaveToPPM(const std::string &filename, const Film &film,
-               Float scale = 255);
+//void SaveToPPM(const std::string &filename, const Film &film,
+//               Float scale = 255);
 
 }
 

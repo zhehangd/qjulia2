@@ -38,7 +38,7 @@ CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, Image &image) {
     auto &dst = image.At(i);
     for (int k = 0; k < 3; ++k) {
       dst[k] = (unsigned char)round(
-        min((Float)255, max((Float)0.0, src[k] * 255)));
+        min((Float)255, max((Float)0.0, src.spectrum[k] * 255)));
     }
   }
 }
