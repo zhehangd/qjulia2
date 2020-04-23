@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace qjulia {
 
-CPU_AND_CUDA IntegratorReturn NormalIntegrator::Li(const Ray &ray, const Scene &scene) {
+CPU_AND_CUDA Sample NormalIntegrator::Li(const Ray &ray, const Scene &scene) {
   Intersection isect;
   const Object* hit_object = scene.Intersect(ray, &isect);
   if (hit_object == nullptr) {

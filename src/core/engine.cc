@@ -72,8 +72,8 @@ struct CUDAImpl {
   
   int cu_film_data_size_ = 0;
   
-  std::unique_ptr<IntegratorReturn, void(*)(IntegratorReturn*)> cu_film_data_ {
-    nullptr, [](IntegratorReturn *p) {cudaFree(p);}};
+  std::unique_ptr<Sample, void(*)(Sample*)> cu_film_data_ {
+    nullptr, [](Sample *p) {cudaFree(p);}};
   
   std::unique_ptr<AASample, void(*)(AASample*)> cu_aa_samples_ {
     nullptr, [](AASample *p) {cudaFree(p);}};
@@ -97,14 +97,14 @@ KERNEL void GPUKernel(Film film, Scene scene, AASample *cu_aa_samples) {
   
   Float fr, fc, x, y;
   if (cu_aa_samples) {
-    IntegratorReturn result;
+    Sample result;
     for (int k = 0; k < 6; ++k) {
       const auto &aa = cu_aa_samples[k];
       fr = r + aa.offset[0];
       fc = c + aa.offset[1];
       film.GenerateCameraCoords(fr, fc, &x, &y);
       Ray ray = scene.GetCamera()->CastRay({x, y});
-      IntegratorReturn sample = integrator.Li(ray, scene);
+      Sample sample = integrator.Li(ray, scene);
       result.spectrum += sample.spectrum * aa.w;
       result.depth += sample.depth * aa.w;
     }
@@ -120,10 +120,10 @@ void CUDAImpl::Render(SceneBuilder &build,
                       const RenderOptions &options, Image &image) {
   int w = image.Width();
   int h = image.Height();
-  const int film_data_bytes = w * h * sizeof(IntegratorReturn);
+  const int film_data_bytes = w * h * sizeof(Sample);
   if (!cu_film_data_ || (cu_film_data_size_ != w * h)) {
     cu_film_data_.reset();
-    IntegratorReturn *spectrum_ptr;
+    Sample *spectrum_ptr;
     CUDACheckError(__LINE__, cudaMalloc((void**)&spectrum_ptr, film_data_bytes));
     CHECK_NOTNULL(spectrum_ptr);
     cu_film_data_.reset(spectrum_ptr);
@@ -180,7 +180,7 @@ void CPUImpl::Render(
       if (r >= film.Height()) {break;}
       auto *row = film.Row(r);
       for (int c = 0; c < film.Width(); ++c) {
-        IntegratorReturn &pix = row[c];
+        Sample &pix = row[c];
         Float x, y, fr, fc;
         if (options.antialias) {
           for (int i = 0; i < 6; ++i) {
@@ -190,7 +190,7 @@ void CPUImpl::Render(
             film.GenerateCameraCoords(fr, fc, &x, &y);
             Vector2f p = Vector2f(x, y);
             Ray ray = camera->CastRay(p);
-            IntegratorReturn local_pix = integrator.Li(ray, scene);
+            Sample local_pix = integrator.Li(ray, scene);
             pix.spectrum += local_pix.spectrum * aa.w;
             pix.depth += local_pix.depth * aa.w;
           }

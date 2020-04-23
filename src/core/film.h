@@ -36,11 +36,11 @@ SOFTWARE.
 
 namespace qjulia {
 
-class Film : public Array2D<IntegratorReturn> {
+class Film : public Array2D<Sample> {
  public:
-  CPU_AND_CUDA Film(int w, int h) : Array2D<IntegratorReturn>({w, h}) {Relocate();}
-  CPU_AND_CUDA Film(Size size) : Array2D<IntegratorReturn>(size) {Relocate();}
-  CPU_AND_CUDA Film(IntegratorReturn *p, int w, int h) : Array2D<IntegratorReturn>(p, {w, h}) {Relocate();}
+  CPU_AND_CUDA Film(int w, int h) : Array2D<Sample>({w, h}) {Relocate();}
+  CPU_AND_CUDA Film(Size size) : Array2D<Sample>(size) {Relocate();}
+  CPU_AND_CUDA Film(Sample *p, int w, int h) : Array2D<Sample>(p, {w, h}) {Relocate();}
   
   CPU_AND_CUDA void Relocate(void);
   CPU_AND_CUDA void Relocate(int x, int y, int w, int h);

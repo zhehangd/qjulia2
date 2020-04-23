@@ -37,11 +37,11 @@ CPU_AND_CUDA Vector3f ReflectVector(const Vector3f &vin, const Vector3f &normal)
   return normal * (2 * Dot(vin, normal)) - vin;
 }
 
-CPU_AND_CUDA IntegratorReturn DefaultIntegrator::Li(const Ray &ray, const Scene &scene) {
+CPU_AND_CUDA Sample DefaultIntegrator::Li(const Ray &ray, const Scene &scene) {
   return LiRecursive(ray, scene, 1);
 }
 
-CPU_AND_CUDA IntegratorReturn DefaultIntegrator::LiRecursive(
+CPU_AND_CUDA Sample DefaultIntegrator::LiRecursive(
     const Ray &ray, const Scene &scene, int depth) {
   
   Spectrum final_spectrum;
@@ -102,14 +102,14 @@ CPU_AND_CUDA IntegratorReturn DefaultIntegrator::LiRecursive(
   // Reflection
   if (material->reflection > 0 && depth > 0) {
     Vector3f ray_dir = ReflectVector(-ray.dir, hit_normal);
-    IntegratorReturn recret = LiRecursive(
+    Sample recret = LiRecursive(
       Ray(hit_position + ray_dir * ray_delta_, ray_dir),
       scene, depth - 1);
     recret.spectrum *= material->reflection;
     final_spectrum += recret.spectrum;
   }
   
-  return IntegratorReturn{final_spectrum, 0};
+  return Sample{final_spectrum, 0};
 }
 
 }

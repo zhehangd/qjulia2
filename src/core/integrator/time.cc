@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace qjulia {
   
-CPU_AND_CUDA IntegratorReturn TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
+CPU_AND_CUDA Sample TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
 #ifndef __CUDA_ARCH__
   Timer timer;
   timer.Start();
@@ -47,9 +47,9 @@ CPU_AND_CUDA IntegratorReturn TimeIntegrator::Li(const Ray &ray, const Scene &sc
   max_time_ = std::max(max_time_, t);
   total_time_ += t;
   count_ += 1;
-  return IntegratorReturn{Spectrum{t, t, t}, 0};
+  return Sample{Spectrum{t, t, t}, 0};
 #else
-  return IntegratorReturn{Spectrum{0, 0, 0}, 0};
+  return Sample{Spectrum{0, 0, 0}, 0};
 #endif
 }
 

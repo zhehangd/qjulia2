@@ -38,7 +38,7 @@ namespace qjulia {
 class Integrator {
  public:
   CPU_AND_CUDA virtual ~Integrator(void) {}
-  CPU_AND_CUDA virtual IntegratorReturn Li(const Ray &ray, const Scene &scene) = 0;
+  CPU_AND_CUDA virtual Sample Li(const Ray &ray, const Scene &scene) = 0;
 };
 
 }
