@@ -35,7 +35,7 @@ namespace qjulia {
 // in finding intersection.
 class TimeIntegrator : public Integrator {
  public:
-  CPU_AND_CUDA Spectrum Li(const Ray &ray, const Scene &scene);
+  CPU_AND_CUDA IntegratorReturn Li(const Ray &ray, const Scene &scene);
   
   Float MaxTime(void) const {return max_time_;}
   Float TotalTime(void) const {return total_time_;}

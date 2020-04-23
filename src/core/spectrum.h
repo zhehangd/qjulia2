@@ -33,9 +33,7 @@ namespace qjulia {
 
 typedef Vector3f Spectrum;
 
-//struct Spectrum : Vector3f {
-//  public:
-//};
+
 
 }
 

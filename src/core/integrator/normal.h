@@ -33,7 +33,7 @@ namespace qjulia {
 
 class NormalIntegrator : public Integrator {
  public:
-  CPU_AND_CUDA Spectrum Li(const Ray &ray, const Scene &scene);
+  CPU_AND_CUDA IntegratorReturn Li(const Ray &ray, const Scene &scene);
 };
 
 }

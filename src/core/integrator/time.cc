@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace qjulia {
   
-CPU_AND_CUDA Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
+CPU_AND_CUDA IntegratorReturn TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
 #ifndef __CUDA_ARCH__
   Timer timer;
   timer.Start();
@@ -47,9 +47,9 @@ CPU_AND_CUDA Spectrum TimeIntegrator::Li(const Ray &ray, const Scene &scene) {
   max_time_ = std::max(max_time_, t);
   total_time_ += t;
   count_ += 1;
-  return {t, t, t};
+  return IntegratorReturn{Spectrum{t, t, t}, 0};
 #else
-  return {0, 0, 0};
+  return IntegratorReturn{Spectrum{0, 0, 0}, 0};
 #endif
 }
 

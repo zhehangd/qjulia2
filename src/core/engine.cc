@@ -104,13 +104,13 @@ KERNEL void GPUKernel(Film film, Scene scene, AASample *cu_aa_samples) {
       fc = c + aa.offset[1];
       film.GenerateCameraCoords(fr, fc, &x, &y);
       Ray ray = scene.GetCamera()->CastRay({x, y});
-      result += integrator.Li(ray, scene) * aa.w;
+      result += integrator.Li(ray, scene).spectrum * aa.w;
     }
     film(i) = result;
   } else {
     film.GenerateCameraCoords(i, &x, &y);
     Ray ray = scene.GetCamera()->CastRay({x, y});
-    film(i) = integrator.Li(ray, scene);
+    film(i) = integrator.Li(ray, scene).spectrum;
   }
 }
 
@@ -189,7 +189,7 @@ void CPUImpl::Render(
             film.GenerateCameraCoords(fr, fc, &x, &y);
             Vector2f p = Vector2f(x, y);
             Ray ray = camera->CastRay(p);
-            pix += integrator.Li(ray, scene) * aa.w;
+            pix += integrator.Li(ray, scene).spectrum * aa.w;
           }
         } else {
           fr = r;
@@ -197,7 +197,7 @@ void CPUImpl::Render(
           film.GenerateCameraCoords(fr, fc, &x, &y);
           Vector2f p = Vector2f(x, y);
           Ray ray = camera->CastRay(p);
-          pix = integrator.Li(ray, scene);
+          pix = integrator.Li(ray, scene).spectrum;
         }
       }
     }
