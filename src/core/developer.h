@@ -43,7 +43,14 @@ namespace qjulia {
 class Developer {
  public:
   CPU_AND_CUDA virtual ~Developer(void) {}
-  CPU_AND_CUDA virtual void Develop(const Film &film, Image &dst) = 0;
+  
+  /// @brief Process a film and accumulate the result in the cache
+  CPU_AND_CUDA virtual void Develop(const Film &film, float w) = 0;
+  
+  CPU_AND_CUDA virtual void Init(Size size) = 0;
+  
+  CPU_AND_CUDA virtual void Finish(Image &dst) = 0;
+  
 };
 
 }

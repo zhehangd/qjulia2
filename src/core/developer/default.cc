@@ -37,6 +37,10 @@ CPU_AND_CUDA unsigned char ClipTo8Bit(Float v) {
   return (unsigned char)round(min((Float)255, max((Float)0.0, v)));
 }
 
+CPU_AND_CUDA Pixel ClipTo8Bit(Vector3f v) {
+  return Pixel(ClipTo8Bit(v[0]), ClipTo8Bit(v[1]), ClipTo8Bit(v[2]));
+}
+
 CPU_AND_CUDA Pixel DevelopPixel(const Sample &sample) {
   Pixel pix;
   for (int k = 0; k < 3; ++k) {
@@ -46,38 +50,34 @@ CPU_AND_CUDA Pixel DevelopPixel(const Sample &sample) {
   return pix;
 }
 
-CPU_AND_CUDA Pixel DevelopPixel2(const Sample &sample) {
+CPU_AND_CUDA Pixel DevelopPixelDepth(const Sample &sample) {
   Pixel pix(0, 0, 0);
   if (!sample.has_isect) {return pix;}
-  Float lumin = (sample.spectrum[0] + sample.spectrum[1] + sample.spectrum[2]) / 3.0;
-  Float dist = sample.depth;
-  Float min_dist = 1;
-  Float max_dist = 6;
-  Float hue = (dist - min_dist) / (max_dist - min_dist) * 360;
-  hue = max(min(hue, (Float)360.0), (Float)0);
-  auto color = LCH2RGB({lumin, 0.4, hue});
-  for (int k = 0; k < 3; ++k) {pix[k] = ClipTo8Bit(color[k] * 255);}
+  Float min_dist = 2.85;
+  Float max_dist = 3.85;
+  Float dist = (sample.depth - min_dist) / (max_dist - min_dist);
+  Vector3f color(dist, dist, dist);
+  pix = ClipTo8Bit(color * 255);
   return pix;
 }
 
-CPU_AND_CUDA void Blur(const Film &src, Film &dst) {
-  dst.Resize(src.ArraySize());
-  int w = src.Width();
-  int h = src.Height();
-  for (int r = 5; r < h - 5; ++r) {
-    for (int c = 5; c < w - 5; ++c) {
-      dst.At(r, c) = src.At(r, c);
-    }
+CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, float w) {
+  for (int i = 0; i < film.NumElems(); ++i) {
+    cache1_.At(i).spectrum += film.At(i).spectrum;
+    cache1_.At(i).w += w;
   }
 }
 
-CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, Image &image) {
-  Film cache(film.ArraySize());
-  image.Resize(film.ArraySize());
-  for (int i = 0; i < film.NumElems(); ++i) {
-    auto &src = film.At(i);
-    auto &dst = image.At(i);
-    dst = DevelopPixel(src);
+CPU_AND_CUDA void DefaultDeveloper::Init(Size size) {
+  cache1_.Resize(size);
+  cache1_.SetTo({});
+}
+  
+CPU_AND_CUDA void DefaultDeveloper::Finish(Image &dst) {
+  dst.Resize(cache1_.ArraySize());
+  for (int i = 0; i < dst.NumElems(); ++i) {
+    auto &src = cache1_.At(i);
+    dst.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
   }
 }
 

@@ -165,7 +165,9 @@ void CUDAImpl::Render(SceneBuilder &build,
   cudaDeviceSynchronize();
   
   DefaultDeveloper developer;
-  developer.Develop(film, image);
+  developer.Init(image.ArraySize());
+  developer.Develop(film, 1.0f);
+  developer.Finish(image);
 }
 
 #endif
@@ -241,7 +243,9 @@ void CPUImpl::Render(
   }
   
   DefaultDeveloper developer;
-  developer.Develop(film, image);
+  developer.Init(image.ArraySize());
+  developer.Develop(film, 1.0f);
+  developer.Finish(image);
 }
 
 class RTEngine::Impl {

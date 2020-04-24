@@ -112,6 +112,8 @@ class Array2D {
   /// dst is holding. Otherwise, new memory is allocated for dst.
   void CopyTo(Array2D<T> &dst);
   
+  CPU_AND_CUDA void SetTo(const T& v) {for (int i = 0; i < NumElems(); ++i) {data_[i] = v;}}
+  
   CPU_AND_CUDA T& At(SizeType r, SizeType c);
   CPU_AND_CUDA const T& At(SizeType r, SizeType c) const;
   CPU_AND_CUDA T& At(SizeType i);
