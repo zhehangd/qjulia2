@@ -24,54 +24,32 @@ SOFTWARE.
 
 */
 
-#include "core/developer/default.h"
+#include "core/developer/simple.h"
 #include "core/algorithm.h"
 #include "core/color.h"
 
 namespace qjulia {
 
 namespace {
-
-/*
-CPU_AND_CUDA Pixel DevelopPixel(const Sample &sample) {
-  Pixel pix;
-  for (int k = 0; k < 3; ++k) {
-    pix[k] = (unsigned char)round(
-      min((Float)255, max((Float)0.0, sample.spectrum[k] * 255)));
-  }
-  return pix;
 }
 
-CPU_AND_CUDA Pixel DevelopPixelDepth(const Sample &sample) {
-  Pixel pix(0, 0, 0);
-  if (!sample.has_isect) {return pix;}
-  Float min_dist = 2.85;
-  Float max_dist = 3.85;
-  Float dist = (sample.depth - min_dist) / (max_dist - min_dist);
-  Vector3f color(dist, dist, dist);
-  pix = ClipTo8Bit(color * 255);
-  return pix;
-}*/
-
-}
-
-CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, float w) {
+CPU_AND_CUDA void SimpleDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
-    auto &dst = cache1_.At(i);
+    auto &dst = cache_.At(i);
     dst.spectrum += film.At(i).spectrum * w;
     dst.w += w;
   }
 }
 
-CPU_AND_CUDA void DefaultDeveloper::Init(Size size) {
-  cache1_.Resize(size);
-  cache1_.SetTo({});
+CPU_AND_CUDA void SimpleDeveloper::Init(Size size) {
+  cache_.Resize(size);
+  cache_.SetTo({});
 }
   
-CPU_AND_CUDA void DefaultDeveloper::Finish(Image &dst) {
-  dst.Resize(cache1_.ArraySize());
+CPU_AND_CUDA void SimpleDeveloper::Finish(Image &dst) {
+  dst.Resize(cache_.ArraySize());
   for (int i = 0; i < dst.NumElems(); ++i) {
-    auto &src = cache1_.At(i);
+    auto &src = cache_.At(i);
     dst.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
   }
 }

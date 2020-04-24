@@ -50,6 +50,7 @@ set(SHARED_SOURCE_FILES
   integrator/normal.cc
   integrator/time.cc
   developer/default.cc
+  developer/simple.cc
 )
 
 add_library(qjulia2-core OBJECT

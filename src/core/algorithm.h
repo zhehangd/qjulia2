@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 #include "base.h"
 #include "ray.h"
@@ -129,6 +130,16 @@ inline Vector3f Cartesian2SphericalCoords(Vector3f src) {
   Float azi = Rad2Deg(std::atan2(src[0], src[2]));
   Float alt = Rad2Deg(std::asin(src[1] / dist));
   return {azi, alt, dist};
+}
+
+CPU_AND_CUDA inline std::uint8_t ClipTo8Bit(Float v) {
+  return (std::uint8_t)std::round(
+    std::fmin((Float)255.0, 
+    std::fmax((Float)0.0, v)));
+}
+
+CPU_AND_CUDA inline Pixel ClipTo8Bit(Vector3f v) {
+  return Pixel(ClipTo8Bit(v[0]), ClipTo8Bit(v[1]), ClipTo8Bit(v[2]));
 }
 
 }

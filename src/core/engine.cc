@@ -128,6 +128,7 @@ void CUDAImpl::Render(SceneBuilder &build,
   
   if (options.antialias) {
     for (int i = 0; i < 6; ++i) {
+      CHECK_NOTNULL(cu_film_data_.get());
       GPUKernel<<<grid_size, block_size>>>(cu_film, scene, static_aa_samples[i]);
       CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
                     film_data_bytes, cudaMemcpyDeviceToHost));
