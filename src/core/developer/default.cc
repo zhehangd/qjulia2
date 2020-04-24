@@ -63,8 +63,9 @@ CPU_AND_CUDA Pixel DevelopPixelDepth(const Sample &sample) {
 
 CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
-    cache1_.At(i).spectrum += film.At(i).spectrum;
-    cache1_.At(i).w += w;
+    auto &dst = cache1_.At(i);
+    dst.spectrum += film.At(i).spectrum * w;
+    dst.w += w;
   }
 }
 

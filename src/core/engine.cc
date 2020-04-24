@@ -55,7 +55,7 @@ struct AASample {
   Float w = 1;
 };
 
-const AASample aa_samples[6] = {
+const AASample static_aa_samples[6] = {
   AASample(-0.52f,  0.38f, 0.128f), AASample( 0.41f,  0.56f, 0.119f),
   AASample( 0.27f,  0.08f, 0.294f), AASample(-0.17f, -0.29f, 0.249f),
   AASample( 0.58f, -0.55f, 0.104f), AASample(-0.31f, -0.71f, 0.106f),
@@ -74,60 +74,26 @@ struct CUDAImpl {
   
   std::unique_ptr<Sample, void(*)(Sample*)> cu_film_data_ {
     nullptr, [](Sample *p) {cudaFree(p);}};
-  
-  std::unique_ptr<AASample, void(*)(AASample*)> cu_aa_samples_ {
-    nullptr, [](AASample *p) {cudaFree(p);}};
 };
 
 CUDAImpl::CUDAImpl(void) {
-  AASample *aa_set_ptr;
-  const int aa_set_bytes = sizeof(AASample) * 6;
-  cudaMalloc((void**)&aa_set_ptr, aa_set_bytes);
-  CHECK_NOTNULL(aa_set_ptr);
-  cudaMemcpy(aa_set_ptr, aa_samples, aa_set_bytes, cudaMemcpyHostToDevice);
-  cu_aa_samples_.reset(aa_set_ptr);
 }
 
 //CPU_AND_CUDA void MergeSample
 
-KERNEL void GPUKernel(Film film, Scene scene, AASample *cu_aa_samples) {
+KERNEL void GPUKernel(Film film, Scene scene, AASample aa) {
   int r = blockIdx.y * blockDim.y + threadIdx.y;
   int c = blockIdx.x * blockDim.x + threadIdx.x;
   if (!film.IsValidCoords(r, c)) {return;}
   int i = film.GetIndex(r, c);
-  DefaultIntegrator integrator; // TODO
+  DefaultIntegrator integrator;
   
-  
-  
-  Float fr, fc, x, y;
-  if (cu_aa_samples) {
-    
-    Sample sample;
-    sample.depth = 0;
-    Float depth_w_sum = 0;
-    
-    for (int k = 0; k < 6; ++k) {
-      const auto &aa = cu_aa_samples[k];
-      fr = r + aa.offset[0];
-      fc = c + aa.offset[1];
-      film.GenerateCameraCoords(fr, fc, &x, &y);
-      Ray ray = scene.GetCamera()->CastRay({x, y});
-      
-      Sample subsample = integrator.Li(ray, scene);
-      sample.spectrum += subsample.spectrum * aa.w;
-      sample.has_isect |= subsample.has_isect;
-      if (subsample.has_isect) {
-        depth_w_sum += aa.w;
-        sample.depth += subsample.depth * aa.w;
-      }
-    }
-    sample.depth /= depth_w_sum;
-    film(i) = sample;
-  } else {
-    film.GenerateCameraCoords(i, &x, &y);
-    Ray ray = scene.GetCamera()->CastRay({x, y});
-    film(i) = integrator.Li(ray, scene);
-  }
+  Float x, y;
+  Float fr = r + aa.offset[0];
+  Float fc = c + aa.offset[1];
+  film.GenerateCameraCoords(fr, fc, &x, &y);
+  Ray ray = scene.GetCamera()->CastRay({x, y});
+  film(i) = integrator.Li(ray, scene);
 }
 
 void CUDAImpl::Render(SceneBuilder &build,
@@ -157,16 +123,26 @@ void CUDAImpl::Render(SceneBuilder &build,
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   
-  AASample *cu_aa_samples = nullptr;
-  if (options.antialias) {cu_aa_samples = cu_aa_samples_.get();}
-  GPUKernel<<<grid_size, block_size>>>(cu_film, scene, cu_aa_samples);
-  CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
-             film_data_bytes, cudaMemcpyDeviceToHost));
-  cudaDeviceSynchronize();
-  
   DefaultDeveloper developer;
   developer.Init(image.ArraySize());
-  developer.Develop(film, 1.0f);
+  
+  if (options.antialias) {
+    for (int i = 0; i < 6; ++i) {
+      GPUKernel<<<grid_size, block_size>>>(cu_film, scene, static_aa_samples[i]);
+      CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
+                    film_data_bytes, cudaMemcpyDeviceToHost));
+      cudaDeviceSynchronize();
+      developer.Develop(film, static_aa_samples[i].w);
+    }
+  } else {
+    GPUKernel<<<grid_size, block_size>>>(cu_film, scene, AASample(0, 0, 1));
+    CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
+                  film_data_bytes, cudaMemcpyDeviceToHost));
+    cudaDeviceSynchronize();
+    developer.Develop(film, 1.0);
+  }
+  
+  
   developer.Finish(image);
 }
 
@@ -189,62 +165,53 @@ void CPUImpl::Render(
   DefaultIntegrator integrator;
   const Camera *camera = scene.GetCamera();
   Film film(image.ArraySize());
-  std::atomic<int> row_cursor(0);
-  auto RunThread = [&](void) {
-    while(true) {
-      int r = row_cursor++;
-      if (r >= film.Height()) {break;}
-      auto *row = film.Row(r);
-      for (int c = 0; c < film.Width(); ++c) {
-        Sample &sample = row[c];
-        sample.depth = 0;
-        Float x, y, fr, fc;
-        if (options.antialias) {
-          Float depth_w_sum = 0;
-          for (int i = 0; i < 6; ++i) {
-            const auto &aa = aa_samples[i];
-            fr = r + aa.offset[0];
-            fc = c + aa.offset[1];
-            film.GenerateCameraCoords(fr, fc, &x, &y);
-            Vector2f p = Vector2f(x, y);
-            Ray ray = camera->CastRay(p);
-            
-            Sample subsample = integrator.Li(ray, scene);
-            sample.spectrum += subsample.spectrum * aa.w;
-            sample.has_isect |= subsample.has_isect;
-            if (subsample.has_isect) {
-              depth_w_sum += aa.w;
-              sample.depth += subsample.depth * aa.w;
-            }
-            sample.depth /= depth_w_sum;
-          }
-        } else {
-          fr = r;
-          fc = c;
+  
+  int num_threads = options.num_threads;
+  if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
+  
+  std::vector<AASample> aa_filters;
+  if (options.antialias) {
+    for (int i = 0; i < 6; ++i) {aa_filters.push_back(static_aa_samples[i]);}
+  } else {
+    aa_filters.push_back(AASample(0, 0, 1));
+  }
+  
+  DefaultDeveloper developer;
+  developer.Init(image.ArraySize());
+  
+  for (const auto &aa : aa_filters) {
+  
+    std::atomic<int> row_cursor(0);
+    auto RunThread = [&](void) {
+      while(true) {
+        int r = row_cursor++;
+        if (r >= film.Height()) {break;}
+        auto *row = film.Row(r);
+        for (int c = 0; c < film.Width(); ++c) {
+          Sample &sample = row[c];
+          sample.depth = 0;
+          Float x, y, fr, fc;
+          fr = r + aa.offset[0];
+          fc = c + aa.offset[1];
           film.GenerateCameraCoords(fr, fc, &x, &y);
           Vector2f p = Vector2f(x, y);
           Ray ray = camera->CastRay(p);
           sample = integrator.Li(ray, scene);
         }
       }
+    };
+    
+    if (num_threads == 0) {
+      RunThread();
+    } else {
+      std::vector<std::thread> threads;
+      for (int i = 0; i < num_threads; ++i) {
+        threads.emplace_back(RunThread);
+      }
+      for (auto &thread : threads) {thread.join();}
     }
-  };
-  int num_threads = options.num_threads;
-  if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
-  
-  if (num_threads == 0) {
-    RunThread();
-  } else {
-    std::vector<std::thread> threads;
-    for (int i = 0; i < num_threads; ++i) {
-      threads.emplace_back(RunThread);
-    }
-    for (auto &thread : threads) {thread.join();}
+    developer.Develop(film, aa.w);
   }
-  
-  DefaultDeveloper developer;
-  developer.Init(image.ArraySize());
-  developer.Develop(film, 1.0f);
   developer.Finish(image);
 }
 
