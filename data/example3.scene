@@ -1,0 +1,39 @@
+Shape.Julia3D fractal_shape {
+  #SetConstant 0.31,-0.6,0.08,-0.5
+  SetConstant 0.24,-0.62,0.0,-0.43
+  SetPrecision 1e-4
+  SetUVBlack 0.36
+  SetUVWhite 0.63
+}
+
+Material material_fractal {
+  SetDiffuse 1,1,1
+  SetReflection 0.2
+  SetSpecular 0.3
+}
+
+Object fractal {
+  SetShape fractal_shape
+  SetMaterial material_fractal
+}
+
+Light.Point lamp {
+  SetPosition 0.5,-0.2,0
+  SetIntensity 0.12,0.175,0.215
+}
+Light.Sun sun {
+  SetOrientation -2,-3.5,-2
+  SetIntensity 1.774,1.197,0.671
+}
+
+Camera.Perspective camera {
+  LookAt 2.8,-1.25,2.16  0.5,0,0  0,1,0
+  SetFocus 1.8
+}
+
+World scene {
+  AddCamera camera
+  AddObject fractal
+  AddLight sun
+  AddLight lamp
+}
