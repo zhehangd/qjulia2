@@ -64,6 +64,8 @@ class Object : public Entity {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
+  
   struct Data {
     const Shape *shape = nullptr;
     const Material *material = nullptr;

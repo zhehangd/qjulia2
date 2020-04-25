@@ -98,4 +98,22 @@ void World::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void World::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  for (int i = 0; i < data_host_.num_objects; ++i) {
+    if (data_host_.objects[i]) {
+      fn_write({"AddObject", build->SearchEntityNameByPtr(data_host_.objects[i])});
+    }
+  }
+  for (int i = 0; i < data_host_.num_lights; ++i) {
+    if (data_host_.lights[i]) {
+      fn_write({"AddLight", build->SearchEntityNameByPtr(data_host_.lights[i])});
+    }
+  }
+  for (int i = 0; i < data_host_.num_cameras; ++i) {
+    if (data_host_.cameras[i]) {
+      fn_write({"AddCamera", build->SearchEntityNameByPtr(data_host_.cameras[i])});
+    }
+  }
+}
+
 }

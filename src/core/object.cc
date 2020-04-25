@@ -103,4 +103,16 @@ void Object::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void Object::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  if (data_host_.shape) {
+    fn_write({"SetShape", build->SearchEntityNameByPtr(data_host_.shape)});
+  }
+  if (data_host_.material) {
+    fn_write({"SetMaterial", build->SearchEntityNameByPtr(data_host_.material)});
+  }
+  if (data_host_.transform) {
+    fn_write({"SetTransform", build->SearchEntityNameByPtr(data_host_.transform)});
+  }
+}
+
 }

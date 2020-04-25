@@ -63,6 +63,8 @@ class World : public Entity {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
+  
   struct Data {
     int num_objects = 0;
     int num_lights = 0;

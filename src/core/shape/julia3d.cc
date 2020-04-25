@@ -131,4 +131,16 @@ void Julia3DShape::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void Julia3DShape::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  fn_write({"SetConstant", ToString(GetConstant())});
+  fn_write({"SetPrecision", ToString(GetPrecision())});
+  fn_write({"SetMaxInterations", ToString(GetMaxInterations())});
+  fn_write({"SetEscapeMagnitude", ToString(GetEscapeMagnitude())});
+  fn_write({"SetBoundingRadius", ToString(GetBoundingRadius())});
+  fn_write({"SetCrossSectionFlag", ToString(GetCrossSectionFlag())});
+  fn_write({"SetUVBlack", ToString(GetUVBlack())});
+  fn_write({"SetUVWhite", ToString(GetUVWhite())});
+}
+
 }

@@ -87,6 +87,13 @@ void OrthoCamera::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+
+void OrthoCamera::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  Camera::Save(build, fn_write);
+  fn_write({"SetScale", ToString(scale)});
+}
+
 CPU_AND_CUDA PerspectiveCamera::PerspectiveCamera(void) {
   position = {0, 0, 1};
   orientation = {0, 0, -1};
@@ -136,6 +143,12 @@ void PerspectiveCamera::Parse(const Args &args, SceneBuilder *build) {
   } else {
     Camera::Parse(args, build);
   }
+}
+
+void PerspectiveCamera::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  Camera::Save(build, fn_write);
+  fn_write({"SetFocus", ToString(focus)});
 }
 
 }

@@ -45,7 +45,11 @@ SOFTWARE.
 
 namespace qjulia {
 
-std::string SceneBuilder::GetSTypeName(size_t stype_id) const {
+std::string SceneBuilder::GetBaseTypeName(size_t btype_id) const {
+  return kEntityTypeNames[btype_id];
+}
+  
+std::string SceneBuilder::GetSpecificTypeName(size_t stype_id) const {
   return reg_table_[stype_id].stype_name;
 }
 
@@ -63,6 +67,22 @@ void SceneBuilder::ParseEntityDescr(const EntityDescr &descr) {
   for (const auto &statement : descr.statements) {
     entity->Parse(statement, this);
   }
+}
+
+SceneDescr SceneBuilder::SaveSceneDescr(void) {
+  SceneDescr scene_descr;
+  for (int i = 0; i < nodes_.size(); ++i) {
+    auto *node = nodes_[i].get();
+    Entity *entity = node->Get();
+    scene_descr.entities.emplace_back();
+    auto &entity_descr = scene_descr.entities.back();
+    entity_descr.name = node->GetName();
+    entity_descr.type = GetBaseTypeName(node->GetBaseTypeID());
+    entity_descr.subtype = GetSpecificTypeName(node->GetSpecificTypeID());
+    entity->Save(this, [&entity_descr](const Args &args) {
+      entity_descr.statements.push_back(args);});
+  }
+  return scene_descr;
 }
   
 EntityNode* SceneBuilder::CreateEntity(
@@ -132,6 +152,17 @@ Scene SceneBuilder::BuildScene(BuildSceneParams params) const {
     scene.camera_ = node_camera->Get();
   }
   return scene;
+}
+
+EntityNode* SceneBuilder::SearchEntityByPtr(const Entity *p) const {
+  for (auto &node : nodes_) {
+    if (node.get()->Get() == p) {return node.get();}
+  }
+  return nullptr;
+}
+
+std::string SceneBuilder::SearchEntityNameByPtr(const Entity *p) const {
+  return CHECK_NOTNULL(SearchEntityByPtr(p))->GetName();
 }
 
 void RegisterDefaultEntities(SceneBuilder &build) {

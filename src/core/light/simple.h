@@ -39,6 +39,8 @@ class SunLight : public Light {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder*, FnSaveArgs) const override;
+  
   Spectrum intensity;
   Vector3f orientation;
 };
@@ -50,6 +52,8 @@ class PointLight : public Light {
   void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
+  
+  void Save(SceneBuilder*, FnSaveArgs) const override;
   
   Spectrum intensity;
   Vector3f position;

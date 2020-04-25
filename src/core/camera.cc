@@ -82,4 +82,9 @@ void Camera::Parse(const Args &args, SceneBuilder *build) {
   }
 } 
 
+void Camera::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  fn_write({"LookAt", ToString(position), ToString(target_), ToString(up)});
+}
+
 }

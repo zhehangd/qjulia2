@@ -37,10 +37,6 @@ SOFTWARE.
 
 namespace qjulia {
   
-/** \brief Ordered tokens in a line
-*/
-typedef std::vector<std::string> EntityStatement;
-
 /** \brief Structured tokens representing a block 
   This is a intermediate form, which can be easily generated
   from text without knowing its meaning, and can be parsed
@@ -50,7 +46,7 @@ struct EntityDescr {
   std::string type;
   std::string subtype;
   std::string name;
-  std::vector<EntityStatement> statements;
+  std::vector<Args> statements;
 };
 
 struct SceneDescr {
@@ -63,7 +59,13 @@ SceneDescr LoadSceneFromString(const std::string &text);
 
 SceneDescr LoadSceneFromFile(const std::string &filename);
 
-std::string EntityStatement2Str(const EntityStatement &tokens);
+void SaveSceneDescrToStream(std::ostream &os, const SceneDescr &scene_descr);
+
+std::string SaveSceneDescrToString(const SceneDescr &scene_descr);
+
+void SaveSceneDescrToFile(const std::string &filename, const SceneDescr &scene_descr);
+
+std::string EntityStatement2Str(const Args &tokens);
 
 std::string EntityDescr2Str(const EntityDescr &block);
 

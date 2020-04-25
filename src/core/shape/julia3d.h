@@ -66,7 +66,7 @@ class Julia3DShape : public Shape {
   
   CPU_AND_CUDA bool GetCrossSectionFlag(void) const {return kernel.GetCrossSectionFlag();};
   
-    CPU_AND_CUDA void SetUVBlack(Float black) {kernel.SetUVBlack(black);}
+  CPU_AND_CUDA void SetUVBlack(Float black) {kernel.SetUVBlack(black);}
   
   CPU_AND_CUDA void SetUVWhite(Float white) {kernel.SetUVWhite(white);}
   
@@ -85,6 +85,8 @@ class Julia3DShape : public Shape {
   void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
+  
+  void Save(SceneBuilder*, FnSaveArgs) const override;
   
  private:
   

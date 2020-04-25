@@ -42,7 +42,7 @@ void DevPanel::UpdateEntityList(void) {
     auto stype_id = enode->GetSpecificTypeID();
     auto name = QString::fromStdString(enode->GetName());
     auto btype = QString(qjulia::kEntityTypeNames[btype_id]);
-    auto stype = QString::fromStdString(build->GetSTypeName(stype_id));
+    auto stype = QString::fromStdString(build->GetSpecificTypeName(stype_id));
     
     // TODO beware of parenting
     BaseModule *bwidget = ctx_->NewControlWidgetForBaseType(btype_id);

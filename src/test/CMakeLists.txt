@@ -31,6 +31,8 @@ add_executable(test_all
   test_camera.cc
   test_scene_builder.cc
   test_color.cc
+  test_args.cc
+  test_transform.cc
   $<TARGET_OBJECTS:qjulia2-core>
 )
 

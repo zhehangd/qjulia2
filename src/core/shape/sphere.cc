@@ -88,4 +88,10 @@ void SphereShape::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void SphereShape::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  fn_write({"SetPosition", ToString(position)});
+  fn_write({"SetRadius", ToString(radius)});
+}
+
 }

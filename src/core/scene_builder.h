@@ -102,15 +102,24 @@ struct BuildSceneParams {
 class SceneBuilder {
  public:
   
-  
+   
   /// @brief Parses a SceneDescr object
   void ParseSceneDescr(const SceneDescr &descr);
   
   /// @brief Parses an EntityDescr object
   void ParseEntityDescr(const EntityDescr &descr);
   
+  /// @brief Save to a SceneDescr object
+  SceneDescr SaveSceneDescr(void);
+  
+  /// @brief Gets the name of a base type by its ID
+  ///
+  /// This is a convenience function as the name can be
+  /// also obtained by kEntityTypeNames[btype_id].
+  std::string GetBaseTypeName(size_t btype_id) const;
+  
   /// @brief Gets the name of a specific type by its ID
-  std::string GetSTypeName(size_t stype_id) const;
+  std::string GetSpecificTypeName(size_t stype_id) const;
   
   void DebugPrint(void) const;
   
@@ -129,6 +138,10 @@ class SceneBuilder {
   /// If name is empty, returns the first entity matching the basic entity.
   template <typename BT>
   EntityNodeBT<BT>* SearchEntityByName(const std::string &name = {}) const;
+  
+  EntityNode* SearchEntityByPtr(const Entity *p) const;
+  
+  std::string SearchEntityNameByPtr(const Entity *p) const;
   
   /// @
   Scene BuildScene(BuildSceneParams params) const;

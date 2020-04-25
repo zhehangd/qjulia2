@@ -24,36 +24,5 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_SPHERE_H_
-#define QJULIA_SPHERE_H_
-
-#include <vector>
-#include <memory>
-
-#include "core/vector.h"
-#include "core/shape.h"
-
-namespace qjulia {
-
-class SphereShape : public Shape {
- public:
-  CPU_AND_CUDA SphereShape(void) {}
-  CPU_AND_CUDA SphereShape(Point3f pos, Float radius) : position(pos), radius(radius) {}
-  
-  CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override;
-  
-  void UpdateDevice(Entity *device_ptr) const override;
-  
-  void Parse(const Args &args, SceneBuilder *build) override;
-  
-  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
-  
-  Point3f position;
-  Float radius = 1.0f;
-  
-};
-
-}
-
-#endif
- 
+#include <gtest/gtest.h> 
+#include "core/arg_parse.h"

@@ -28,16 +28,14 @@ SOFTWARE.
 #define QJULIA_ENTITY_H_
 
 #include "base.h"
+
+#include <functional>
 #include <vector>
 #include <string>
 
 namespace qjulia {
 
-typedef std::vector<std::string> Args;  
-
 class SceneBuilder;
-
-// TODO: handle object copy and CUDA copy
 
 // @brief An object that can be defined in a scene file
 class Entity {
@@ -49,6 +47,10 @@ class Entity {
     (void)args; (void)build;
     LOG(FATAL) << "No parsing function defined"; 
   }
+  
+  typedef std::function<void(const Args &args)> FnSaveArgs;
+  
+  virtual void Save(SceneBuilder*, FnSaveArgs) const {}
   
   virtual void UpdateDevice(Entity *device_ptr) const {
     (void)device_ptr;

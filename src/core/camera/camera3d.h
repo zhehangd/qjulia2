@@ -43,6 +43,8 @@ class OrthoCamera : public Camera {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
+  
   Float scale = 1;
 };
 
@@ -57,6 +59,8 @@ class PerspectiveCamera : public Camera {
   void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
+  
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
   
   Float focus = 1.8;
 };

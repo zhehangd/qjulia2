@@ -49,6 +49,8 @@ class PlaneShape : public Shape {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
+  
   Vector3f normal;
   Float offset;
 };

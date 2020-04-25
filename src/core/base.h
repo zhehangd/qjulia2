@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <cstdint>
+#include <string>
 #include <limits>
 
 #include <fmt/format.h>
@@ -55,6 +56,8 @@ typedef double Float;
 #else
 typedef float Float;
 #endif
+typedef std::string Arg;
+typedef std::vector<Arg> Args;
 
 typedef std::numeric_limits<Float> FloatLimits;
 

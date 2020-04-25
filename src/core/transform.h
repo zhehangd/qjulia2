@@ -31,6 +31,7 @@ SOFTWARE.
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "entity.h"
 #include "vector.h"
@@ -173,7 +174,14 @@ CPU_AND_CUDA inline Vector3f Matrix4x4::MulTranspMatVecMatVec(const Vector3f &v,
 }
 
 std::ostream& operator<<(std::ostream &os, const Matrix4x4 &mat);
-  
+
+/// @brief Decomposes a matrix as M = T * Rz * Ry * Rz * S
+///
+/// The function assumes this decomposition does exist.
+/// Returns [T, R, S], each is a Vec3f. R is given in
+/// degree.
+std::array<Vector3f, 3> DecomposeMatrix(const Matrix4x4 &m);
+
 class Transform : public Entity {
  public:
   CPU_AND_CUDA Transform(void) {Identity();}
@@ -200,6 +208,8 @@ class Transform : public Entity {
   void UpdateDevice(Entity *device_ptr) const override;
   
   void Parse(const Args &args, SceneBuilder *build) override;
+  
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
   
   Matrix4x4 mat_ow_; // object to world
   Matrix4x4 mat_wo_; // world to object

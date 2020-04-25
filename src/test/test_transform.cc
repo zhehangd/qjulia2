@@ -24,36 +24,27 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_SPHERE_H_
-#define QJULIA_SPHERE_H_
+#include <gtest/gtest.h> 
 
-#include <vector>
-#include <memory>
+#include "core/transform.h"
 
-#include "core/vector.h"
-#include "core/shape.h"
+using namespace qjulia;
 
-namespace qjulia {
-
-class SphereShape : public Shape {
- public:
-  CPU_AND_CUDA SphereShape(void) {}
-  CPU_AND_CUDA SphereShape(Point3f pos, Float radius) : position(pos), radius(radius) {}
-  
-  CPU_AND_CUDA Intersection Intersect(const Ray &ray) const override;
-  
-  void UpdateDevice(Entity *device_ptr) const override;
-  
-  void Parse(const Args &args, SceneBuilder *build) override;
-  
-  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
-  
-  Point3f position;
-  Float radius = 1.0f;
-  
-};
-
+TEST(DecomposeMatrix, Test1) {
+  Matrix4x4 m = Matrix4x4::Translate({3, 7, 11})
+    * Matrix4x4::RotateZ(42)
+    * Matrix4x4::RotateY(30)
+    * Matrix4x4::RotateX(15)
+    * Matrix4x4::Scale({0.5, 0.9, 1.2});
+  // T, R, S
+  auto ret = DecomposeMatrix(m);
+  EXPECT_NEAR(ret[0][0], 3, 1e-3);
+  EXPECT_NEAR(ret[0][1], 7, 1e-3);
+  EXPECT_NEAR(ret[0][2], 11, 1e-3);
+  EXPECT_NEAR(ret[1][0], 15, 1e-3);
+  EXPECT_NEAR(ret[1][1], 30, 1e-3);
+  EXPECT_NEAR(ret[1][2], 42, 1e-3);
+  EXPECT_NEAR(ret[2][0], 0.5, 1e-3);
+  EXPECT_NEAR(ret[2][1], 0.9, 1e-3);
+  EXPECT_NEAR(ret[2][2], 1.2, 1e-3);
 }
-
-#endif
- 

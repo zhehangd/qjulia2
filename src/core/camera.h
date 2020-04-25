@@ -58,6 +58,8 @@ class Camera : public Entity {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder *build, FnSaveArgs fn_write) const override;
+  
   Point3f target_;
   Point3f position;
   Point3f up;

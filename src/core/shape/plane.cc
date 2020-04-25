@@ -108,4 +108,10 @@ void PlaneShape::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void PlaneShape::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  Vector3f pos = normal * (- offset);
+  fn_write({"Set", ToString(pos), ToString(normal)});
+}
+
 }

@@ -74,9 +74,9 @@ inline void ParseArg(std::string arg, int &dst) {
 }
 
 inline void ParseArg(std::string arg, bool &dst) {
-  if (arg == "on" || arg == "true") {
+  if (arg == "on" || arg == "true" || arg == "1") {
     dst = true;
-  } else if (arg == "off" || arg == "false") {
+  } else if (arg == "off" || arg == "false" || arg == "0") {
     dst = false;
   } else {
     throw ParseFailure(arg, "bool");
@@ -126,7 +126,19 @@ BT* ParseEntity(const std::string &name, SceneBuilder *build) {
   return ParseEntityNode<BT>(name, build)->Get();
 }
 
+inline std::string ToString(int v) {
+  return fmt::format("{}", v);
+}
 
+inline std::string ToString(Float v) {
+  return fmt::format("{}", v);
+}
+
+template <typename T, int C>
+std::string ToString(Vec_<T, C> v) {
+  std::vector<T> vec(v.vals, v.vals + C);
+  return fmt::format("{}", fmt::join(vec, ","));
+}
 
 }
 

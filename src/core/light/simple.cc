@@ -78,6 +78,12 @@ void SunLight::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void SunLight::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  fn_write({"SetIntensity", ToString(intensity)});
+  fn_write({"SetOrientation", ToString(orientation)});
+}
+
 CPU_AND_CUDA LightRay PointLight::Li(const Point3f &p) const {
   LightRay lray;
   Vector3f path = (position - p);
@@ -124,6 +130,12 @@ void PointLight::Parse(const Args &args, SceneBuilder *build) {
   } else {
     throw UnknownCommand(args[0]);
   }
+}
+
+void PointLight::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  (void)build;
+  fn_write({"SetIntensity", ToString(intensity)});
+  fn_write({"SetPosition", ToString(position)});
 }
 
 }

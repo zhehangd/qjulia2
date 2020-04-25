@@ -87,4 +87,15 @@ void Material::Parse(const Args &args, SceneBuilder *build) {
   }
 }
 
+void Material::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  fn_write({"SetDiffuse", ToString(diffuse)});
+  fn_write({"SetReflection", ToString(reflection)});
+  fn_write({"SetSpecular", ToString(ks)});
+  if (texure_host) {
+    auto *tex_node = build->SearchEntityByPtr(texure_host);
+    CHECK_NOTNULL(tex_node);
+    fn_write({"SetTexture", tex_node->GetName()});
+  }
+}
+
 }

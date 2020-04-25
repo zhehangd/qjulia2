@@ -47,6 +47,8 @@ class Material : public Entity {
   
   void Parse(const Args &args, SceneBuilder *build) override;
   
+  void Save(SceneBuilder*, FnSaveArgs) const override;
+  
   Texture *texure_device = nullptr;
   Texture *texure_host = nullptr;
   

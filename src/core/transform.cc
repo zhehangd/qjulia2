@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "core/transform.h"
 
+#include "core/algorithm.h"
 #include "core/arg_parse.h"
 #include "core/scene_descr.h"
 
@@ -41,6 +42,31 @@ std::ostream& operator<<(std::ostream &os, const Matrix4x4 &mat) {
        << mat.At(i, 2) << ", " << mat.At(i, 3) << "\n";
   }
   return os;
+}
+
+std::array<Vector3f, 3> DecomposeMatrix(const Matrix4x4 &m) {
+  // https://nghiaho.com/?page_id=846
+  std::array<Vector3f, 3> ret;
+  ret[0] = Vector3f(m.At(0, 3), m.At(1, 3), m.At(2, 3));
+  ret[2] = Vector3f(
+    std::sqrt(m.At(0, 0) * m.At(0, 0)
+            + m.At(1, 0) * m.At(1, 0)
+            + m.At(2, 0) * m.At(2, 0)),
+    std::sqrt(m.At(0, 1) * m.At(0, 1)
+            + m.At(1, 1) * m.At(1, 1)
+            + m.At(2, 1) * m.At(2, 1)),
+    std::sqrt(m.At(0, 2) * m.At(0, 2)
+            + m.At(1, 2) * m.At(1, 2)
+            + m.At(2, 2) * m.At(2, 2)));
+  Float m11 = m.At(0, 0) / ret[2][0];
+  Float m21 = m.At(1, 0) / ret[2][0];
+  Float m31 = m.At(2, 0) / ret[2][0];
+  Float m32 = m.At(2, 1) / ret[2][1];
+  Float m33 = m.At(2, 2) / ret[2][2];
+  ret[1][0] = Rad2Deg(std::atan2(m32, m33));
+  ret[1][1] = Rad2Deg(std::atan2(-m31, std::sqrt(m32 * m32 + m33 * m33)));
+  ret[1][2] = Rad2Deg(std::atan2(m21, m11));
+  return ret;
 }
 
 #ifdef WITH_CUDA
@@ -98,9 +124,20 @@ void Transform::Parse(const Args &args, SceneBuilder *build) {
     }
     mat_ow_ = (*rot)(angle) * mat_ow_;
     mat_wo_ = mat_wo_ * (*rot)(-angle);
+  } else if (args[0] == "SetMatrix") {
+    ParseArg(args[1], mat_ow_);
   } else {
     throw UnknownCommand(args[0]);
   }
+}
+
+void Transform::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
+  auto decomp = DecomposeMatrix(mat_ow_);
+  fn_write({"SetTranslate", ToString(decomp[0])});
+  fn_write({"SetRotate", "x", ToString(decomp[1][0])});
+  fn_write({"SetRotate", "y", ToString(decomp[1][1])});
+  fn_write({"SetRotate", "z", ToString(decomp[1][2])});
+  fn_write({"SetScale", ToString(decomp[2])});
 }
 
 }

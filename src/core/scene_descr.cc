@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace qjulia {
 
-std::string EntityStatement2Str(const EntityStatement &tokens) {
+std::string Args2Str(const Args &tokens) {
   std::string str;
   for (const auto &token : tokens) {
     str.append("\"");
@@ -51,7 +51,7 @@ std::string EntityDescr2Str(const EntityDescr &block) {
   str += fmt::format("Block <type>:{}, <subtype>:{}, <name>:{}\n",
                      block.type, block.subtype, block.name);
   for (const auto &instruction : block.statements) {
-    str.append(EntityStatement2Str(instruction));
+    str.append(Args2Str(instruction));
     str.append("\n");
   }
   return str;
@@ -125,7 +125,7 @@ struct Tokenizer {
   const char *error_msg_ = "";
   
   std::string token_buf_;
-  EntityStatement statement_buf_;
+  Args statement_buf_;
   EntityDescr block_buf_;
   
   std::vector<EntityDescr> &blocks_;
@@ -286,7 +286,7 @@ bool Tokenizer::Parse(std::istream &is) {
 
 }
 
-bool TestParamLength(const EntityStatement &statement,
+bool TestParamLength(const Args &statement,
                      int num_params) {
   assert(statement.size() > 0);
   if (statement.size() == (std::size_t)(num_params + 1)) {
@@ -320,6 +320,33 @@ SceneDescr LoadSceneFromString(const std::string &text) {
 SceneDescr LoadSceneFromFile(const std::string &filename) {
   std::ifstream file(filename);
   return LoadSceneFromStream(file);
+}
+
+void SaveSceneDescrToStream(std::ostream &os, const SceneDescr &scene) {
+  for (std::size_t k = 0; k < scene.entities.size(); ++k) {
+    auto &e = scene.entities[k];
+    os << e.type;
+    if (!e.subtype.empty()) {os << '.' << e.subtype;}
+    os << ' ' << e.name << " {\n";
+    for (const auto s : e.statements) {
+      if (!s.size()) {continue;}
+      os << "  " << s[0] << " ";
+      for (std::size_t i = 1; i < s.size(); ++i) {os << "\"" << s[i] << "\" ";}
+      os << '\n';
+    }
+    os << "}\n\n";
+  }
+}
+
+std::string SaveSceneDescrToString(const SceneDescr &scene_descr) {
+  std::ostringstream oss;
+  SaveSceneDescrToStream(oss, scene_descr);
+  return oss.str();
+}
+
+void SaveSceneDescrToFile(const std::string &filename, const SceneDescr &scene_descr) {
+  std::ofstream file(filename);
+  SaveSceneDescrToStream(file, scene_descr);
 }
 
 
