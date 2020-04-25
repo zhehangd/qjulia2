@@ -50,9 +50,11 @@ Vector2i ParseImageSize(std::string &size_str) {
 
 bool Run(int argc, char **argv) {
   
-  cxxopts::Options options("qjulia", "Quaternion Julia Set Renderer");
+  cxxopts::Options cxxopts_options("qjulia", "Quaternion Julia Set Renderer");
   
-  options.add_options()
+  cxxopts_options.add_options()
+  ("a,antialias", "Antialiasing mode {0, 1, 2, 3}",\
+    cxxopts::value<int>()->default_value("1"))
   ("t,num_threads", "Number of threads",\
     cxxopts::value<int>()->default_value("-1"))
   ("s,size", "Output image size",
@@ -63,7 +65,7 @@ bool Run(int argc, char **argv) {
     cxxopts::value<std::string>()->default_value(""))
   ;
   
-  auto args = options.parse(argc, argv);
+  auto args = cxxopts_options.parse(argc, argv);
   int num_threads = args["num_threads"].as<int>();
   std::string size_str = args["size"].as<std::string>();
   std::string output_file = args["output_file"].as<std::string>();
@@ -87,7 +89,7 @@ bool Run(int argc, char **argv) {
 #else
   option.cuda = false;
 #endif
-  option.antialias = true;
+  option.aa = static_cast<AAOption>(args["antialias"].as<int>());
   option.num_threads = num_threads;
   
   Vector2i size = ParseImageSize(size_str);

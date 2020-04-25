@@ -49,16 +49,49 @@ SOFTWARE.
 
 namespace qjulia {
 
-struct AASample {
-  AASample(Float x, Float y, Float w) : offset(x, y), w(w) {}
+struct AAFilter {
+  AAFilter(Float x, Float y, Float w) : offset(x, y), w(w) {}
   Vector2f offset;
   Float w = 1;
 };
 
-const AASample static_aa_samples[6] = {
-  AASample(-0.52f,  0.38f, 0.128f), AASample( 0.41f,  0.56f, 0.119f),
-  AASample( 0.27f,  0.08f, 0.294f), AASample(-0.17f, -0.29f, 0.249f),
-  AASample( 0.58f, -0.55f, 0.104f), AASample(-0.31f, -0.71f, 0.106f),
+std::vector<AAFilter> GenerateSSAAFilters(AAOption opt) {
+  std::vector<AAFilter> filters;
+  if (opt == AAOption::kOff) {
+    filters.emplace_back(0, 0, 1);
+  } else if (opt == AAOption::kSSAA6x) {
+    filters.emplace_back(-0.52f,  0.38f, 0.128f);
+    filters.emplace_back( 0.41f,  0.56f, 0.119f);
+    filters.emplace_back( 0.27f,  0.08f, 0.294f);
+    filters.emplace_back(-0.17f, -0.29f, 0.249f);
+    filters.emplace_back( 0.58f, -0.55f, 0.104f);
+    filters.emplace_back(-0.31f, -0.71f, 0.106f);
+  } else if (opt == AAOption::kSSAA64x) {
+    for (int r = 0; r < 8; ++r) {
+      for (int c = 0; c < 8; ++c) {
+        float fr = r / 8.0f;
+        float fc = c / 8.0f;
+        filters.emplace_back(fr, fc, 1.0);
+      }
+    }
+  } else if (opt == AAOption::kSSAA256x) {
+    for (int r = 0; r < 16; ++r) {
+      for (int c = 0; c < 16; ++c) {
+        float fr = r / 16.0f;
+        float fc = c / 16.0f;
+        filters.emplace_back(fr, fc, 1.0);
+      }
+    }
+  }
+  return filters;
+}
+
+
+
+const AAFilter static_aa_samples[6] = {
+  AAFilter(-0.52f,  0.38f, 0.128f), AAFilter( 0.41f,  0.56f, 0.119f),
+  AAFilter( 0.27f,  0.08f, 0.294f), AAFilter(-0.17f, -0.29f, 0.249f),
+  AAFilter( 0.58f, -0.55f, 0.104f), AAFilter(-0.31f, -0.71f, 0.106f),
 };
 
 #ifdef WITH_CUDA
@@ -81,7 +114,7 @@ CUDAImpl::CUDAImpl(void) {
 
 //CPU_AND_CUDA void MergeSample
 
-KERNEL void GPUKernel(Film film, Scene scene, AASample aa) {
+KERNEL void GPUKernel(Film film, Scene scene, AAFilter aa) {
   int r = blockIdx.y * blockDim.y + threadIdx.y;
   int c = blockIdx.x * blockDim.x + threadIdx.x;
   if (!film.IsValidCoords(r, c)) {return;}
@@ -126,22 +159,16 @@ void CUDAImpl::Render(SceneBuilder &build,
   DefaultDeveloper developer;
   developer.Init(image.ArraySize());
   
-  if (options.antialias) {
-    for (int i = 0; i < 6; ++i) {
-      CHECK_NOTNULL(cu_film_data_.get());
-      GPUKernel<<<grid_size, block_size>>>(cu_film, scene, static_aa_samples[i]);
-      CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
-                    film_data_bytes, cudaMemcpyDeviceToHost));
-      cudaDeviceSynchronize();
-      developer.Develop(film, static_aa_samples[i].w);
-    }
-  } else {
-    GPUKernel<<<grid_size, block_size>>>(cu_film, scene, AASample(0, 0, 1));
+  std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
+  for (int i = 0; i < aa_filters.size(); ++i) {
+    CHECK_NOTNULL(cu_film_data_.get());
+    GPUKernel<<<grid_size, block_size>>>(cu_film, scene, aa_filters[i]);
     CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
                   film_data_bytes, cudaMemcpyDeviceToHost));
     cudaDeviceSynchronize();
-    developer.Develop(film, 1.0);
+    developer.Develop(film, aa_filters[i].w);
   }
+
   
   
   developer.Finish(image);
@@ -170,13 +197,7 @@ void CPUImpl::Render(
   int num_threads = options.num_threads;
   if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
   
-  std::vector<AASample> aa_filters;
-  if (options.antialias) {
-    for (int i = 0; i < 6; ++i) {aa_filters.push_back(static_aa_samples[i]);}
-  } else {
-    aa_filters.push_back(AASample(0, 0, 1));
-  }
-  
+  std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
   DefaultDeveloper developer;
   developer.Init(image.ArraySize());
   

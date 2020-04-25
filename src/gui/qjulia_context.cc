@@ -63,7 +63,7 @@ class QJuliaContext::Impl {
 };
 
 void InitSceneBuild(SceneBuilder &build) {
-  std::string text = 
+  std::string text1 = 
     "Shape.Julia3D fractal_shape {\n"
     "  SetConstant 0.12,0.68,0.08,-0.46\n"
     "  SetPrecision 1e-4\n"
@@ -102,7 +102,47 @@ void InitSceneBuild(SceneBuilder &build) {
     "  AddLight sun\n"
     "  AddLight lamp\n"
     "}\n";
-  SceneDescr scene_descr = LoadSceneFromString(text);
+  
+  std::string text2 = 
+    "Shape.Julia3D fractal_shape {\n"
+    "  SetConstant 0.24,-0.62,0.08,-0.43\n"
+    "  SetPrecision 1e-4\n"
+    "  SetUVBlack 0.0\n"
+    "  SetUVWhite 1.0\n"
+    "}\n"
+    "\n"
+    "Material material_fractal {\n"
+    "  SetDiffuse 1,1,1\n"
+    "  SetReflection 0.2\n"
+    "  SetSpecular 0.3\n"
+    "}\n"
+    "\n"
+    "Object fractal {\n"
+    "  SetShape fractal_shape\n"
+    "  SetMaterial material_fractal\n"
+    "}\n"
+    "\n"
+    "Light.Point lamp {\n"
+    "  SetPosition 0.3,-0.1,-0.3\n"
+    "  SetIntensity 0.0986,0.1547,0.1915\n"
+    "}\n"
+    "Light.Sun sun {\n"
+    "  SetOrientation -2,-3.5,-2\n"
+    "  SetIntensity 1.925,1.148,0.690\n"
+    "}\n"
+    "\n"
+    "Camera.Perspective camera {\n"
+    "  LookAt 1.189,0.26,0.56  0.6,0.52,0.15  0,1,0\n"
+    "  SetFocus 1.8\n"
+    "}\n"
+    "\n"
+    "World scene {\n"
+    "  AddCamera camera\n"
+    "  AddObject fractal\n"
+    "  AddLight sun\n"
+    "  AddLight lamp\n"
+    "}\n";
+  SceneDescr scene_descr = LoadSceneFromString(text2);
   build.ParseSceneDescr(scene_descr);
 }
 
@@ -218,18 +258,18 @@ SceneCtrlParams QJuliaContext::Impl::GetDefaultOptions() {
 void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParams sopts) {  
   RenderOptions options;
   options.cuda = true;
-  options.antialias = true;
+  options.aa = AAOption::kSSAA6x;
   
   Size size;
   if (rtype == RenderType::kPreview) {
     size = sopts.realtime_fast_image_size;
-    options.antialias = false;
+    options.aa = AAOption::kOff;
   } else if (rtype == RenderType::kDisplay) {
     size = sopts.realtime_image_size;
-    options.antialias = true;
+    options.aa = AAOption::kSSAA6x;
   } else if (rtype == RenderType::kSave) {
     size = sopts.offline_image_size;
-    options.antialias = true;
+    options.aa = AAOption::kSSAA6x;
   } else {
     LOG(FATAL) << "Unknown rtype";
   }

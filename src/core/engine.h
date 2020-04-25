@@ -38,8 +38,16 @@ class Image;
 class Integrator;
 class SceneBuilder;
 
+// Antialiasing options
+enum AAOption {
+  kOff,
+  kSSAA6x,
+  kSSAA64x,
+  kSSAA256x
+};
+
 struct RenderOptions {
-  bool antialias = true;
+  AAOption aa = AAOption::kSSAA6x;
   int num_threads = -1;
   bool cuda = true;
   //std::string integrator = "default";
