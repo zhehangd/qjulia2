@@ -324,3 +324,8 @@ BaseModule* QJuliaContext::NewControlWidgetForBaseType(int btype_id) {
 BaseModule* QJuliaContext::NewControlWidgetForSpecificType(int stype_id) {
   return impl_->NewControlWidgetForSpecificType(stype_id);
 }
+
+void QJuliaContext::SaveScene(QString filename) {
+  SceneDescr scene_descr_out = impl_->build.SaveSceneDescr();
+  SaveSceneDescrToFile(filename.toStdString(), scene_descr_out);
+}

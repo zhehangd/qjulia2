@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include <QString>
+
 #include "core/image.h"
 #include "core/scene_builder.h"
 #include "scene_ctrl_params.h"
@@ -33,6 +35,8 @@ class QJuliaContext {
   BaseModule* NewControlWidgetForBaseType(int btype_id);
   
   BaseModule* NewControlWidgetForSpecificType(int stype_id);
+  
+  void SaveScene(QString filename);
   
  private:
   

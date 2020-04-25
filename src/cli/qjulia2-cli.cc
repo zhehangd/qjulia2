@@ -83,9 +83,6 @@ bool Run(int argc, char **argv) {
   SceneDescr scene_descr = LoadSceneFromFile(scene_file);
   build.ParseSceneDescr(scene_descr);
   
-  //SceneDescr scene_descr_out = build.SaveSceneDescr();
-  //SaveSceneDescrToFile("out.scene", scene_descr_out);
-  
   RenderOptions option;
 #ifdef WITH_CUDA
   option.cuda = true;

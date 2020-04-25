@@ -34,12 +34,17 @@ private:
   
   void DrawImage(void);
   
+  QString last_scene_file_;
+  
+
 private slots:
   
   // Called when engine finishes the rendering,
   // this functions will draw it on the screen.
   void onRenderFinished(void);
   
+  void OnSave(void);
+  void OnSaveAs(void);
   
   void onRealtimeParamsChanging(void);
   void onRealtimeParamsChanged(void);

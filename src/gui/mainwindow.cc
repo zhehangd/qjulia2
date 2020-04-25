@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QMessageBox>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent, QJuliaContext *ctx) :
     QMainWindow(parent), ui(new Ui::MainWindow), render_watch_(this) {
@@ -26,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent, QJuliaContext *ctx) :
   connect(ui->tab_general, SIGNAL(Save(void)), this, SLOT(onRenderAndSave(void)));
   connect(ui->tab_dev, SIGNAL(ValueChanging(void)), this, SLOT(onRealtimeParamsChanging(void)));
   connect(ui->tab_dev, SIGNAL(ValueChanged(void)), this, SLOT(onRealtimeParamsChanged(void)));
-  
+  connect(ui->actionSave_As, SIGNAL(triggered()), this, SLOT(OnSaveAs()));
+  connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(OnSave()));
   connect(&render_watch_, SIGNAL(finished()), this, SLOT(onRenderFinished()));
   onRealtimeParamsChanged();
 }
@@ -34,6 +36,28 @@ MainWindow::MainWindow(QWidget *parent, QJuliaContext *ctx) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+void MainWindow::OnSave(void) {
+  QString filename;
+  if (last_scene_file_.isEmpty()) {
+    filename = QFileDialog::getSaveFileName(this, "Save as", {}, "QJulia Scene (*.scene)");
+  } else {
+    filename = last_scene_file_;
+  }
+  qDebug() << "Save: " << filename;
+  if (!filename.isEmpty()) {
+    ctx_->SaveScene(filename);
+    last_scene_file_ = filename;
+  }
+}
+
+void MainWindow::OnSaveAs(void) {
+  QString filename = QFileDialog::getSaveFileName(this, "Save as", {}, "QJulia Scene (*.scene)");
+  qDebug() << "SaveAs: " << filename;
+  if (!filename.isEmpty()) {
+    ctx_->SaveScene(filename);
+    last_scene_file_ = filename;
+  }
 }
 
 void MainWindow::onRenderFinished(void) {
