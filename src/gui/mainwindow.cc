@@ -103,5 +103,7 @@ void MainWindow::onRealtimeParamsChanged(void) {
 }
 
 void MainWindow::onRenderAndSave(void) {
+  render_watch_.cancel();
+  render_watch_.waitForFinished();
   ctx_->Save(scene_params_);
 }

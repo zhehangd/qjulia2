@@ -136,41 +136,51 @@ void CUDAImpl::Render(SceneBuilder &build,
   const int film_data_bytes = w * h * sizeof(Sample);
   if (!cu_film_data_ || (cu_film_data_size_ != w * h)) {
     cu_film_data_.reset();
-    Sample *spectrum_ptr;
-    CUDACheckError(__LINE__, cudaMalloc((void**)&spectrum_ptr, film_data_bytes));
-    CHECK_NOTNULL(spectrum_ptr);
-    cu_film_data_.reset(spectrum_ptr);
+    Sample *p = nullptr;
+    CUDACheckError(__LINE__, cudaMalloc((void**)&p, film_data_bytes));
+    CHECK_NOTNULL(p);
+    cu_film_data_.reset(p);
     cu_film_data_size_ = w * h;
   }
   
+  // Right now film data must be allocated every time.
+  // I expect in the future film development can be entirely done
+  // in GPU, which means we don't need a host film anymore.
   Film film(image.ArraySize());
   Film cu_film(cu_film_data_.get(), w, h);  
+  CHECK(!cu_film.HasOwnership());
   
+  // Scene is only a simple structure that contains
+  // the pointers to the world and the camera entities.
+  // So we can pass the object to CUDA kernel as a parameter,
+  // as long as the entities pointers are for the device.
   BuildSceneParams params;
   params.cuda = true;
   Scene scene = build.BuildScene(params);
   
+  // I have little knowledge of setting the optimal block size.
+  // 16 works for my PC.
   int bsize = 16;
   int gw = (w + bsize - 1) / bsize;
   int gh = (h + bsize - 1) / bsize;
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   
+  // Develop allocates its own memory too
   DefaultDeveloper developer;
   developer.Init(image.ArraySize());
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
   for (int i = 0; i < aa_filters.size(); ++i) {
+    CHECK_NOTNULL(film.Data());
     CHECK_NOTNULL(cu_film_data_.get());
     GPUKernel<<<grid_size, block_size>>>(cu_film, scene, aa_filters[i]);
+    CHECK(film.Data() && cu_film_data_.get());
     CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
                   film_data_bytes, cudaMemcpyDeviceToHost));
     cudaDeviceSynchronize();
     developer.Develop(film, aa_filters[i].w);
   }
-
-  
-  
   developer.Finish(image);
 }
 

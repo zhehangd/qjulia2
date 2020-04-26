@@ -238,7 +238,6 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
   RenderOptions options;
   options.cuda = true;
   options.aa = AAOption::kSSAA6x;
-  
   Size size;
   if (rtype == RenderType::kFastPreview) {
     size = sopts.realtime_fast_image_size;
