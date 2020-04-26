@@ -19,6 +19,12 @@ GeneralPanel::~GeneralPanel() {
   delete ui;
 }
 
+
+void GeneralPanel::AttachContext(QJuliaContext *ctx) {
+  ctx_ = ctx;
+}
+
+
 void GeneralPanel::LinkToOptions(SceneCtrlParams *opts) {
   opts_ = opts;
   ui->lineEditReadtimeResWidth->setText(
@@ -42,6 +48,16 @@ void GeneralPanel::CollectParams(void) {
   opts_->realtime_image_size.height = ui->lineEditReadtimeResHeight->text().toInt();
   opts_->realtime_fast_image_size.width = ui->lineEditReadtimeFastResWidth->text().toInt();
   opts_->realtime_fast_image_size.height = ui->lineEditReadtimeFastResHeight->text().toInt();
+  qjulia::Size fast_preview_size, preview_size, render_size;
+  fast_preview_size.width = ui->lineEditReadtimeResWidth->text().toInt();
+  fast_preview_size.height = ui->lineEditReadtimeResHeight->text().toInt();
+  preview_size.width = ui->lineEditReadtimeFastResWidth->text().toInt();
+  preview_size.height = ui->lineEditReadtimeFastResHeight->text().toInt();
+  render_size.width = ui->lineEditOfflineResWidth->text().toInt();
+  render_size.height = ui->lineEditOfflineResHeight->text().toInt();
+  ctx_->SetFastPreviewSize(fast_preview_size);
+  ctx_->SetPreviewSize(preview_size);
+  ctx_->SetRenderSize(render_size);
 }
 
 void GeneralPanel::onSave(bool) {

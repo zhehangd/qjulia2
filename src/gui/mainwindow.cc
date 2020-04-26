@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent, QJuliaContext *ctx) :
   
   scene_params_ = ctx_->GetDefaultOptions();
   
+  
+  ui->tab_general->AttachContext(ctx_);
+  
   ui->tab_general->LinkToOptions(&scene_params_);
   ui->tab_dev->AttachContext(ctx_);
   
@@ -33,10 +36,10 @@ MainWindow::MainWindow(QWidget *parent, QJuliaContext *ctx) :
   onRealtimeParamsChanged();
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+MainWindow::~MainWindow() {
+  delete ui;
 }
+
 void MainWindow::OnSave(void) {
   QString filename;
   if (last_scene_file_.isEmpty()) {
@@ -71,7 +74,7 @@ void MainWindow::onRenderFinished(void) {
 }
 
 void MainWindow::DrawImage(void) {
-  qjulia::Image& image = *ctx_->Preview(scene_params_);
+  qjulia::Image& image = *ctx_->FastPreview(scene_params_);
   QImage qt_image(image.Data()->vals, image.Width(), image.Height(),
                   image.BytesPerRow(), QImage::Format_RGB888);
   

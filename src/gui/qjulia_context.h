@@ -24,9 +24,20 @@ class QJuliaContext {
   /// @brief Gets a copy of options based on the scene file.
   SceneCtrlParams GetDefaultOptions();
   
+  void SetFastPreviewSize(qjulia::Size size);
+  
+  void SetPreviewSize(qjulia::Size size);
+  
+  void SetRenderSize(qjulia::Size size);
+  
+  
+  //qjulia::Image* FastPreview(void);
+  
+  
+  
   qjulia::Image* Render(SceneCtrlParams options);
   
-  qjulia::Image* Preview(SceneCtrlParams options);
+  qjulia::Image* FastPreview(SceneCtrlParams options);
   
   void Save(SceneCtrlParams options);
   

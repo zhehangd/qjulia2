@@ -26,7 +26,7 @@
 using namespace qjulia;
 
 enum class RenderType {
-  kPreview,
+  kFastPreview,
   kDisplay,
   kSave,
 };
@@ -48,6 +48,12 @@ class QJuliaContext::Impl {
    
   Image cache_;
   Image prev_cache_;
+  
+  qjulia::Size preview_size_;
+  
+  qjulia::Size fast_preview_size_;
+  
+  qjulia::Size render_size_;
   
   qjulia::RTEngine engine;
   qjulia::SceneBuilder build;
@@ -234,7 +240,7 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
   options.aa = AAOption::kSSAA6x;
   
   Size size;
-  if (rtype == RenderType::kPreview) {
+  if (rtype == RenderType::kFastPreview) {
     size = sopts.realtime_fast_image_size;
     options.aa = AAOption::kOff;
   } else if (rtype == RenderType::kDisplay) {
@@ -251,7 +257,7 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
   engine.Render(build, options, image);
   LOG(INFO) << "time: " << engine.LastRenderTime();
   
-  if (rtype == RenderType::kPreview) {
+  if (rtype == RenderType::kFastPreview) {
     UpSample(image, dst_image, sopts.realtime_image_size);
   } else {
     image.CopyTo(dst_image);
@@ -275,8 +281,8 @@ Image* QJuliaContext::Render(SceneCtrlParams options) {
   return &impl_->cache_;
 }
 
-Image* QJuliaContext::Preview(SceneCtrlParams options) {
-  impl_->Run(RenderType::kPreview, impl_->prev_cache_, options);
+Image* QJuliaContext::FastPreview(SceneCtrlParams options) {
+  impl_->Run(RenderType::kFastPreview, impl_->prev_cache_, options);
   return &impl_->prev_cache_;
 }
 
@@ -301,4 +307,16 @@ BaseModule* QJuliaContext::NewControlWidgetForSpecificType(int stype_id) {
 void QJuliaContext::SaveScene(QString filename) {
   SceneDescr scene_descr_out = impl_->build.SaveSceneDescr();
   SaveSceneDescrToFile(filename.toStdString(), scene_descr_out);
+}
+
+void QJuliaContext::SetFastPreviewSize(qjulia::Size size) {
+  impl_->fast_preview_size_ = size;
+}
+
+void QJuliaContext::SetPreviewSize(qjulia::Size size) {
+  impl_->preview_size_ = size;
+}
+
+void QJuliaContext::SetRenderSize(qjulia::Size size) {
+  impl_->render_size_ = size;
 }

@@ -39,8 +39,6 @@ class DevPanel : public QWidget {
   explicit DevPanel(QWidget *parent = 0);
   ~DevPanel();
   
-  //void AttachSceneBuilder(qjulia::SceneBuilder *b);
-  
   void AttachContext(QJuliaContext *ctx);
   
   void UpdateEntityList(void);
