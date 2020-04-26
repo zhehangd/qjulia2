@@ -78,10 +78,6 @@ void DevPanel::SwitchToRow(int i) {
     node.stype_widget->hide();
   }
   
-  qDebug()
-    << ui->groupBoxBaseLayout->count() << " "
-    << ui->groupBoxSpecificLayout->count();
-  
   while (auto *item = ui->groupBoxBaseLayout->takeAt(0)) {delete item;}
   while (auto *item = ui->groupBoxSpecificLayout->takeAt(0)) {delete item;}
   
@@ -93,6 +89,4 @@ void DevPanel::SwitchToRow(int i) {
   ui->groupBoxBaseLayout->addWidget(node.btype_widget);
   ui->groupBoxSpecificLayout->addWidget(node.stype_widget);
   ui->scrollLayout->update();
-  
-  qDebug() << node.btype << " " << node.stype << " ";
 }
