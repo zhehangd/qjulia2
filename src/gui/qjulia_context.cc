@@ -40,10 +40,6 @@ class QJuliaContext::Impl {
   
   void Run(RenderType rtype, Image &dst, SceneCtrlParams options);
   
-  Julia3DShape* GetJulia3D(void);
-  
-  Camera* GetCamera(void);
-  
   SceneCtrlParams GetDefaultOptions();
   
   BaseModule* NewControlWidgetForBaseType(int btype_id);
@@ -223,31 +219,8 @@ BaseModule* QJuliaContext::Impl::NewControlWidgetForSpecificType(int stype_id) {
   }
 }
 
-Julia3DShape* QJuliaContext::Impl::GetJulia3D(void) {
-  auto *julia3d = dynamic_cast<Julia3DShape*>(
-    ParseEntity<Shape>("fractal_shape", &build));
-  CHECK_NOTNULL(julia3d);
-  return julia3d;
-}
-
-Camera* QJuliaContext::Impl::GetCamera(void) {
-  auto *camera = ParseEntity<Camera>("", &build);
-  CHECK_NOTNULL(camera);
-  return camera;
-}
-
 SceneCtrlParams QJuliaContext::Impl::GetDefaultOptions() {
-  //auto *camera = GetCamera();
-  auto *julia3d = GetJulia3D();
-  Quaternion jconst = julia3d->GetConstant();
   SceneCtrlParams opts;
-  opts.fractal_constant = jconst;
-  opts.fractal_precision = julia3d->GetPrecision();
-  opts.fractal_cross_section = julia3d->GetCrossSectionFlag();
-  opts.fractal_uv_black = julia3d->GetUVBlack();
-  opts.fractal_uv_white = julia3d->GetUVWhite();
-  opts.camera_pose = {10, 0, 5.3};
-  opts.camera_target = {0, 0, 0};
   opts.realtime_image_size = {1920, 1080};
   opts.realtime_fast_image_size = {640, 360};
   opts.offline_image_size = {3840, 2160};
