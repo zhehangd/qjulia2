@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "core/arg_parse.h"
 #include "core/scene_builder.h"
+#include "core/image_io.h"
 
 namespace qjulia {
 
@@ -60,7 +61,8 @@ void Texture::Release(void) {
 }
 
 void Texture::LoadImage(std::string filename) {
-  Image image = ReadPNGImage(filename);
+  Image image;
+  Imread(filename, image);
   LoadImage(image);
 }
 

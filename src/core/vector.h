@@ -323,12 +323,13 @@ CPU_AND_CUDA Vec_<Float, C> Normalize(const Vec_<T, C> &p) {
   return p / p.Norm();
 }
 
+typedef std::uint8_t Byte;
 typedef Vec_<int, 2> Point2i;
 typedef Vec_<Float, 2> Point2f;
 typedef Vec_<Float, 3> Point3f;
 typedef Vec_<Float, 4> Point4f;
-typedef Vec_<std::uint8_t, 3> Vector3b;
-typedef Vec_<std::uint8_t, 4> Vector4b;
+typedef Vec_<Byte, 3> Vector3b;
+typedef Vec_<Byte, 4> Vector4b;
 typedef Vec_<int, 2> Vector2i;
 typedef Vec_<Float, 2> Vector2f;
 typedef Vec_<Float, 3> Vector3f;

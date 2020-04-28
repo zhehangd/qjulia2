@@ -33,7 +33,7 @@ namespace qjulia {
 namespace {
 }
 
-CPU_AND_CUDA void SimpleDeveloper::Develop(const Film &film, float w) {
+void SimpleDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
     auto &dst = cache_.At(i);
     dst.spectrum += film.At(i).spectrum * w;
@@ -41,12 +41,12 @@ CPU_AND_CUDA void SimpleDeveloper::Develop(const Film &film, float w) {
   }
 }
 
-CPU_AND_CUDA void SimpleDeveloper::Init(Size size) {
+void SimpleDeveloper::Init(Size size) {
   cache_.Resize(size);
   cache_.SetTo({});
 }
   
-CPU_AND_CUDA void SimpleDeveloper::Finish(Image &dst) {
+void SimpleDeveloper::Finish(Image &dst) {
   dst.Resize(cache_.ArraySize());
   for (int i = 0; i < dst.NumElems(); ++i) {
     auto &src = cache_.At(i);

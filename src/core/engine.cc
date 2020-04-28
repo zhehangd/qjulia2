@@ -44,7 +44,6 @@ SOFTWARE.
 #include "core/vector.h"
 
 #include "core/integrator/default.h"
-#include "core/integrator/normal.h"
 #include "core/developer/default.h"
 
 namespace qjulia {
@@ -71,7 +70,7 @@ std::vector<AAFilter> GenerateSSAAFilters(AAOption opt) {
       for (int c = 0; c < 8; ++c) {
         float fr = r / 8.0f;
         float fc = c / 8.0f;
-        filters.emplace_back(fr, fc, 1.0);
+        filters.emplace_back(fr, fc, 1.0 / 64.0);
       }
     }
   } else if (opt == AAOption::kSSAA256x) {
@@ -79,7 +78,7 @@ std::vector<AAFilter> GenerateSSAAFilters(AAOption opt) {
       for (int c = 0; c < 16; ++c) {
         float fr = r / 16.0f;
         float fc = c / 16.0f;
-        filters.emplace_back(fr, fc, 1.0);
+        filters.emplace_back(fr, fc, 1.0 / 256.0);
       }
     }
   }
@@ -166,8 +165,7 @@ void CUDAImpl::Render(SceneBuilder &build,
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   
-  // Develop allocates its own memory too
-  DefaultDeveloper developer;
+  Developer &developer = *CHECK_NOTNULL(options.developer);
   developer.Init(image.ArraySize());
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
@@ -208,7 +206,7 @@ void CPUImpl::Render(
   if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
-  DefaultDeveloper developer;
+  Developer &developer = *(options.developer);
   developer.Init(image.ArraySize());
   
   for (const auto &aa : aa_filters) {

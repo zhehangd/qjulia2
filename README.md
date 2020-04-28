@@ -27,6 +27,8 @@ In addition, there are a few more dependencies:
 
 * [libfmt](https://github.com/fmtlib/fmt)
 * [glog](https://github.com/google/glog) (my plan is to remove it in the future)
+* [libpng](http://www.libpng.org/pub/png/libpng.html)
+* [libtiff](http://www.libtiff.org/)
 * [CUDA](https://developer.nvidia.com/cuda-zone) (optional, if you want GPU acceleration)
 * [gtest](https://github.com/google/googletest) (optional, if you want unit tests)
 * [doxygen](http://www.doxygen.nl/) (optional, if you want its documentation)
@@ -72,7 +74,7 @@ There are a few options can be used:
 
 * `-o <file>, --output_file <n>`
 
-  Specifies the output file name, which should end with ".png".
+  Specifies the output file name, which should end with ".png" or ".tif".
   By default "output.png".
 
 For example, after you build the project under `<project_dir>/build`, you can do

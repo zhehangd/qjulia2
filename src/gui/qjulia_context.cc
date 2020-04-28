@@ -17,6 +17,7 @@
 #include "core/shape/julia3d.h"
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
+#include "core/developer/default.h"
 
 #include "module_point_light.h"
 #include "module_sun_light.h"
@@ -57,7 +58,8 @@ class QJuliaContext::Impl {
   
   qjulia::RTEngine engine;
   qjulia::SceneBuilder build;
-    
+  qjulia::DefaultDeveloper developer;
+  
   // Maps a stype_id to a function that creates the 
   // control widgets of the corresponding entity.
   std::map<int, BaseModule*(*)(void)> stype_control_widget_lut_;
@@ -252,7 +254,9 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
     LOG(FATAL) << "Unknown rtype";
   }
   
-  Image image(size.width, size.height);
+  options.developer = &developer;
+  
+  Image image({size.width, size.height});
   engine.Render(build, options, image);
   LOG(INFO) << "time: " << engine.LastRenderTime();
   
@@ -288,7 +292,7 @@ Image* QJuliaContext::FastPreview(SceneCtrlParams options) {
 void QJuliaContext::Save(SceneCtrlParams options) {
   Image image;
   impl_->Run(RenderType::kSave, image, options);
-  WritePNGImage(options.offline_filename, image);
+  Imwrite(options.offline_filename, image);
 }
 
 SceneBuilder* QJuliaContext::GetSceneBuilder(void) {

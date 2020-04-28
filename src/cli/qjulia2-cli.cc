@@ -38,6 +38,7 @@ SOFTWARE.
 #include "core/qjulia2.h"
 #include "core/arg_parse.h"
 #include "core/image.h"
+#include "core/developer/default.h"
 
 using namespace qjulia;
 
@@ -60,9 +61,11 @@ bool Run(int argc, char **argv) {
   ("s,size", "Output image size",
     cxxopts::value<std::string>()->default_value("640x360"))
   ("o,output_file", "Output image filename",
-    cxxopts::value<std::string>()->default_value("output.png"))
+    cxxopts::value<std::string>()->default_value("output.tif"))
   ("i,scene_file", "Input scene filename",
     cxxopts::value<std::string>()->default_value(""))
+  ("f,float", "Save float-point image",
+    cxxopts::value<bool>()->default_value("false"))
   ;
   
   auto args = cxxopts_options.parse(argc, argv);
@@ -92,6 +95,9 @@ bool Run(int argc, char **argv) {
   option.aa = static_cast<AAOption>(args["antialias"].as<int>());
   option.num_threads = num_threads;
   
+  DefaultDeveloper developer;
+  option.developer = &developer;
+  
   Vector2i size = ParseImageSize(size_str);
   if (size[0] <= 0 || size[1] <= 0) {
     std::cerr << "Error: Invalid image size "
@@ -104,7 +110,16 @@ bool Run(int argc, char **argv) {
   engine.Render(build, option, image);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   
-  WritePNGImage(output_file, image);
+  if (args["float"].as<bool>()) {
+    RGBFloatImage fimage;
+    GrayscaleFloatImage fdepth;
+    developer.ProduceImage(fimage);
+    Imwrite("exposure.tif", fimage);
+    developer.ProduceDepthImage(fdepth);
+    Imwrite("depth.tif", fdepth);
+  } else {
+    Imwrite(output_file, image);
+  }
   return true;
 }
 

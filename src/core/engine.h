@@ -30,11 +30,12 @@ SOFTWARE.
 #include <memory>
 
 #include "base.h"
+#include "image.h"
+#include "developer.h"
 
 namespace qjulia {
 
 class Scene;
-class Image;
 class Integrator;
 class SceneBuilder;
 
@@ -51,6 +52,8 @@ struct RenderOptions {
   int num_threads = -1;
   bool cuda = true;
   //std::string integrator = "default";
+  
+  Developer *developer = nullptr;
 };
 
 class RTEngine {

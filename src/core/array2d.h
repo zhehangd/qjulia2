@@ -134,6 +134,7 @@ class Array2D {
   CPU_AND_CUDA int Height(void) const {return size_.height;}
   CPU_AND_CUDA Size ArraySize(void) const {return size_;}
   CPU_AND_CUDA SizeType NumElems() const {return size_.Total();}
+  CPU_AND_CUDA SizeType BytesPerRow() const {return size_.width * sizeof(T);}
   CPU_AND_CUDA T* Data(void) {return data_;}
   CPU_AND_CUDA const T* Data(void) const {return data_;}
   

@@ -30,22 +30,27 @@ SOFTWARE.
 #include "core/developer.h"
 
 namespace qjulia {
-  
-  
-
 
 class DefaultDeveloper : public Developer {
  public:
   
-  CPU_AND_CUDA void Develop(const Film &film, float w) override;
+  void Develop(const Film &film, float w) override;
   
-  CPU_AND_CUDA void Init(Size size) override;
+  void Init(Size size) override;
   
-  CPU_AND_CUDA void Finish(Image &dst) override;
+  void Finish(Image &dst) override;
+  
+  void ProduceImage(RGBImage &image);
+  
+  void ProduceImage(RGBFloatImage &image);
+  
+  void ProduceDepthImage(GrayscaleFloatImage &image);
   
   struct CachePixel {
-    Spectrum spectrum;
-    float w = 0;
+    Spectrum spectrum = {};
+    Float depth = kNaN;
+    Float w = 0;
+    Float depth_w = 0;
   };
   
   Array2D<CachePixel> cache1_;

@@ -27,6 +27,9 @@ set(CPP_ONLY_SOURCE_FILES
   image.cc
   vector.cc
   scene_descr.cc
+  image_io.cc
+  image_io/image_io_png.cc
+  image_io/image_io_tiff.cc
 )
 
 set(SHARED_SOURCE_FILES
@@ -47,8 +50,6 @@ set(SHARED_SOURCE_FILES
   shape/plane.cc
   shape/sphere.cc
   integrator/default.cc
-  integrator/normal.cc
-  integrator/time.cc
   developer/default.cc
   developer/simple.cc
 )
@@ -77,5 +78,6 @@ target_link_libraries(qjulia2-core
   fmt
   glog
   PNG::PNG
+  ${TIFF_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
 )

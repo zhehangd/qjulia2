@@ -55,24 +55,54 @@ CPU_AND_CUDA Pixel DevelopPixelDepth(const Sample &sample) {
 
 }
 
-CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, float w) {
+void DefaultDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
+    auto &src = film.At(i);
     auto &dst = cache1_.At(i);
-    dst.spectrum += film.At(i).spectrum * w;
+    dst.spectrum += src.spectrum * w;
     dst.w += w;
+    if (!std::isnan(src.depth)) {
+      if (std::isnan(dst.depth)) {
+        dst.depth = src.depth * w;
+        dst.depth_w = w;
+      } else {
+        dst.depth += src.depth * w;
+        dst.depth_w += w;
+      }
+    }
   }
 }
 
-CPU_AND_CUDA void DefaultDeveloper::Init(Size size) {
+void DefaultDeveloper::Init(Size size) {
   cache1_.Resize(size);
   cache1_.SetTo({});
 }
   
-CPU_AND_CUDA void DefaultDeveloper::Finish(Image &dst) {
+void DefaultDeveloper::Finish(Image &dst) {
+  ProduceImage(dst);
+}
+
+void DefaultDeveloper::ProduceImage(RGBImage &dst) {
   dst.Resize(cache1_.ArraySize());
   for (int i = 0; i < dst.NumElems(); ++i) {
     auto &src = cache1_.At(i);
     dst.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
+  }
+}
+
+void DefaultDeveloper::ProduceImage(RGBFloatImage &dst) {
+  dst.Resize(cache1_.ArraySize());
+  for (int i = 0; i < dst.NumElems(); ++i) {
+    auto &src = cache1_.At(i);
+    dst.At(i) = src.spectrum / src.w;
+  }
+}
+
+void DefaultDeveloper::ProduceDepthImage(GrayscaleFloatImage &dst) {
+  dst.Resize(cache1_.ArraySize());
+  for (int i = 0; i < dst.NumElems(); ++i) {
+    auto &src = cache1_.At(i);
+    dst.At(i) = src.depth / src.depth_w;
   }
 }
 

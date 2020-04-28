@@ -61,6 +61,7 @@ endif()
 find_package(fmt REQUIRED)
 find_package(glog REQUIRED)
 find_package(PNG REQUIRED)
+find_package(TIFF REQUIRED)
 find_package(Threads REQUIRED)
 
 if (WITH_TEST)
