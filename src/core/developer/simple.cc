@@ -31,7 +31,21 @@ SOFTWARE.
 namespace qjulia {
 
 namespace {
+#ifdef WITH_CUDA
+
+struct SimpleDevData {
+  Size size;
+  SimpleDeveloper::CachePixel *cache;
+};
+
+KERNEL void RetriveMeta(SimpleDevData *meta, Developer *device_ptr) {
+  SimpleDeveloper *dev = static_cast<SimpleDeveloper*>(device_ptr);
+  meta->cache = dev->cache_.Data();
+  meta->size = dev->cache_.ArraySize();
 }
+#endif
+}
+
 
 void SimpleDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
@@ -46,11 +60,28 @@ void SimpleDeveloper::Init(Size size) {
   cache_.SetTo({});
 }
   
-void SimpleDeveloper::Finish(Image &dst) {
-  dst.Resize(cache_.ArraySize());
-  for (int i = 0; i < dst.NumElems(); ++i) {
+void SimpleDeveloper::Finish(void) {
+}
+
+void SimpleDeveloper::RetrieveFromDevice(Developer *device_ptr) {
+#ifdef WITH_CUDA
+  SimpleDevData *cuda_meta;
+  cudaMalloc((void**)&cuda_meta, sizeof(SimpleDevData));
+  RetriveMeta<<<1, 1>>>(cuda_meta, device_ptr);
+  SimpleDevData meta;
+  cudaMemcpy(&meta, cuda_meta, sizeof(SimpleDevData), cudaMemcpyDeviceToHost);
+  cudaFree(cuda_meta);
+  cache_.Resize(meta.size);
+  cudaMemcpy(cache_.Data(), meta.cache,
+             sizeof(CachePixel) * meta.size.Total(), cudaMemcpyDeviceToHost);
+#endif
+}
+
+void SimpleDeveloper::ProduceImage(RGBImage &image) {
+  image.Resize(cache_.ArraySize());
+  for (int i = 0; i < image.NumElems(); ++i) {
     auto &src = cache_.At(i);
-    dst.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
+    image.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
   }
 }
 

@@ -51,6 +51,13 @@ class Entity {
   
   virtual void Save(SceneBuilder*, FnSaveArgs) const {}
   
+  /// @brief Copy data to the device
+  ///
+  /// It can be assumed that the given pointer can be cast to the same
+  /// type as the class implementing this function in a device kernel.
+  /// The implementation does not have to create an exact copy
+  /// of the object. It only needs to make sure the device entity will behave
+  /// the same as the host one during rendering.
   virtual void UpdateDevice(Entity *device_ptr) const {
     (void)device_ptr;
     LOG(FATAL) << "UpdateDevice is not implemented";

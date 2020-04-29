@@ -100,7 +100,7 @@ struct CUDAImpl {
   CUDAImpl(void);
   ~CUDAImpl(void) {}
   
-  void Render(SceneBuilder &build, const RenderOptions &options, Image &image);
+  void Render(SceneBuilder &build, const RenderOptions &options);
   
   int cu_film_data_size_ = 0;
   
@@ -132,24 +132,23 @@ KERNEL void GPUKernel(Film film, Scene scene, AAFilter aa) {
 }
 
 void CUDAImpl::Render(SceneBuilder &build,
-                      const RenderOptions &options, Image &image) {
-  int w = image.Width();
-  int h = image.Height();
-  const int film_data_bytes = w * h * sizeof(Sample);
-  if (!cu_film_data_ || (cu_film_data_size_ != w * h)) {
+                      const RenderOptions &options) {
+  Size size = options.size;
+  const int film_data_bytes = size.Total() * sizeof(Sample);
+  if (!cu_film_data_ || (cu_film_data_size_ != size.Total())) {
     cu_film_data_.reset();
     Sample *p = nullptr;
     CUDACheckError(__LINE__, cudaMalloc((void**)&p, film_data_bytes));
     CHECK_NOTNULL(p);
     cu_film_data_.reset(p);
-    cu_film_data_size_ = w * h;
+    cu_film_data_size_ = size.Total();
   }
   
   // Right now film data must be allocated every time.
   // I expect in the future film development can be entirely done
   // in GPU, which means we don't need a host film anymore.
-  Film film(image.ArraySize());
-  Film cu_film(cu_film_data_.get(), w, h);  
+  Film film(size);
+  Film cu_film(cu_film_data_.get(), size.width, size.height);  
   CHECK(!cu_film.HasOwnership());
   
   // Scene is only a simple structure that contains
@@ -163,13 +162,13 @@ void CUDAImpl::Render(SceneBuilder &build,
   // I have little knowledge of setting the optimal block size.
   // 16 works for my PC.
   int bsize = 16;
-  int gw = (w + bsize - 1) / bsize;
-  int gh = (h + bsize - 1) / bsize;
+  int gw = (size.width + bsize - 1) / bsize;
+  int gh = (size.height + bsize - 1) / bsize;
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   
   Developer &developer = *CHECK_NOTNULL(options.developer);
-  developer.Init(image.ArraySize());
+  developer.Init(size);
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
   for (int i = 0; i < aa_filters.size(); ++i) {
@@ -182,7 +181,7 @@ void CUDAImpl::Render(SceneBuilder &build,
     cudaDeviceSynchronize();
     developer.Develop(film, aa_filters[i].w);
   }
-  developer.Finish(image);
+  developer.Finish();
 }
 
 #endif
@@ -192,11 +191,12 @@ struct CPUImpl {
   CPUImpl(void) {}
   ~CPUImpl(void) {}
   
-  void Render(SceneBuilder &build, const RenderOptions &options, Image &image);
+  void Render(SceneBuilder &build, const RenderOptions &options);
 };
 
 void CPUImpl::Render(
-    SceneBuilder &build, const RenderOptions &options, Image &image) {
+    SceneBuilder &build, const RenderOptions &options) {
+  Size size = options.size;
   BuildSceneParams params;
   params.cuda = false;
   Scene scene = build.BuildScene(params);
@@ -206,14 +206,14 @@ void CPUImpl::Render(
   if (integrator == nullptr) {integrator = &default_integrator;}
   
   const Camera *camera = scene.GetCamera();
-  Film film(image.ArraySize());
+  Film film(size);
   
   int num_threads = options.num_threads;
   if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
   Developer &developer = *(options.developer);
-  developer.Init(image.ArraySize());
+  developer.Init(size);
   
   for (const auto &aa : aa_filters) {
   
@@ -248,14 +248,14 @@ void CPUImpl::Render(
     }
     developer.Develop(film, aa.w);
   }
-  developer.Finish(image);
+  developer.Finish();
 }
 
 class RTEngine::Impl {
  public:
   Impl(void);
   
-  void Render(SceneBuilder &build, const RenderOptions &options, Image &image);
+  void Render(SceneBuilder &build, const RenderOptions &options);
 #ifdef WITH_CUDA  
   CUDAImpl cuda_impl;
 #endif
@@ -268,15 +268,15 @@ RTEngine::Impl::Impl(void) {
 
 void RTEngine::Impl::Render(
     SceneBuilder &build,
-    const RenderOptions &options, Image &image) {
+    const RenderOptions &options) {
   if (options.cuda) {
 #ifdef WITH_CUDA
-    cuda_impl.Render(build, options, image);
+    cuda_impl.Render(build, options);
 #else
     LOG(FATAL) << "qjulia2 is not compiled with CUDA support.";
 #endif
   } else {
-    cpu_impl.Render(build, options, image);
+    cpu_impl.Render(build, options);
   }
 }
 
@@ -288,10 +288,10 @@ RTEngine::~RTEngine(void) {
 }
 
 void RTEngine::Render(SceneBuilder &build,
-                      const RenderOptions &options, Image &image) {
+                      const RenderOptions &options) {
   Timer timer;
   timer.Start();
-  impl_->Render(build, options, image);
+  impl_->Render(build, options);
   last_render_time_ = timer.End();
 }
 

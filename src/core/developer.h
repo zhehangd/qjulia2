@@ -49,7 +49,18 @@ class Developer : public Entity {
   
   virtual void Init(Size size) = 0;
   
-  virtual void Finish(Image &dst) = 0;
+  virtual void Finish(void) = 0;
+  
+  /// @brief Retrieve cached data from the device
+  /// 
+  /// This function is called after all the rendering is done,
+  /// and the user is going to read the result through the developer.
+  /// therefore, only data the user may concern need to be retrieved.
+  /// It can be assumed that the given pointer can be cast to the same
+  /// type as the class implementing this function in a device kernel.
+  virtual void RetrieveFromDevice(Developer *device_ptr) = 0;
+  
+  virtual void ProduceImage(RGBImage &image) = 0;
 };
 
 }

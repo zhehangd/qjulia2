@@ -17,7 +17,7 @@
 #include "core/shape/julia3d.h"
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
-#include "core/developer/default.h"
+#include "core/developer/simple.h"
 
 #include "module_point_light.h"
 #include "module_sun_light.h"
@@ -58,7 +58,7 @@ class QJuliaContext::Impl {
   
   qjulia::RTEngine engine;
   qjulia::SceneBuilder build;
-  qjulia::DefaultDeveloper developer;
+  qjulia::SimpleDeveloper developer;
   
   // Maps a stype_id to a function that creates the 
   // control widgets of the corresponding entity.
@@ -156,7 +156,6 @@ void QJuliaContext::Impl::Init(void) {
 }
 
 void QJuliaContext::Impl::RegisterEntities(void) {
-  
   auto fn_camera = [](void) -> BaseModule* {return new CameraModule();};
   btype_control_widget_lut_[EntityTrait<Camera>::btype_id] = fn_camera;
   btype_control_widget_lut_[EntityTrait<Light>::btype_id] = nullptr;
@@ -255,9 +254,13 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
   }
   
   options.developer = &developer;
+  options.size = size;
+  engine.Render(build, options);
   
-  Image image({size.width, size.height});
-  engine.Render(build, options, image);
+  Image image;
+  developer.ProduceImage(image);
+  
+  
   LOG(INFO) << "time: " << engine.LastRenderTime();
   
   if (rtype == RenderType::kFastPreview) {

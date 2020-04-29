@@ -39,10 +39,11 @@ SOFTWARE.
 #include "core/arg_parse.h"
 #include "core/image.h"
 #include "core/developer/default.h"
+#include "core/developer/simple.h"
 
 using namespace qjulia;
 
-Vector2i ParseImageSize(std::string &size_str) {
+Size ParseImageSize(std::string &size_str) {
   int x_i = size_str.find('x');
   int w = std::stoi(size_str.substr(0, x_i));
   int h = std::stoi(size_str.substr(x_i + 1));
@@ -86,40 +87,43 @@ bool Run(int argc, char **argv) {
   SceneDescr scene_descr = LoadSceneFromFile(scene_file);
   build.ParseSceneDescr(scene_descr);
   
-  RenderOptions option;
+  RenderOptions options;
 #ifdef WITH_CUDA
-  option.cuda = true;
+  options.cuda = true;
 #else
-  option.cuda = false;
+  options.cuda = false;
 #endif
-  option.aa = static_cast<AAOption>(args["antialias"].as<int>());
-  option.num_threads = num_threads;
+  options.aa = static_cast<AAOption>(args["antialias"].as<int>());
+  options.num_threads = num_threads;
   
-  DefaultDeveloper developer;
-  option.developer = &developer;
+  SimpleDeveloper developer;
+  options.developer = &developer;
   
-  Vector2i size = ParseImageSize(size_str);
-  if (size[0] <= 0 || size[1] <= 0) {
+  Size size = ParseImageSize(size_str);
+  if (size.width <= 0 || size.height <= 0) {
     std::cerr << "Error: Invalid image size "
-      << size[0] << "x" << size[1] << "." << std::endl;
+      << size.width << "x" << size.height << "." << std::endl;
     return false;
   }
   
-  Image image(Size(size[0], size[1]));  
+  options.size = size;  
   RTEngine engine;
-  engine.Render(build, option, image);
-  LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
+  engine.Render(build, options);
   
+  Image image;
+  developer.ProduceImage(image);
+  LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
+  /*
   if (args["float"].as<bool>()) {
     RGBFloatImage fimage;
     GrayscaleFloatImage fdepth;
     developer.ProduceImage(fimage);
     Imwrite("exposure.tif", fimage);
     developer.ProduceDepthImage(fdepth);
-    Imwrite("depth.tif", fdepth);
-  } else {
+    Imwrite("depth.tif", fdepth);*/
+  //} else {
     Imwrite(output_file, image);
-  }
+  //}
   return true;
 }
 

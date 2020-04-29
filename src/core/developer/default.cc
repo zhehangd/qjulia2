@@ -78,8 +78,8 @@ void DefaultDeveloper::Init(Size size) {
   cache1_.SetTo({});
 }
   
-void DefaultDeveloper::Finish(Image &dst) {
-  ProduceImage(dst);
+void DefaultDeveloper::Finish(void) {
+  //ProduceImage(dst);
 }
 
 void DefaultDeveloper::ProduceImage(RGBImage &dst) {
@@ -104,6 +104,10 @@ void DefaultDeveloper::ProduceDepthImage(GrayscaleFloatImage &dst) {
     auto &src = cache1_.At(i);
     dst.At(i) = src.depth / src.depth_w;
   }
+}
+
+void DefaultDeveloper::RetrieveFromDevice(Developer *device_ptr) {
+  (void)device_ptr;
 }
 
 }

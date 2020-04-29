@@ -52,7 +52,7 @@ struct RenderOptions {
   int num_threads = -1;
   bool cuda = true;
   //std::string integrator = "default";
-  
+  Size size;
   Developer *developer = nullptr;
 };
 
@@ -62,8 +62,7 @@ class RTEngine {
   RTEngine(void);
   ~RTEngine(void);
   
-  void Render(SceneBuilder &build,
-              const RenderOptions &option, Image &image);
+  void Render(SceneBuilder &build, const RenderOptions &option);
   
   Float LastRenderTime(void) const {return (Float)last_render_time_;}
   

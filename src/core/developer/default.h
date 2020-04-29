@@ -38,13 +38,13 @@ class DefaultDeveloper : public Developer {
   
   void Init(Size size) override;
   
-  void Finish(Image &dst) override;
+  void Finish(void) override;
   
-  void ProduceImage(RGBImage &image);
+  //void ProduceImage(RGBImage &image);
   
-  void ProduceImage(RGBFloatImage &image);
+  //void ProduceImage(RGBFloatImage &image);
   
-  void ProduceDepthImage(GrayscaleFloatImage &image);
+  //void ProduceDepthImage(GrayscaleFloatImage &image);
   
   void UpdateDevice(Entity*) const override {}
   

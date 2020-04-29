@@ -38,7 +38,11 @@ class SimpleDeveloper : public Developer {
   
   void Init(Size size) override;
   
-  void Finish(Image &dst) override;
+  void Finish(void) override;
+  
+  void RetrieveFromDevice(Developer *device_ptr) override;
+  
+  void ProduceImage(RGBImage &image) override;
   
   struct CachePixel {
     Spectrum spectrum;
