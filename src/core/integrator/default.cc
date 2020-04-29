@@ -31,6 +31,8 @@ SOFTWARE.
 
 #include <glog/logging.h>
 
+#define ray_delta_ 5e-3
+
 namespace qjulia {
 
 CPU_AND_CUDA Vector3f MakeReflectionVector(const Vector3f &vin, const Vector3f &normal) {

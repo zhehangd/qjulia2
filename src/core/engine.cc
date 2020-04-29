@@ -118,14 +118,17 @@ KERNEL void GPUKernel(Film film, Scene scene, AAFilter aa) {
   int c = blockIdx.x * blockDim.x + threadIdx.x;
   if (!film.IsValidCoords(r, c)) {return;}
   int i = film.GetIndex(r, c);
-  DefaultIntegrator integrator;
+  
+  DefaultIntegrator default_integrator;
+  Integrator *integrator = scene.GetIntegrator();
+  if (integrator == nullptr) {integrator = &default_integrator;}
   
   Float x, y;
   Float fr = r + aa.offset[0];
   Float fc = c + aa.offset[1];
   film.GenerateCameraCoords(fr, fc, &x, &y);
   Ray ray = scene.GetCamera()->CastRay({x, y});
-  film(i) = integrator.Li(ray, scene);
+  film(i) = integrator->Li(ray, scene);
 }
 
 void CUDAImpl::Render(SceneBuilder &build,
@@ -198,7 +201,10 @@ void CPUImpl::Render(
   params.cuda = false;
   Scene scene = build.BuildScene(params);
   
-  DefaultIntegrator integrator;
+  DefaultIntegrator default_integrator;
+  Integrator *integrator = scene.GetIntegrator();
+  if (integrator == nullptr) {integrator = &default_integrator;}
+  
   const Camera *camera = scene.GetCamera();
   Film film(image.ArraySize());
   
@@ -226,7 +232,7 @@ void CPUImpl::Render(
           film.GenerateCameraCoords(fr, fc, &x, &y);
           Vector2f p = Vector2f(x, y);
           Ray ray = camera->CastRay(p);
-          sample = integrator.Li(ray, scene);
+          sample = integrator->Li(ray, scene);
         }
       }
     };

@@ -143,13 +143,9 @@ Scene SceneBuilder::BuildScene(BuildSceneParams params) const {
     }
     auto *node_world = SearchEntityByName<World>(params.world);
     scene.world_ = node_world->GetDevice();
-    auto *node_camera = SearchEntityByName<Camera>(params.camera);
-    scene.camera_ = node_camera->GetDevice();
   } else {
     auto *node_world = SearchEntityByName<World>(params.world);
     scene.world_ = node_world->Get();
-    auto *node_camera = SearchEntityByName<Camera>(params.camera);
-    scene.camera_ = node_camera->Get();
   }
   return scene;
 }

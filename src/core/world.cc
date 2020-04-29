@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "core/arg_parse.h"
 #include "core/base.h"
+#include "core/developer.h"
+#include "core/integrator.h"
 #include "core/intersection.h"
 #include "core/object.h"
 #include "core/scene_builder.h"
@@ -85,14 +87,26 @@ void World::Parse(const Args &args, SceneBuilder *build) {
     auto *node = ParseEntityNode<Object>(args[1], build);
     data_host_.objects[data_host_.num_objects++] = CHECK_NOTNULL(node->Get());
     data_device_.objects[data_device_.num_objects++] = node->GetDevice();
-  } else if (args[0] == "AddCamera") {
+  } else if (args[0] == "AddCamera") { // DEPRECATED
     auto *node = ParseEntityNode<Camera>(args[1], build);
-    data_host_.cameras[data_host_.num_cameras++] = CHECK_NOTNULL(node->Get());
-    data_device_.cameras[data_device_.num_cameras++] = node->GetDevice();
+    data_host_.camera = CHECK_NOTNULL(node->Get());
+    data_device_.camera = node->GetDevice();
+  } else if (args[0] == "SetCamera") {
+    auto *node = ParseEntityNode<Camera>(args[1], build);
+    data_host_.camera = CHECK_NOTNULL(node->Get());
+    data_device_.camera = node->GetDevice();
   } else if (args[0] == "AddLight") {
     auto *node = ParseEntityNode<Light>(args[1], build);
     data_host_.lights[data_host_.num_lights++] = CHECK_NOTNULL(node->Get());
     data_device_.lights[data_device_.num_lights++] = node->GetDevice();
+  } else if (args[0] == "SetIntegrator") {
+    auto *node = ParseEntityNode<Integrator>(args[1], build);
+    data_host_.integrator = CHECK_NOTNULL(node->Get());
+    data_device_.integrator = node->GetDevice();
+  } else if (args[0] == "SetDeveloper") {
+    auto *node = ParseEntityNode<Developer>(args[1], build);
+    data_host_.developer = CHECK_NOTNULL(node->Get());
+    data_device_.developer = node->GetDevice();
   } else {
     throw UnknownCommand(args[0]);
   }
@@ -109,10 +123,14 @@ void World::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
       fn_write({"AddLight", build->SearchEntityNameByPtr(data_host_.lights[i])});
     }
   }
-  for (int i = 0; i < data_host_.num_cameras; ++i) {
-    if (data_host_.cameras[i]) {
-      fn_write({"AddCamera", build->SearchEntityNameByPtr(data_host_.cameras[i])});
-    }
+  if (data_host_.camera) {
+    fn_write({"SetCamera", build->SearchEntityNameByPtr(data_host_.camera)});
+  }
+  if (data_host_.integrator) {
+    fn_write({"SetIntegrator", build->SearchEntityNameByPtr(data_host_.integrator)});
+  }
+  if (data_host_.developer) {
+    fn_write({"SetDeveloper", build->SearchEntityNameByPtr(data_host_.developer)});
   }
 }
 

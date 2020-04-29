@@ -42,6 +42,9 @@ SOFTWARE.
 
 namespace qjulia {
 
+class Integrator;
+class Developer;
+
 /// @brief Scene
 ///
 /// 
@@ -71,7 +74,9 @@ class World : public Entity {
     int num_cameras = 0;
     Object* objects[20] = {};
     Light* lights[20] = {};
-    Camera* cameras[20] = {};
+    Camera* camera = 0;
+    Integrator* integrator = 0;
+    Developer* developer = 0;
   };
   
   Data data_device_;

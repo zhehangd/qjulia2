@@ -24,10 +24,11 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_INTEGRATOR_
-#define QJULIA_INTEGRATOR_
+#ifndef QJULIA_INTEGRATOR_H_
+#define QJULIA_INTEGRATOR_H_
 
 #include "base.h"
+#include "entity.h"
 #include "spectrum.h"
 #include "vector.h"
 #include "scene.h"
@@ -35,9 +36,8 @@ SOFTWARE.
 
 namespace qjulia {
 
-class Integrator {
+class Integrator : public Entity {
  public:
-  CPU_AND_CUDA virtual ~Integrator(void) {}
   CPU_AND_CUDA virtual Sample Li(const Ray &ray, const Scene &scene) = 0;
 };
 

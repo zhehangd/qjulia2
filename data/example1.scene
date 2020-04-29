@@ -86,7 +86,7 @@ Camera.Perspective camera_1 {
 # -------------- Scenes -----------------
 
 World scene1 {
-  AddCamera camera_1
+  SetCamera camera_1
   AddObject fractal_1
   AddObject wall1
   AddObject wall2

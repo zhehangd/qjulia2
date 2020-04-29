@@ -32,7 +32,7 @@ Camera.Perspective camera {
 }
 
 World scene {
-  AddCamera camera
+  SetCamera camera
   AddObject fractal
   AddLight sun
   AddLight lamp

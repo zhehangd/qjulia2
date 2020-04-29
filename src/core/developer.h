@@ -31,6 +31,7 @@ SOFTWARE.
 #include "film.h"
 #include "image.h"
 #include "vector.h"
+#include "entity.h"
 
 namespace qjulia {
 
@@ -40,9 +41,8 @@ namespace qjulia {
 /// which contains more or less physically based information of each
 /// pixel, a developer is responsible for making an image from the
 /// information in the film.
-class Developer {
+class Developer : public Entity {
  public:
-  virtual ~Developer(void) {}
   
   /// @brief Process a film and accumulate the result in the cache
   virtual void Develop(const Film &film, float w) = 0;

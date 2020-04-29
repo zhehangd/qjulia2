@@ -94,7 +94,6 @@ struct BuildSceneParams {
 #else
   bool cuda = false;
 #endif
-  std::string camera;
   std::string world;
 };
 

@@ -46,6 +46,8 @@ class DefaultDeveloper : public Developer {
   
   void ProduceDepthImage(GrayscaleFloatImage &image);
   
+  void UpdateDevice(Entity*) const override {}
+  
   struct CachePixel {
     Spectrum spectrum = {};
     Float depth = kNaN;

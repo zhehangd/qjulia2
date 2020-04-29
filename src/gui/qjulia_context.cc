@@ -101,7 +101,7 @@ void InitSceneBuild(SceneBuilder &build) {
     "}\n"
     "\n"
     "World scene {\n"
-    "  AddCamera camera\n"
+    "  SetCamera camera\n"
     "  AddObject fractal\n"
     "  AddLight sun\n"
     "  AddLight lamp\n"

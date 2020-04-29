@@ -46,7 +46,9 @@ namespace qjulia {
 class Scene {
  public:
   
-  CPU_AND_CUDA const Camera* GetCamera(void) const {return camera_;}
+  CPU_AND_CUDA const Camera* GetCamera(void) const {return world_->data_.camera;}
+  
+  CPU_AND_CUDA Integrator* GetIntegrator(void) const {return world_->data_.integrator;}
   
   CPU_AND_CUDA const Object* Intersect(const Ray &ray, Intersection *isect) const {
     return world_->Intersect(ray, isect);}
@@ -59,7 +61,6 @@ class Scene {
   CPU_AND_CUDA const Light* GetLight(int i) const {return world_->GetLight(i);}
   
   World *world_;
-  Camera *camera_;
 };
 
 }
