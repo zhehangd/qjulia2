@@ -34,29 +34,24 @@ namespace qjulia {
 class DefaultDeveloper : public Developer {
  public:
   
-  void Develop(const Film &film, float w) override;
+  CPU_AND_CUDA void Develop(const Film &film, float w) override;
   
-  void Init(Size size) override;
+  CPU_AND_CUDA void Init(Size size) override;
   
-  void Finish(void) override;
+  CPU_AND_CUDA void Finish(void) override;
   
-  //void ProduceImage(RGBImage &image);
+  void RetrieveFromDevice(Developer *device_ptr) override;
   
-  //void ProduceImage(RGBFloatImage &image);
+  void ProduceImage(RGBImage &image) override;
   
-  //void ProduceDepthImage(GrayscaleFloatImage &image);
-  
-  void UpdateDevice(Entity*) const override {}
+  void UpdateDevice(Entity *device_ptr) const {(void)device_ptr;}
   
   struct CachePixel {
-    Spectrum spectrum = {};
-    Float depth = kNaN;
-    Float w = 0;
-    Float depth_w = 0;
+    Spectrum spectrum;
+    float w = 0;
   };
   
-  Array2D<CachePixel> cache1_;
-  //Array2D<CachePixel> cache2_;
+  Array2D<CachePixel> cache_;
 };
 
 }

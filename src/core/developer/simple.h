@@ -34,15 +34,17 @@ namespace qjulia {
 class SimpleDeveloper : public Developer {
  public:
   
-  void Develop(const Film &film, float w) override;
+  CPU_AND_CUDA void Develop(const Film &film, float w) override;
   
-  void Init(Size size) override;
+  CPU_AND_CUDA void Init(Size size) override;
   
-  void Finish(void) override;
+  CPU_AND_CUDA void Finish(void) override;
   
   void RetrieveFromDevice(Developer *device_ptr) override;
   
   void ProduceImage(RGBImage &image) override;
+  
+  void UpdateDevice(Entity *device_ptr) const {(void)device_ptr;}
   
   struct CachePixel {
     Spectrum spectrum;

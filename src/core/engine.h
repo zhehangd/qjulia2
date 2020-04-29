@@ -51,9 +51,12 @@ struct RenderOptions {
   AAOption aa = AAOption::kSSAA6x;
   int num_threads = -1;
   bool cuda = true;
-  //std::string integrator = "default";
+  
+  // Name of the world entity for scene building
+  // Leave it empty to use the first one found
+  std::string world_name = "";
+  
   Size size;
-  Developer *developer = nullptr;
 };
 
 class RTEngine {
@@ -62,7 +65,7 @@ class RTEngine {
   RTEngine(void);
   ~RTEngine(void);
   
-  void Render(SceneBuilder &build, const RenderOptions &option);
+  Developer* Render(SceneBuilder &build, const RenderOptions &option);
   
   Float LastRenderTime(void) const {return (Float)last_render_time_;}
   

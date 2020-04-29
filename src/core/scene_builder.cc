@@ -42,6 +42,9 @@ SOFTWARE.
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
 #include "core/scene_descr.h"
+#include "core/developer/default.h"
+#include "core/developer/simple.h"
+#include "core/integrator/default.h"
 
 namespace qjulia {
 
@@ -141,10 +144,10 @@ Scene SceneBuilder::BuildScene(BuildSceneParams params) const {
       CHECK_NOTNULL(node->Get())->UpdateDevice(
         CHECK_NOTNULL(node->GetDevice()));
     }
-    auto *node_world = SearchEntityByName<World>(params.world);
+    auto *node_world = SearchEntityByName<World>(params.world_name);
     scene.world_ = node_world->GetDevice();
   } else {
-    auto *node_world = SearchEntityByName<World>(params.world);
+    auto *node_world = SearchEntityByName<World>(params.world_name);
     scene.world_ = node_world->Get();
   }
   return scene;
@@ -174,6 +177,9 @@ void RegisterDefaultEntities(SceneBuilder &build) {
   build.Register<Julia3DShape>("Julia3D");
   build.Register<PlaneShape>("Plane");
   build.Register<SphereShape>("Sphere");
+  build.Register<DefaultDeveloper>("DefaultDeveloper");
+  build.Register<SimpleDeveloper>("SimpleDeveloper");
+  build.Register<DefaultIntegrator>("DefaultIntegrator");
 }
 
 }

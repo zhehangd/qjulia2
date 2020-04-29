@@ -96,8 +96,8 @@ bool Run(int argc, char **argv) {
   options.aa = static_cast<AAOption>(args["antialias"].as<int>());
   options.num_threads = num_threads;
   
-  SimpleDeveloper developer;
-  options.developer = &developer;
+  //DefaultDeveloper developer;
+  //options.developer = &developer;
   
   Size size = ParseImageSize(size_str);
   if (size.width <= 0 || size.height <= 0) {
@@ -105,13 +105,15 @@ bool Run(int argc, char **argv) {
       << size.width << "x" << size.height << "." << std::endl;
     return false;
   }
+  options.size = size;
+  options.world_name = "";
   
-  options.size = size;  
   RTEngine engine;
-  engine.Render(build, options);
+  auto *developer = engine.Render(build, options);
+  
   
   Image image;
-  developer.ProduceImage(image);
+  developer->ProduceImage(image);
   LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
   /*
   if (args["float"].as<bool>()) {

@@ -57,10 +57,15 @@ class World : public Entity {
   
   CPU_AND_CUDA int NumObjects(void) const {return data_.num_objects;}
   CPU_AND_CUDA int NumLights(void) const {return data_.num_lights;}
-  
   CPU_AND_CUDA const Object* GetObject(int i) const {return data_.objects[i];}
-  
   CPU_AND_CUDA const Light* GetLight(int i) const {return data_.lights[i];}
+  CPU_AND_CUDA const Camera* GetCamera(void) const {return data_.camera;}
+  CPU_AND_CUDA const Integrator* GetIntegrator(void) const {return data_.integrator;}
+  CPU_AND_CUDA const Developer* GetDeveloper(void) const {return data_.developer;}
+  
+  CPU_AND_CUDA void SetCamera(Camera *camera) {data_.camera = camera;}
+  CPU_AND_CUDA void SetIntegrator(Integrator *e) {data_.integrator = e;}
+  CPU_AND_CUDA void SetDeveloper(Developer *e) {data_.developer = e;}
   
   void UpdateDevice(Entity *device_ptr) const override;
   

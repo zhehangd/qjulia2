@@ -17,7 +17,9 @@
 #include "core/shape/julia3d.h"
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
+#include "core/developer/default.h"
 #include "core/developer/simple.h"
+#include "core/integrator/default.h"
 
 #include "module_point_light.h"
 #include "module_sun_light.h"
@@ -58,7 +60,6 @@ class QJuliaContext::Impl {
   
   qjulia::RTEngine engine;
   qjulia::SceneBuilder build;
-  qjulia::SimpleDeveloper developer;
   
   // Maps a stype_id to a function that creates the 
   // control widgets of the corresponding entity.
@@ -157,6 +158,8 @@ void QJuliaContext::Impl::Init(void) {
 
 void QJuliaContext::Impl::RegisterEntities(void) {
   auto fn_camera = [](void) -> BaseModule* {return new CameraModule();};
+  btype_control_widget_lut_[EntityTrait<Integrator>::btype_id] = nullptr;
+  btype_control_widget_lut_[EntityTrait<Developer>::btype_id] = nullptr;
   btype_control_widget_lut_[EntityTrait<Camera>::btype_id] = fn_camera;
   btype_control_widget_lut_[EntityTrait<Light>::btype_id] = nullptr;
   btype_control_widget_lut_[EntityTrait<Material>::btype_id] = nullptr;
@@ -204,8 +207,15 @@ void QJuliaContext::Impl::RegisterEntities(void) {
   reg = build.Register<PlaneShape>("Plane");
   stype_control_widget_lut_[reg->stype_id] = nullptr;
 
-  reg = build.Register<SphereShape>("Sphere");
+  reg = build.Register<DefaultDeveloper>("DefaultDeveloper");
   stype_control_widget_lut_[reg->stype_id] = nullptr;
+  
+  reg = build.Register<SimpleDeveloper>("SimpleDeveloper");
+  stype_control_widget_lut_[reg->stype_id] = nullptr;
+  
+  reg = build.Register<DefaultIntegrator>("DefaultIntegrator");
+  stype_control_widget_lut_[reg->stype_id] = nullptr;
+  
 }
 
 BaseModule* QJuliaContext::Impl::NewControlWidgetForBaseType(int btype_id) {
@@ -253,12 +263,11 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
     LOG(FATAL) << "Unknown rtype";
   }
   
-  options.developer = &developer;
   options.size = size;
-  engine.Render(build, options);
+  auto *developer = engine.Render(build, options);
   
   Image image;
-  developer.ProduceImage(image);
+  developer->ProduceImage(image);
   
   
   LOG(INFO) << "time: " << engine.LastRenderTime();

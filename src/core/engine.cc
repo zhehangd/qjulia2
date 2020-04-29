@@ -41,6 +41,7 @@ SOFTWARE.
 #include "core/object.h"
 #include "core/scene.h"
 #include "core/timer.h"
+#include "core/world.h"
 #include "core/vector.h"
 
 #include "core/integrator/default.h"
@@ -100,7 +101,7 @@ struct CUDAImpl {
   CUDAImpl(void);
   ~CUDAImpl(void) {}
   
-  void Render(SceneBuilder &build, const RenderOptions &options);
+  Developer* Render(SceneBuilder &build, const RenderOptions &options);
   
   int cu_film_data_size_ = 0;
   
@@ -131,8 +132,21 @@ KERNEL void GPUKernel(Film film, Scene scene, AAFilter aa) {
   film(i) = integrator->Li(ray, scene);
 }
 
-void CUDAImpl::Render(SceneBuilder &build,
-                      const RenderOptions &options) {
+KERNEL void InitDeveloper(Developer *cu_developer, Size size) {
+  cu_developer->Init(size);
+  printf("INITDEVELOPER: %x\n", static_cast<DefaultDeveloper*>(cu_developer)->cache_.Data());
+}
+
+KERNEL void Develop(Developer *cu_developer, Film cu_film, Float w) {
+  cu_developer->Develop(cu_film, w);
+  printf("DEVELOP: %x\n", static_cast<DefaultDeveloper*>(cu_developer)->cache_.Data());
+}
+
+KERNEL void FinishDeveloper(Developer *cu_developer) {
+  cu_developer->Finish();
+}
+
+Developer* CUDAImpl::Render(SceneBuilder &build, const RenderOptions &options) {
   Size size = options.size;
   const int film_data_bytes = size.Total() * sizeof(Sample);
   if (!cu_film_data_ || (cu_film_data_size_ != size.Total())) {
@@ -157,6 +171,7 @@ void CUDAImpl::Render(SceneBuilder &build,
   // as long as the entities pointers are for the device.
   BuildSceneParams params;
   params.cuda = true;
+  params.world_name = options.world_name;
   Scene scene = build.BuildScene(params);
   
   // I have little knowledge of setting the optimal block size.
@@ -167,21 +182,26 @@ void CUDAImpl::Render(SceneBuilder &build,
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   
-  Developer &developer = *CHECK_NOTNULL(options.developer);
-  developer.Init(size);
+  EntityNodeBT<World> *world_node = CHECK_NOTNULL(build.SearchEntityByName<World>(options.world_name));
+  auto *world = world_node->Get();
   
+  //auto *integrator = world->GetIntegrator(); 
+  auto *developer = CHECK_NOTNULL(world->data_host_.developer);
+  auto *cu_developer = CHECK_NOTNULL(world->data_device_.developer);
+  
+  InitDeveloper<<<1, 1>>>(cu_developer, size);
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
   for (int i = 0; i < aa_filters.size(); ++i) {
     CHECK_NOTNULL(film.Data());
     CHECK_NOTNULL(cu_film_data_.get());
     GPUKernel<<<grid_size, block_size>>>(cu_film, scene, aa_filters[i]);
-    CHECK(film.Data() && cu_film_data_.get());
-    CUDACheckError(__LINE__, cudaMemcpy(film.Data(), cu_film_data_.get(),
-                  film_data_bytes, cudaMemcpyDeviceToHost));
-    cudaDeviceSynchronize();
-    developer.Develop(film, aa_filters[i].w);
+    Develop<<<1, 1>>>(cu_developer, cu_film, aa_filters[i].w); 
   }
-  developer.Finish();
+  FinishDeveloper<<<1, 1>>>(cu_developer);
+  developer->RetrieveFromDevice(cu_developer);
+  cudaDeviceSynchronize();
+  developer->Finish();
+  return developer;
 }
 
 #endif
@@ -191,19 +211,16 @@ struct CPUImpl {
   CPUImpl(void) {}
   ~CPUImpl(void) {}
   
-  void Render(SceneBuilder &build, const RenderOptions &options);
+  Developer* Render(SceneBuilder &build, const RenderOptions &options);
 };
 
-void CPUImpl::Render(
+Developer* CPUImpl::Render(
     SceneBuilder &build, const RenderOptions &options) {
   Size size = options.size;
   BuildSceneParams params;
   params.cuda = false;
+  params.world_name = options.world_name;
   Scene scene = build.BuildScene(params);
-  
-  DefaultIntegrator default_integrator;
-  Integrator *integrator = scene.GetIntegrator();
-  if (integrator == nullptr) {integrator = &default_integrator;}
   
   const Camera *camera = scene.GetCamera();
   Film film(size);
@@ -212,8 +229,12 @@ void CPUImpl::Render(
   if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options.aa);
-  Developer &developer = *(options.developer);
-  developer.Init(size);
+  
+  auto *world_node = CHECK_NOTNULL(build.SearchEntityByName<World>(options.world_name));
+  auto *world = world_node->Get();
+  auto *integrator = world->data_host_.integrator;
+  auto *developer = world->data_host_.developer;
+  developer->Init(size);
   
   for (const auto &aa : aa_filters) {
   
@@ -246,16 +267,17 @@ void CPUImpl::Render(
       }
       for (auto &thread : threads) {thread.join();}
     }
-    developer.Develop(film, aa.w);
+    developer->Develop(film, aa.w);
   }
-  developer.Finish();
+  developer->Finish();
+  return developer;
 }
 
 class RTEngine::Impl {
  public:
   Impl(void);
   
-  void Render(SceneBuilder &build, const RenderOptions &options);
+  Developer* Render(SceneBuilder &build, const RenderOptions &options);
 #ifdef WITH_CUDA  
   CUDAImpl cuda_impl;
 #endif
@@ -266,18 +288,38 @@ class RTEngine::Impl {
 RTEngine::Impl::Impl(void) {
 }
 
-void RTEngine::Impl::Render(
+void CheckIntegratorAndDeveloper(SceneBuilder *build, std::string world_name) {
+  auto *world_node = CHECK_NOTNULL(build->SearchEntityByName<World>(world_name));
+  auto *world = world_node->Get();
+  auto *integrator = world->GetIntegrator();
+  if (integrator == nullptr) {
+    LOG(WARNING) << "The scene description does not specify a integrator. Use the default one.";
+    build->CreateEntity<Integrator>("DefaultIntegrator", "_integrator");
+    world->Parse({"SetIntegrator", "_integrator"}, build);
+  }
+  auto *developer = world->GetDeveloper();
+  if (developer == nullptr) {
+    LOG(WARNING) << "The scene description does not specify a developer. Use the default one.";
+    build->CreateEntity<Developer>("DefaultDeveloper", "_developer");
+    world->Parse({"SetDeveloper", "_developer"}, build);
+  }
+}
+
+Developer* RTEngine::Impl::Render(
     SceneBuilder &build,
     const RenderOptions &options) {
+  CheckIntegratorAndDeveloper(&build, options.world_name);
+  Developer *dev;
   if (options.cuda) {
 #ifdef WITH_CUDA
-    cuda_impl.Render(build, options);
+    dev = cuda_impl.Render(build, options);
 #else
     LOG(FATAL) << "qjulia2 is not compiled with CUDA support.";
 #endif
   } else {
-    cpu_impl.Render(build, options);
+    dev = cpu_impl.Render(build, options);
   }
+  return dev;
 }
 
 RTEngine::RTEngine(void) : impl_(new Impl()) {
@@ -287,12 +329,14 @@ RTEngine::RTEngine(void) : impl_(new Impl()) {
 RTEngine::~RTEngine(void) {
 }
 
-void RTEngine::Render(SceneBuilder &build,
+
+Developer* RTEngine::Render(SceneBuilder &build,
                       const RenderOptions &options) {
   Timer timer;
   timer.Start();
-  impl_->Render(build, options);
+  Developer *dev = impl_->Render(build, options);
   last_render_time_ = timer.End();
+  return dev;
 }
 
 }

@@ -50,7 +50,7 @@ set(SHARED_SOURCE_FILES
   shape/plane.cc
   shape/sphere.cc
   integrator/default.cc
-  #developer/default.cc
+  developer/default.cc
   developer/simple.cc
 )
 

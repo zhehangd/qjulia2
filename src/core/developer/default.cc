@@ -31,83 +31,88 @@ SOFTWARE.
 namespace qjulia {
 
 namespace {
+#ifdef WITH_CUDA
 
-/*
-CPU_AND_CUDA Pixel DevelopPixel(const Sample &sample) {
-  Pixel pix;
-  for (int k = 0; k < 3; ++k) {
-    pix[k] = (unsigned char)round(
-      min((Float)255, max((Float)0.0, sample.spectrum[k] * 255)));
-  }
-  return pix;
+struct DefaultDevData {
+  Size size;
+  DefaultDeveloper::CachePixel *cache;
+};
+
+KERNEL void RetriveMeta(DefaultDevData *meta, Developer *device_ptr) {
+  DefaultDeveloper *dev = static_cast<DefaultDeveloper*>(device_ptr);
+  meta->cache = dev->cache_.Data();
+  meta->size = dev->cache_.ArraySize();
 }
 
-CPU_AND_CUDA Pixel DevelopPixelDepth(const Sample &sample) {
-  Pixel pix(0, 0, 0);
-  if (!sample.has_isect) {return pix;}
-  Float min_dist = 2.85;
-  Float max_dist = 3.85;
-  Float dist = (sample.depth - min_dist) / (max_dist - min_dist);
-  Vector3f color(dist, dist, dist);
-  pix = ClipTo8Bit(color * 255);
-  return pix;
-}*/
-
+KERNEL void CopyCacheData(DefaultDeveloper::CachePixel *dst, Developer *device_ptr) {
+  DefaultDeveloper *dev = static_cast<DefaultDeveloper*>(device_ptr);
+  int cache_data_nbtypes = sizeof(DefaultDeveloper::CachePixel) * dev->cache_.ArraySize().Total();
+  std::memcpy(dst, dev->cache_.Data(), cache_data_nbtypes);
+}
+#endif
 }
 
-void DefaultDeveloper::Develop(const Film &film, float w) {
+CPU_AND_CUDA void DefaultDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
-    auto &src = film.At(i);
-    auto &dst = cache1_.At(i);
-    dst.spectrum += src.spectrum * w;
+    auto &dst = cache_.At(i);
+    dst.spectrum += film.At(i).spectrum * w;
     dst.w += w;
-    if (!std::isnan(src.depth)) {
-      if (std::isnan(dst.depth)) {
-        dst.depth = src.depth * w;
-        dst.depth_w = w;
-      } else {
-        dst.depth += src.depth * w;
-        dst.depth_w += w;
-      }
+  }
+}
+
+CPU_AND_CUDA void DefaultDeveloper::Init(Size size) {
+  cache_.Resize(size);
+  cache_.SetTo({});
+}
+
+CPU_AND_CUDA void DefaultDeveloper::Finish(void) {
+  
+  printf("%d %d\n", cache_.Width(), cache_.Height());
+  Spectrum spec = {};
+  for (int r = 0; r < cache_.Height(); ++r) {
+    for (int c = 0; c < cache_.Width(); ++c) {
+      spec += cache_.At(r, c).spectrum;
     }
   }
-}
-
-void DefaultDeveloper::Init(Size size) {
-  cache1_.Resize(size);
-  cache1_.SetTo({});
-}
-  
-void DefaultDeveloper::Finish(void) {
-  //ProduceImage(dst);
-}
-
-void DefaultDeveloper::ProduceImage(RGBImage &dst) {
-  dst.Resize(cache1_.ArraySize());
-  for (int i = 0; i < dst.NumElems(); ++i) {
-    auto &src = cache1_.At(i);
-    dst.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
-  }
-}
-
-void DefaultDeveloper::ProduceImage(RGBFloatImage &dst) {
-  dst.Resize(cache1_.ArraySize());
-  for (int i = 0; i < dst.NumElems(); ++i) {
-    auto &src = cache1_.At(i);
-    dst.At(i) = src.spectrum / src.w;
-  }
-}
-
-void DefaultDeveloper::ProduceDepthImage(GrayscaleFloatImage &dst) {
-  dst.Resize(cache1_.ArraySize());
-  for (int i = 0; i < dst.NumElems(); ++i) {
-    auto &src = cache1_.At(i);
-    dst.At(i) = src.depth / src.depth_w;
-  }
+  spec /= cache_.Width() * cache_.Height();
+  printf("%.2f %.2f %.2f\n", spec[0], spec[1], spec[2]);
 }
 
 void DefaultDeveloper::RetrieveFromDevice(Developer *device_ptr) {
-  (void)device_ptr;
+#ifdef WITH_CUDA
+  DefaultDevData *cuda_meta;
+  cudaMalloc((void**)&cuda_meta, sizeof(DefaultDevData));
+  RetriveMeta<<<1, 1>>>(cuda_meta, device_ptr);
+  DefaultDevData meta;
+  CUDACheckError(__LINE__,
+                 cudaMemcpy(&meta, cuda_meta, sizeof(DefaultDevData),
+                            cudaMemcpyDeviceToHost));
+  cudaDeviceSynchronize();
+  cudaFree(cuda_meta);
+  cache_.Resize(meta.size);
+  
+  int cache_data_nbtypes = sizeof(CachePixel) * meta.size.Total();
+  CachePixel *cuda_cache_data;
+  cudaMalloc((void**)&cuda_cache_data, cache_data_nbtypes);
+  CopyCacheData<<<1, 1>>>(cuda_cache_data, device_ptr);
+  
+  
+  printf("XXX %x %x %d\n", cache_.Data(), meta.cache, sizeof(CachePixel) * meta.size.Total());
+  CUDACheckError(__LINE__,
+                 cudaMemcpy(cache_.Data(), cuda_cache_data,
+                            cache_data_nbtypes,
+                            cudaMemcpyDeviceToHost));
+  cudaFree(cuda_cache_data);
+  printf("DONE %x %x\n", cache_.Data(), meta.cache);
+#endif
+}
+
+void DefaultDeveloper::ProduceImage(RGBImage &image) {
+  image.Resize(cache_.ArraySize());
+  for (int i = 0; i < image.NumElems(); ++i) {
+    auto &src = cache_.At(i);
+    image.At(i) = ClipTo8Bit(src.spectrum * (255.0 / src.w));
+  }
 }
 
 }

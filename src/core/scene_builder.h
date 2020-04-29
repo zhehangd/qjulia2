@@ -94,7 +94,10 @@ struct BuildSceneParams {
 #else
   bool cuda = false;
 #endif
-  std::string world;
+  
+  // Name of the world entity for scene building
+  // Leave it empty to use the first one found
+  std::string world_name = "";
 };
 
 /// @brief Creates and maintains the scene data

@@ -45,11 +45,11 @@ class Developer : public Entity {
  public:
   
   /// @brief Process a film and accumulate the result in the cache
-  virtual void Develop(const Film &film, float w) = 0;
+  CPU_AND_CUDA virtual void Develop(const Film &film, float w) = 0;
   
-  virtual void Init(Size size) = 0;
+  CPU_AND_CUDA virtual void Init(Size size) = 0;
   
-  virtual void Finish(void) = 0;
+  CPU_AND_CUDA virtual void Finish(void) = 0;
   
   /// @brief Retrieve cached data from the device
   /// 

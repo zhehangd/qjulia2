@@ -47,7 +47,7 @@ KERNEL void RetriveMeta(SimpleDevData *meta, Developer *device_ptr) {
 }
 
 
-void SimpleDeveloper::Develop(const Film &film, float w) {
+CPU_AND_CUDA void SimpleDeveloper::Develop(const Film &film, float w) {
   for (int i = 0; i < film.NumElems(); ++i) {
     auto &dst = cache_.At(i);
     dst.spectrum += film.At(i).spectrum * w;
@@ -55,12 +55,12 @@ void SimpleDeveloper::Develop(const Film &film, float w) {
   }
 }
 
-void SimpleDeveloper::Init(Size size) {
+CPU_AND_CUDA void SimpleDeveloper::Init(Size size) {
   cache_.Resize(size);
   cache_.SetTo({});
 }
   
-void SimpleDeveloper::Finish(void) {
+CPU_AND_CUDA void SimpleDeveloper::Finish(void) {
 }
 
 void SimpleDeveloper::RetrieveFromDevice(Developer *device_ptr) {
