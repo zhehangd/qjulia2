@@ -134,12 +134,10 @@ KERNEL void GPUKernel(Film film, Scene scene, AAFilter aa) {
 
 KERNEL void InitDeveloper(Developer *cu_developer, Size size) {
   cu_developer->Init(size);
-  printf("INITDEVELOPER: %x\n", static_cast<DefaultDeveloper*>(cu_developer)->cache_.Data());
 }
 
 KERNEL void Develop(Developer *cu_developer, Film cu_film, Float w) {
   cu_developer->Develop(cu_film, w);
-  printf("DEVELOP: %x\n", static_cast<DefaultDeveloper*>(cu_developer)->cache_.Data());
 }
 
 KERNEL void FinishDeveloper(Developer *cu_developer) {
@@ -198,8 +196,9 @@ Developer* CUDAImpl::Render(SceneBuilder &build, const RenderOptions &options) {
     Develop<<<1, 1>>>(cu_developer, cu_film, aa_filters[i].w); 
   }
   FinishDeveloper<<<1, 1>>>(cu_developer);
-  developer->RetrieveFromDevice(cu_developer);
   cudaDeviceSynchronize();
+  developer->Init(size);
+  developer->RetrieveFromDevice(cu_developer);
   developer->Finish();
   return developer;
 }

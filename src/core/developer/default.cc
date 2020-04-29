@@ -66,16 +66,6 @@ CPU_AND_CUDA void DefaultDeveloper::Init(Size size) {
 }
 
 CPU_AND_CUDA void DefaultDeveloper::Finish(void) {
-  
-  printf("%d %d\n", cache_.Width(), cache_.Height());
-  Spectrum spec = {};
-  for (int r = 0; r < cache_.Height(); ++r) {
-    for (int c = 0; c < cache_.Width(); ++c) {
-      spec += cache_.At(r, c).spectrum;
-    }
-  }
-  spec /= cache_.Width() * cache_.Height();
-  printf("%.2f %.2f %.2f\n", spec[0], spec[1], spec[2]);
 }
 
 void DefaultDeveloper::RetrieveFromDevice(Developer *device_ptr) {
@@ -96,14 +86,11 @@ void DefaultDeveloper::RetrieveFromDevice(Developer *device_ptr) {
   cudaMalloc((void**)&cuda_cache_data, cache_data_nbtypes);
   CopyCacheData<<<1, 1>>>(cuda_cache_data, device_ptr);
   
-  
-  printf("XXX %x %x %d\n", cache_.Data(), meta.cache, sizeof(CachePixel) * meta.size.Total());
   CUDACheckError(__LINE__,
                  cudaMemcpy(cache_.Data(), cuda_cache_data,
                             cache_data_nbtypes,
                             cudaMemcpyDeviceToHost));
   cudaFree(cuda_cache_data);
-  printf("DONE %x %x\n", cache_.Data(), meta.cache);
 #endif
 }
 
