@@ -276,11 +276,13 @@ class RTEngine::Impl {
  public:
   Impl(void);
   
-  Developer* Render(SceneBuilder &build, const RenderOptions &options);
+  Developer* Render(SceneBuilder &build);
 #ifdef WITH_CUDA  
   CUDAImpl cuda_impl;
 #endif
   CPUImpl cpu_impl;
+  
+  RenderOptions options_;
 };
 
 
@@ -305,18 +307,17 @@ void CheckIntegratorAndDeveloper(SceneBuilder *build, std::string world_name) {
 }
 
 Developer* RTEngine::Impl::Render(
-    SceneBuilder &build,
-    const RenderOptions &options) {
-  CheckIntegratorAndDeveloper(&build, options.world_name);
+    SceneBuilder &build) {
+  CheckIntegratorAndDeveloper(&build, options_.world_name);
   Developer *dev;
-  if (options.cuda) {
+  if (options_.cuda) {
 #ifdef WITH_CUDA
-    dev = cuda_impl.Render(build, options);
+    dev = cuda_impl.Render(build, options_);
 #else
     LOG(FATAL) << "qjulia2 is not compiled with CUDA support.";
 #endif
   } else {
-    dev = cpu_impl.Render(build, options);
+    dev = cpu_impl.Render(build, options_);
   }
   return dev;
 }
@@ -328,12 +329,23 @@ RTEngine::RTEngine(void) : impl_(new Impl()) {
 RTEngine::~RTEngine(void) {
 }
 
+void RTEngine::SetResolution(Size size) {
+  impl_->options_.size = size;
+}
 
-Developer* RTEngine::Render(SceneBuilder &build,
-                      const RenderOptions &options) {
+void RTEngine::SetAAOption(AAOption aa) {
+  impl_->options_.aa = aa;
+}
+
+void RTEngine::SetCUDA(bool enable) {
+  impl_->options_.cuda = enable;
+}
+
+Developer* RTEngine::Render(
+    SceneBuilder &build) {
   Timer timer;
   timer.Start();
-  Developer *dev = impl_->Render(build, options);
+  Developer *dev = impl_->Render(build);
   last_render_time_ = timer.End();
   return dev;
 }

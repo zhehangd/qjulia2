@@ -65,7 +65,13 @@ class RTEngine {
   RTEngine(void);
   ~RTEngine(void);
   
-  Developer* Render(SceneBuilder &build, const RenderOptions &option);
+  void SetResolution(Size size);
+  
+  void SetAAOption(AAOption aa);
+  
+  void SetCUDA(bool enable);
+  
+  Developer* Render(SceneBuilder &build);
   
   Float LastRenderTime(void) const {return (Float)last_render_time_;}
   

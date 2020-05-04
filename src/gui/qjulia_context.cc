@@ -245,26 +245,26 @@ SceneCtrlParams QJuliaContext::Impl::GetDefaultOptions() {
   return opts;
 }
 
-void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParams sopts) {  
-  RenderOptions options;
-  options.cuda = true;
-  options.aa = AAOption::kSSAA6x;
+void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParams sopts) {
   Size size;
+  AAOption aa;
   if (rtype == RenderType::kFastPreview) {
     size = sopts.realtime_fast_image_size;
-    options.aa = AAOption::kOff;
+    aa = AAOption::kOff;
   } else if (rtype == RenderType::kDisplay) {
     size = sopts.realtime_image_size;
-    options.aa = AAOption::kSSAA6x;
+    aa = AAOption::kSSAA6x;
   } else if (rtype == RenderType::kSave) {
     size = sopts.offline_image_size;
-    options.aa = AAOption::kSSAA6x;
+    aa = AAOption::kSSAA6x;
   } else {
     LOG(FATAL) << "Unknown rtype";
   }
   
-  options.size = size;
-  auto *developer = engine.Render(build, options);
+  engine.SetAAOption(aa);
+  engine.SetResolution(size);
+  
+  auto *developer = engine.Render(build);
   
   Image image;
   developer->ProduceImage(image);

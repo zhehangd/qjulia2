@@ -47,7 +47,12 @@ Size ParseImageSize(std::string &size_str) {
   int x_i = size_str.find('x');
   int w = std::stoi(size_str.substr(0, x_i));
   int h = std::stoi(size_str.substr(x_i + 1));
-  return {w, h};
+  Size size(w, h);
+  if (size.width <= 0 || size.height <= 0) {
+    LOG(FATAL) << "Error: Invalid image size "
+      << size.width << "x" << size.height << "." << std::endl;
+  }
+  return size;
 }
 
 bool Run(int argc, char **argv) {
@@ -57,8 +62,6 @@ bool Run(int argc, char **argv) {
   cxxopts_options.add_options()
   ("a,antialias", "Antialiasing mode {0, 1, 2, 3}",\
     cxxopts::value<int>()->default_value("1"))
-  ("t,num_threads", "Number of threads",\
-    cxxopts::value<int>()->default_value("-1"))
   ("s,size", "Output image size",
     cxxopts::value<std::string>()->default_value("640x360"))
   ("o,output_file", "Output image filename",
@@ -70,7 +73,6 @@ bool Run(int argc, char **argv) {
   ;
   
   auto args = cxxopts_options.parse(argc, argv);
-  int num_threads = args["num_threads"].as<int>();
   std::string size_str = args["size"].as<std::string>();
   std::string output_file = args["output_file"].as<std::string>();
   std::string scene_file = args["scene_file"].as<std::string>();
@@ -87,30 +89,13 @@ bool Run(int argc, char **argv) {
   QJSDescription qjs_descr = LoadQJSFromFile(scene_file);
   build.ParseSceneDescr(qjs_descr.scene);
   
-  RenderOptions options;
-#ifdef WITH_CUDA
-  options.cuda = true;
-#else
-  options.cuda = false;
-#endif
-  options.aa = static_cast<AAOption>(args["antialias"].as<int>());
-  options.num_threads = num_threads;
-  
-  //DefaultDeveloper developer;
-  //options.developer = &developer;
-  
-  Size size = ParseImageSize(size_str);
-  if (size.width <= 0 || size.height <= 0) {
-    std::cerr << "Error: Invalid image size "
-      << size.width << "x" << size.height << "." << std::endl;
-    return false;
-  }
-  options.size = size;
-  options.world_name = "";
-  
   RTEngine engine;
-  auto *developer = engine.Render(build, options);
   
+  engine.SetAAOption(static_cast<AAOption>(args["antialias"].as<int>()));
+  
+  engine.SetResolution(ParseImageSize(size_str));
+  
+  auto *developer = engine.Render(build);  
   
   Image image;
   developer->ProduceImage(image);
@@ -124,8 +109,7 @@ bool Run(int argc, char **argv) {
     developer.ProduceDepthImage(fdepth);
     Imwrite("depth.tif", fdepth);*/
   //} else {
-    Imwrite(output_file, image);
-  //}
+  Imwrite(output_file, image);
   return true;
 }
 
