@@ -33,7 +33,7 @@ SOFTWARE.
 #include "core/shape.h"
 #include "core/transform.h"
 #include "core/material.h"
-#include "core/scene_descr.h"
+#include "core/qjs_parser.h"
 #include "core/scene_builder.h"
 
 namespace qjulia {

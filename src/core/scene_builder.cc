@@ -41,7 +41,7 @@ SOFTWARE.
 #include "core/shape/julia3d.h"
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
-#include "core/scene_descr.h"
+#include "core/qjs_parser.h"
 #include "core/developer/default.h"
 #include "core/developer/simple.h"
 #include "core/integrator/default.h"
@@ -56,13 +56,13 @@ std::string SceneBuilder::GetSpecificTypeName(size_t stype_id) const {
   return reg_table_[stype_id].stype_name;
 }
 
-void SceneBuilder::ParseSceneDescr(const SceneDescr &descr) {
-  for (const auto &e : descr.entities) {
+void SceneBuilder::ParseSceneDescr(const QJSContext &descr) {
+  for (const auto &e : descr.blocks) {
     ParseEntityDescr(e);
   }
 }
   
-void SceneBuilder::ParseEntityDescr(const EntityDescr &descr) {
+void SceneBuilder::ParseEntityDescr(const QJSBlock &descr) {
   EntityNode *node = CreateEntity(descr.type, descr.subtype, descr.name);
   CHECK_NOTNULL(node);
   Entity *entity = node->Get();
@@ -72,13 +72,13 @@ void SceneBuilder::ParseEntityDescr(const EntityDescr &descr) {
   }
 }
 
-SceneDescr SceneBuilder::SaveSceneDescr(void) {
-  SceneDescr scene_descr;
+QJSContext SceneBuilder::SaveSceneDescr(void) {
+  QJSContext scene_descr;
   for (int i = 0; i < nodes_.size(); ++i) {
     auto *node = nodes_[i].get();
     Entity *entity = node->Get();
-    scene_descr.entities.emplace_back();
-    auto &entity_descr = scene_descr.entities.back();
+    scene_descr.blocks.emplace_back();
+    auto &entity_descr = scene_descr.blocks.back();
     entity_descr.name = node->GetName();
     entity_descr.type = GetBaseTypeName(node->GetBaseTypeID());
     entity_descr.subtype = GetSpecificTypeName(node->GetSpecificTypeID());

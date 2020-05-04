@@ -84,8 +84,8 @@ bool Run(int argc, char **argv) {
   SceneBuilder build;
   RegisterDefaultEntities(build);
   
-  SceneDescr scene_descr = LoadSceneFromFile(scene_file);
-  build.ParseSceneDescr(scene_descr);
+  QJSDescription qjs_descr = LoadQJSFromFile(scene_file);
+  build.ParseSceneDescr(qjs_descr.scene);
   
   RenderOptions options;
 #ifdef WITH_CUDA

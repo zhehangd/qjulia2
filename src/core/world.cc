@@ -33,7 +33,6 @@ SOFTWARE.
 #include "core/intersection.h"
 #include "core/object.h"
 #include "core/scene_builder.h"
-#include "core/scene_descr.h"
 
 namespace qjulia {
 

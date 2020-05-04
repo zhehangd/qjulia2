@@ -28,6 +28,7 @@ SOFTWARE.
 #define QJULIA2_SCENE_BUILDER_H_
 
 #include "entity.h"
+#include "qjs_parser.h"
 #include "scene.h"
 
 #include <exception>
@@ -105,14 +106,14 @@ class SceneBuilder {
  public:
   
    
-  /// @brief Parses a SceneDescr object
-  void ParseSceneDescr(const SceneDescr &descr);
+  /// @brief Parses a QJSContext object
+  void ParseSceneDescr(const QJSContext &descr);
   
   /// @brief Parses an EntityDescr object
-  void ParseEntityDescr(const EntityDescr &descr);
+  void ParseEntityDescr(const QJSBlock &descr);
   
   /// @brief Save to a SceneDescr object
-  SceneDescr SaveSceneDescr(void);
+  QJSContext SaveSceneDescr(void);
   
   /// @brief Gets the name of a base type by its ID
   ///

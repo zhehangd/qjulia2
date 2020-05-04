@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "core/algorithm.h"
 #include "core/arg_parse.h"
-#include "core/scene_descr.h"
 
 namespace qjulia {
 

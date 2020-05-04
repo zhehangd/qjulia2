@@ -26,7 +26,7 @@ set(CPP_ONLY_SOURCE_FILES
   algorithm.cc
   image.cc
   vector.cc
-  scene_descr.cc
+  qjs_parser.cc
   image_io.cc
   image_io/image_io_png.cc
   image_io/image_io_tiff.cc

@@ -147,8 +147,8 @@ void InitSceneBuild(SceneBuilder &build) {
     "  AddLight sun\n"
     "  AddLight lamp\n"
     "}\n";
-  SceneDescr scene_descr = LoadSceneFromString(text2);
-  build.ParseSceneDescr(scene_descr);
+  QJSDescription qjs_descr = LoadQJSFromString(text2);
+  build.ParseSceneDescr(qjs_descr.scene);
 }
 
 void QJuliaContext::Impl::Init(void) {
@@ -320,8 +320,9 @@ BaseModule* QJuliaContext::NewControlWidgetForSpecificType(int stype_id) {
 }
 
 void QJuliaContext::SaveScene(QString filename) {
-  SceneDescr scene_descr_out = impl_->build.SaveSceneDescr();
-  SaveSceneDescrToFile(filename.toStdString(), scene_descr_out);
+  QJSDescription descr;
+  descr.scene = impl_->build.SaveSceneDescr();
+  SaveQJSToFile(filename.toStdString(), descr);
 }
 
 void QJuliaContext::SetFastPreviewSize(qjulia::Size size) {
