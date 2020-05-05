@@ -102,10 +102,6 @@ void World::Parse(const Args &args, SceneBuilder *build) {
     auto *node = ParseEntityNode<Integrator>(args[1], build);
     data_host_.integrator = CHECK_NOTNULL(node->Get());
     data_device_.integrator = node->GetDevice();
-  } else if (args[0] == "SetDeveloper") {
-    auto *node = ParseEntityNode<Developer>(args[1], build);
-    data_host_.developer = CHECK_NOTNULL(node->Get());
-    data_device_.developer = node->GetDevice();
   } else {
     throw UnknownCommand(args[0]);
   }
@@ -127,9 +123,6 @@ void World::Save(SceneBuilder *build, FnSaveArgs fn_write) const {
   }
   if (data_host_.integrator) {
     fn_write({"SetIntegrator", build->SearchEntityNameByPtr(data_host_.integrator)});
-  }
-  if (data_host_.developer) {
-    fn_write({"SetDeveloper", build->SearchEntityNameByPtr(data_host_.developer)});
   }
 }
 

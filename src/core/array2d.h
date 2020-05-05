@@ -83,6 +83,10 @@ class Array2D {
    
   CPU_AND_CUDA Array2D(Size size);
   
+  /// @brief Uses the given memory to store data
+  /// Array2D does not take the ownership of this memory.
+  /// If Array2D is resized, it will abandom this memory
+  /// and allocate new one.
   CPU_AND_CUDA Array2D(T *p, Size size);
   
   /// @brief Make the array points to the same data as src does

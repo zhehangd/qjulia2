@@ -33,46 +33,15 @@ SOFTWARE.
 
 namespace qjulia {
 
-CPU_AND_CUDA void Film::Relocate(void) {
-  relocation_x_ = 0;
-  relocation_y_ = 0;
-  relocation_w_ = Width();
-  relocation_h_ = Height();
-  relocation_s_ = relocation_w_ < relocation_h_ ? relocation_w_ : relocation_h_;
+CPU_AND_CUDA Point2f GenerateCameraCoords(Point2f src, Size size) {
+  Float c = src[1];
+  Float r=  src[0];
+  Float ss = (Float)(size.width < size.height ? size.width : size.height - 1);
+  Float x = (c - (size.width - 1) * 0.5f) / ss;
+  Float y = ((size.height - 1) * 0.5f - r) / ss;
+  return {x, y};
 }
 
-CPU_AND_CUDA void Film::GenerateCameraCoords(int i, Float *x, Float *y) const {
-  //
-  int r = i / Width();
-  int c = i % Width();
-  GenerateCameraCoords(r, c, x, y);
-}
-
-CPU_AND_CUDA void Film::GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const {
-  c += relocation_x_;
-  r += relocation_y_;
-  Float s = (Float)(relocation_s_ - 1);
-  *x = (c - (relocation_w_ - 1) * 0.5f) / s;
-  *y = ((relocation_h_ - 1) * 0.5f - r) / s;
-}
-
-CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *i) const {
-  int r, c;
-  GenerateImageCoords(x, y, &r, &c);
-  if (CheckRange(r, c)) {
-    *i = r * Width() + c;
-  } else {
-    *i = -1;
-  }
-  return CheckRange(r, c);
-}
-  
-CPU_AND_CUDA bool Film::GenerateImageCoords(Float x, Float y, int *r, int *c) const {
-  Float s = (Float)(relocation_s_ - 1);
-  *c = round(x * s  + (relocation_w_ - 1) * 0.5f) - relocation_x_;
-  *r = round(y * s  + (relocation_h_ - 1) * 0.5f) - relocation_y_;
-  return CheckRange(*r, *c);
-}
 /*
 void SaveToPPM(const std::string &filename, const Film &film, Float scale) {
   int w = film.Width();

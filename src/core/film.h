@@ -36,30 +36,11 @@ SOFTWARE.
 
 namespace qjulia {
 
-class Film : public Array2D<Sample> {
- public:
-  CPU_AND_CUDA Film(int w, int h) : Array2D<Sample>({w, h}) {Relocate();}
-  CPU_AND_CUDA Film(Size size) : Array2D<Sample>(size) {Relocate();}
-  CPU_AND_CUDA Film(Sample *p, int w, int h) : Array2D<Sample>(p, {w, h}) {Relocate();}
-  
-  CPU_AND_CUDA void Relocate(void);
-  CPU_AND_CUDA void Relocate(int x, int y, int w, int h);
-  
-  CPU_AND_CUDA void GenerateCameraCoords(int i, Float *x, Float *y) const;
-  CPU_AND_CUDA void GenerateCameraCoords(Float r, Float c, Float *x, Float *y) const;
-  
-  CPU_AND_CUDA bool GenerateImageCoords(Float x, Float y, int *i) const;
-  CPU_AND_CUDA bool GenerateImageCoords(Float x, Float y, int *r, int *c) const;
-  
-  CPU_AND_CUDA bool CheckRange(int r, int c) const {return IsValidCoords(r, c);}
-  
- private:
-  int relocation_x_ = 0;
-  int relocation_y_ = 0;
-  int relocation_w_ = 0;
-  int relocation_h_ = 0;
-  int relocation_s_ = 0;
-};
+// (r, c) -> (x, y)
+CPU_AND_CUDA Point2f GenerateCameraCoords(Point2f src, Size size);
+
+using Film = Array2D<Sample>;
+using SampleFrame = Array2D<Sample>;
 
 //void SaveToPPM(const std::string &filename, const Film &film,
 //               Float scale = 255);

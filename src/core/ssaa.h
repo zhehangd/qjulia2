@@ -24,35 +24,30 @@ SOFTWARE.
 
 */
 
-#ifndef QJULIA_DEVELOPER_SIMPLE_H_
-#define QJULIA_DEVELOPER_SIMPLE_H_
+#ifndef QJULIA_SSAA_H_
+#define QJULIA_SSAA_H_
 
-#include "core/developer.h"
+#include <vector>
+
+#include "base.h"
+#include "vector.h"
 
 namespace qjulia {
 
-class SimpleDeveloper : public Developer {
- public:
-  
-  CPU_AND_CUDA void Develop(const Film &film, float w) override;
-  
-  CPU_AND_CUDA void Init(Size size) override;
-  
-  CPU_AND_CUDA void Finish(void) override;
-  
-  void RetrieveFromDevice(Developer *device_ptr) override;
-  
-  void ProduceImage(RGBImage &image) override;
-  
-  void UpdateDevice(Entity *device_ptr) const {(void)device_ptr;}
-  
-  struct CachePixel {
-    Spectrum spectrum;
-    float w = 0;
-  };
-  
-  Array2D<CachePixel> cache_;
+enum AAOption {
+  kOff,
+  kSSAA6x,
+  kSSAA64x,
+  kSSAA256x
 };
+
+struct AAFilter {
+  AAFilter(Float x, Float y, Float w) : offset(x, y), w(w) {}
+  Vector2f offset;
+  Float w = 1;
+};
+
+std::vector<AAFilter> GenerateSSAAFilters(AAOption opt);
 
 }
 

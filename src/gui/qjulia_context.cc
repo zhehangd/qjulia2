@@ -17,8 +17,6 @@
 #include "core/shape/julia3d.h"
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
-#include "core/developer/default.h"
-#include "core/developer/simple.h"
 #include "core/integrator/default.h"
 
 #include "module_point_light.h"
@@ -58,7 +56,7 @@ class QJuliaContext::Impl {
   
   qjulia::Size render_size_;
   
-  qjulia::RTEngine engine;
+  std::unique_ptr<qjulia::Engine> engine_;
   qjulia::SceneBuilder build;
   
   // Maps a stype_id to a function that creates the 
@@ -152,6 +150,7 @@ void InitSceneBuild(SceneBuilder &build) {
 }
 
 void QJuliaContext::Impl::Init(void) {
+  engine_ = qjulia::CreateCUDAEngine();
   RegisterEntities();
   InitSceneBuild(build);
 }
@@ -159,7 +158,6 @@ void QJuliaContext::Impl::Init(void) {
 void QJuliaContext::Impl::RegisterEntities(void) {
   auto fn_camera = [](void) -> BaseModule* {return new CameraModule();};
   btype_control_widget_lut_[EntityTrait<Integrator>::btype_id] = nullptr;
-  btype_control_widget_lut_[EntityTrait<Developer>::btype_id] = nullptr;
   btype_control_widget_lut_[EntityTrait<Camera>::btype_id] = fn_camera;
   btype_control_widget_lut_[EntityTrait<Light>::btype_id] = nullptr;
   btype_control_widget_lut_[EntityTrait<Material>::btype_id] = nullptr;
@@ -205,12 +203,6 @@ void QJuliaContext::Impl::RegisterEntities(void) {
     [](void) -> BaseModule* {return new Julia3DShapeModule();};
 
   reg = build.Register<PlaneShape>("Plane");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-
-  reg = build.Register<DefaultDeveloper>("DefaultDeveloper");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
-  reg = build.Register<SimpleDeveloper>("SimpleDeveloper");
   stype_control_widget_lut_[reg->stype_id] = nullptr;
   
   reg = build.Register<DefaultIntegrator>("DefaultIntegrator");
@@ -261,16 +253,17 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
     LOG(FATAL) << "Unknown rtype";
   }
   
-  engine.SetAAOption(aa);
-  engine.SetResolution(size);
+  engine_->SetAAOption(aa);
+  engine_->SetResolution(size);
   
-  auto *developer = engine.Render(build);
+  engine_->Render(build);
+  Developer &developer = engine_->GetDeveloper();
   
   Image image;
-  developer->ProduceImage(image);
+  developer.ProduceImage(image);
   
   
-  LOG(INFO) << "time: " << engine.LastRenderTime();
+  LOG(INFO) << "time: " << engine_->LastRenderTime();
   
   if (rtype == RenderType::kFastPreview) {
     UpSample(image, dst_image, sopts.realtime_image_size);

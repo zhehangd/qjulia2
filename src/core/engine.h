@@ -32,55 +32,30 @@ SOFTWARE.
 #include "base.h"
 #include "image.h"
 #include "developer.h"
+#include "ssaa.h"
 
 namespace qjulia {
 
-class Scene;
-class Integrator;
 class SceneBuilder;
 
-// Antialiasing options
-enum AAOption {
-  kOff,
-  kSSAA6x,
-  kSSAA64x,
-  kSSAA256x
-};
-
-struct RenderOptions {
-  AAOption aa = AAOption::kSSAA6x;
-  int num_threads = -1;
-  bool cuda = true;
-  
-  // Name of the world entity for scene building
-  // Leave it empty to use the first one found
-  std::string world_name = "";
-  
-  Size size;
-};
-
-class RTEngine {
+class Engine {
  public:
-   
-  RTEngine(void);
-  ~RTEngine(void);
+  virtual ~Engine(void) {}
   
-  void SetResolution(Size size);
+  virtual Developer& GetDeveloper(void) = 0;
   
-  void SetAAOption(AAOption aa);
+  virtual void SetResolution(Size size) = 0;
   
-  void SetCUDA(bool enable);
+  virtual void SetAAOption(AAOption aa) = 0;
   
-  Developer* Render(SceneBuilder &build);
+  virtual void Render(SceneBuilder &build) = 0;
   
-  Float LastRenderTime(void) const {return (Float)last_render_time_;}
-  
- private:
-  
-  class Impl;
-  std::unique_ptr<Impl> impl_;
-  Float last_render_time_ = 0;
+  virtual Float LastRenderTime(void) const = 0;
 };
+
+std::unique_ptr<Engine> CreateCPUEngine(void);
+
+std::unique_ptr<Engine> CreateCUDAEngine(void);
 
 }
 

@@ -35,32 +35,38 @@ SOFTWARE.
 
 namespace qjulia {
 
+struct CachePixel {
+  Spectrum spectrum;
+  float w = 0;
+};
+
 /// @brief A Developer process a film into an image
 ///
 /// After an rendering engine uses an integrator to produce a film
 /// which contains more or less physically based information of each
 /// pixel, a developer is responsible for making an image from the
 /// information in the film.
-class Developer : public Entity {
+class Developer {
  public:
+  void Init(Size size);
   
-  /// @brief Process a film and accumulate the result in the cache
-  CPU_AND_CUDA virtual void Develop(const Film &film, float w) = 0;
+  void Finish(void);
   
-  CPU_AND_CUDA virtual void Init(Size size) = 0;
+  void ProduceImage(RGBImage &image);
   
-  CPU_AND_CUDA virtual void Finish(void) = 0;
+  //virtual void Parse(const Args &args);
   
-  /// @brief Retrieve cached data from the device
-  /// 
-  /// This function is called after all the rendering is done,
-  /// and the user is going to read the result through the developer.
-  /// therefore, only data the user may concern need to be retrieved.
-  /// It can be assumed that the given pointer can be cast to the same
-  /// type as the class implementing this function in a device kernel.
-  virtual void RetrieveFromDevice(Developer *device_ptr) = 0;
-  
-  virtual void ProduceImage(RGBImage &image) = 0;
+  Array2D<CachePixel> cache_;
+};
+
+class DeveloperGPU : public Developer {
+ public:
+  void ProcessSampleFrame(SampleFrame &film, float w);
+};
+
+class DeveloperCPU : public Developer {
+ public:
+  void ProcessSampleFrame(SampleFrame &film, float w);
 };
 
 }

@@ -37,10 +37,12 @@ set(SHARED_SOURCE_FILES
   film.cc
   material.cc
   camera.cc
+  developer.cc
   object.cc
   scene.cc
   world.cc
   scene_builder.cc
+  ssaa.cc
   texture.cc
   transform.cc
   camera/camera3d.cc
@@ -50,8 +52,6 @@ set(SHARED_SOURCE_FILES
   shape/plane.cc
   shape/sphere.cc
   integrator/default.cc
-  developer/default.cc
-  developer/simple.cc
 )
 
 add_library(qjulia2-core OBJECT

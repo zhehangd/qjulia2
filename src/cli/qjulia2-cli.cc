@@ -38,8 +38,6 @@ SOFTWARE.
 #include "core/qjulia2.h"
 #include "core/arg_parse.h"
 #include "core/image.h"
-#include "core/developer/default.h"
-#include "core/developer/simple.h"
 
 using namespace qjulia;
 
@@ -89,17 +87,23 @@ bool Run(int argc, char **argv) {
   QJSDescription qjs_descr = LoadQJSFromFile(scene_file);
   build.ParseSceneDescr(qjs_descr.scene);
   
-  RTEngine engine;
   
-  engine.SetAAOption(static_cast<AAOption>(args["antialias"].as<int>()));
+#ifdef WITH_CUDA
+  std::unique_ptr<Engine> engine = CreateCUDAEngine();
+#else
+  std::unique_ptr<Engine> engine = CreateCPUEngine();
+#endif
   
-  engine.SetResolution(ParseImageSize(size_str));
+  engine->SetAAOption(static_cast<AAOption>(args["antialias"].as<int>()));
   
-  auto *developer = engine.Render(build);  
+  engine->SetResolution(ParseImageSize(size_str));
+  
+  engine->Render(build);
+  Developer &developer = engine->GetDeveloper();
   
   Image image;
-  developer->ProduceImage(image);
-  LOG(INFO) << "Rendering time: " << engine.LastRenderTime();
+  developer.ProduceImage(image);
+  LOG(INFO) << "Rendering time: " << engine->LastRenderTime();
   /*
   if (args["float"].as<bool>()) {
     RGBFloatImage fimage;

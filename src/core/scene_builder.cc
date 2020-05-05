@@ -42,8 +42,6 @@ SOFTWARE.
 #include "core/shape/plane.h"
 #include "core/shape/sphere.h"
 #include "core/qjs_parser.h"
-#include "core/developer/default.h"
-#include "core/developer/simple.h"
 #include "core/integrator/default.h"
 
 namespace qjulia {
@@ -177,8 +175,6 @@ void RegisterDefaultEntities(SceneBuilder &build) {
   build.Register<Julia3DShape>("Julia3D");
   build.Register<PlaneShape>("Plane");
   build.Register<SphereShape>("Sphere");
-  build.Register<DefaultDeveloper>("DefaultDeveloper");
-  build.Register<SimpleDeveloper>("SimpleDeveloper");
   build.Register<DefaultIntegrator>("DefaultIntegrator");
 }
 

@@ -61,11 +61,9 @@ class World : public Entity {
   CPU_AND_CUDA const Light* GetLight(int i) const {return data_.lights[i];}
   CPU_AND_CUDA const Camera* GetCamera(void) const {return data_.camera;}
   CPU_AND_CUDA const Integrator* GetIntegrator(void) const {return data_.integrator;}
-  CPU_AND_CUDA const Developer* GetDeveloper(void) const {return data_.developer;}
   
   CPU_AND_CUDA void SetCamera(Camera *camera) {data_.camera = camera;}
   CPU_AND_CUDA void SetIntegrator(Integrator *e) {data_.integrator = e;}
-  CPU_AND_CUDA void SetDeveloper(Developer *e) {data_.developer = e;}
   
   void UpdateDevice(Entity *device_ptr) const override;
   
@@ -81,7 +79,6 @@ class World : public Entity {
     Light* lights[20] = {};
     Camera* camera = 0;
     Integrator* integrator = 0;
-    Developer* developer = 0;
   };
   
   Data data_device_;
