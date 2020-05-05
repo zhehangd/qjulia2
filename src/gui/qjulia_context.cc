@@ -57,7 +57,6 @@ class QJuliaContext::Impl {
   qjulia::Size render_size_;
   
   std::unique_ptr<qjulia::Engine> engine_;
-  qjulia::SceneBuilder build;
   
   // Maps a stype_id to a function that creates the 
   // control widgets of the corresponding entity.
@@ -65,7 +64,7 @@ class QJuliaContext::Impl {
   std::map<int, BaseModule*(*)(void)> btype_control_widget_lut_;
 };
 
-void InitSceneBuild(SceneBuilder &build) {
+void InitSceneBuild(Engine &engine) {
   std::string text1 = 
     "Shape.Julia3D fractal_shape {\n"
     "  SetConstant 0.12,0.68,0.08,-0.46\n"
@@ -146,13 +145,13 @@ void InitSceneBuild(SceneBuilder &build) {
     "  AddLight lamp\n"
     "}\n";
   QJSDescription qjs_descr = LoadQJSFromString(text2);
-  build.ParseSceneDescr(qjs_descr.scene);
+  engine.Parse(qjs_descr);
 }
 
 void QJuliaContext::Impl::Init(void) {
   engine_ = qjulia::CreateCUDAEngine();
   RegisterEntities();
-  InitSceneBuild(build);
+  InitSceneBuild(*engine_);
 }
 
 void QJuliaContext::Impl::RegisterEntities(void) {
@@ -167,47 +166,22 @@ void QJuliaContext::Impl::RegisterEntities(void) {
   btype_control_widget_lut_[EntityTrait<Transform>::btype_id] = nullptr;
   btype_control_widget_lut_[EntityTrait<World>::btype_id] = nullptr;
   
-  const SceneBuilder::RegRecord *reg = 0;
-  
-  reg = build.Register<Object>("");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
-  reg = build.Register<Material>("");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
-  reg = build.Register<Texture>("");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
-  reg = build.Register<Transform>("");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-
-  reg = build.Register<World>("");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
-  reg = build.Register<PerspectiveCamera>("Perspective");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-
-  reg = build.Register<OrthoCamera>("Ortho");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-
-  reg = build.Register<PointLight>("Point");
-  stype_control_widget_lut_[reg->stype_id] =
-    [](void) -> BaseModule* {return new PointLightModule();};
-  
-  reg = build.Register<SunLight>("Sun");
-  stype_control_widget_lut_[reg->stype_id] =
-    [](void) -> BaseModule* {return new SunLightModule();};
-
-  reg = build.Register<Julia3DShape>("Julia3D");
-  stype_control_widget_lut_[reg->stype_id] =
-    [](void) -> BaseModule* {return new Julia3DShapeModule();};
-
-  reg = build.Register<PlaneShape>("Plane");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
-  reg = build.Register<DefaultIntegrator>("DefaultIntegrator");
-  stype_control_widget_lut_[reg->stype_id] = nullptr;
-  
+  SceneBuilder &build = engine_->GetSceneBuilder();
+  auto &table = build.GetRegTable();
+  for (auto &reg : table) {
+    if (reg.stype_name == "Point") {
+      stype_control_widget_lut_[reg.stype_id] =
+        [](void) -> BaseModule* {return new PointLightModule();};
+    } else if (reg.stype_name == "Sun") {
+      stype_control_widget_lut_[reg.stype_id] =
+        [](void) -> BaseModule* {return new SunLightModule();};
+    } else if (reg.stype_name == "Julia3D") {
+      stype_control_widget_lut_[reg.stype_id] =
+        [](void) -> BaseModule* {return new Julia3DShapeModule();};
+    } else {
+      stype_control_widget_lut_[reg.stype_id] = nullptr;
+    }
+  }
 }
 
 BaseModule* QJuliaContext::Impl::NewControlWidgetForBaseType(int btype_id) {
@@ -256,7 +230,7 @@ void QJuliaContext::Impl::Run(RenderType rtype, Image &dst_image, SceneCtrlParam
   engine_->SetAAOption(aa);
   engine_->SetResolution(size);
   
-  engine_->Render(build);
+  engine_->Render();
   Developer &developer = engine_->GetDeveloper();
   
   Image image;
@@ -301,7 +275,7 @@ void QJuliaContext::Save(SceneCtrlParams options) {
 }
 
 SceneBuilder* QJuliaContext::GetSceneBuilder(void) {
-  return &impl_->build;
+  return &impl_->engine_->GetSceneBuilder();
 }
 
 BaseModule* QJuliaContext::NewControlWidgetForBaseType(int btype_id) {
@@ -314,7 +288,7 @@ BaseModule* QJuliaContext::NewControlWidgetForSpecificType(int stype_id) {
 
 void QJuliaContext::SaveScene(QString filename) {
   QJSDescription descr;
-  descr.scene = impl_->build.SaveSceneDescr();
+  descr.scene = impl_->engine_->GetSceneBuilder().SaveSceneDescr();
   SaveQJSToFile(filename.toStdString(), descr);
 }
 

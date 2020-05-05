@@ -32,6 +32,7 @@ SOFTWARE.
 #include "base.h"
 #include "image.h"
 #include "developer.h"
+#include "qjs_parser.h"
 #include "ssaa.h"
 
 namespace qjulia {
@@ -44,11 +45,15 @@ class Engine {
   
   virtual Developer& GetDeveloper(void) = 0;
   
+  virtual SceneBuilder& GetSceneBuilder(void) = 0;
+  
   virtual void SetResolution(Size size) = 0;
   
   virtual void SetAAOption(AAOption aa) = 0;
   
-  virtual void Render(SceneBuilder &build) = 0;
+  virtual void Parse(QJSDescription &descr) = 0;
+  
+  virtual void Render(void) = 0;
   
   virtual Float LastRenderTime(void) const = 0;
 };

@@ -81,38 +81,26 @@ bool Run(int argc, char **argv) {
     return false;
   }
   
-  SceneBuilder build;
-  RegisterDefaultEntities(build);
-  
-  QJSDescription qjs_descr = LoadQJSFromFile(scene_file);
-  build.ParseSceneDescr(qjs_descr.scene);
-  
-  
 #ifdef WITH_CUDA
   std::unique_ptr<Engine> engine = CreateCUDAEngine();
 #else
   std::unique_ptr<Engine> engine = CreateCPUEngine();
 #endif
   
+  QJSDescription qjs_descr = LoadQJSFromFile(scene_file);  
+  engine->Parse(qjs_descr);
+  
   engine->SetAAOption(static_cast<AAOption>(args["antialias"].as<int>()));
   
   engine->SetResolution(ParseImageSize(size_str));
   
-  engine->Render(build);
   Developer &developer = engine->GetDeveloper();
+  
+  engine->Render();
   
   Image image;
   developer.ProduceImage(image);
   LOG(INFO) << "Rendering time: " << engine->LastRenderTime();
-  /*
-  if (args["float"].as<bool>()) {
-    RGBFloatImage fimage;
-    GrayscaleFloatImage fdepth;
-    developer.ProduceImage(fimage);
-    Imwrite("exposure.tif", fimage);
-    developer.ProduceDepthImage(fdepth);
-    Imwrite("depth.tif", fdepth);*/
-  //} else {
   Imwrite(output_file, image);
   return true;
 }

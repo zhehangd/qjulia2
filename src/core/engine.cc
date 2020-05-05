@@ -56,15 +56,27 @@ struct RenderOptions {
 
 class EngineCommon : public Engine {
  public:
+   
+  EngineCommon(void);
   
+  SceneBuilder& GetSceneBuilder(void) override;
+   
   void SetResolution(Size size) override;
   
   void SetAAOption(AAOption aa) override;
   
+  void Parse(QJSDescription &descr) override;
+  
   Float LastRenderTime(void) const override {return (Float)0;} 
   
   RenderOptions options_;
+  
+  SceneBuilder scene_build_;
 };
+
+EngineCommon::EngineCommon(void) {
+  RegisterDefaultEntities(scene_build_);
+}
 
 void EngineCommon::SetResolution(Size size) {
   options_.size = size;
@@ -72,6 +84,24 @@ void EngineCommon::SetResolution(Size size) {
 
 void EngineCommon::SetAAOption(AAOption aa) {
   options_.aa = aa;
+}
+
+SceneBuilder& EngineCommon::GetSceneBuilder(void) {
+  return scene_build_;
+}
+
+void EngineCommon::Parse(QJSDescription &descr) {
+  
+  scene_build_.ParseSceneDescr(descr.scene);
+  
+  for (const auto &block : descr.engine.blocks) {
+    if (block.name == "Engine") {
+    } else if (block.name == "Developer") {
+      for (const auto &statement : block.statements) {
+        GetDeveloper().Parse(statement);
+      }
+    }
+  }
 }
 
 void CheckIntegratorAndDeveloper(SceneBuilder *build, std::string world_name) {
@@ -92,7 +122,7 @@ struct CUDAEngineImpl : public EngineCommon {
   CUDAEngineImpl(void);
   ~CUDAEngineImpl(void) {}
   
-  void Render(SceneBuilder &build) override;
+  void Render(void) override;
   
   Developer& GetDeveloper(void) override {return developer_;}
   
@@ -125,7 +155,7 @@ KERNEL void GPUKernel(SampleFrame film, Scene scene, AAFilter aa) {
   film(i) = integrator->Li(ray, scene);
 }
 
-void CUDAEngineImpl::Render(SceneBuilder &build) {
+void CUDAEngineImpl::Render(void) {
   Size size = options_.size;
   const int film_data_bytes = size.Total() * sizeof(Sample);
   if (!cu_film_data_ || (cu_film_data_size_ != size.Total())) {
@@ -150,7 +180,7 @@ void CUDAEngineImpl::Render(SceneBuilder &build) {
   BuildSceneParams params;
   params.cuda = true;
   params.world_name = options_.world_name;
-  Scene scene = build.BuildScene(params);
+  Scene scene = scene_build_.BuildScene(params);
   
   // I have little knowledge of setting the optimal block size.
   // 16 works for my PC.
@@ -160,7 +190,8 @@ void CUDAEngineImpl::Render(SceneBuilder &build) {
   dim3 block_size(bsize, bsize);
   dim3 grid_size(gw, gh);
   
-  EntityNodeBT<World> *world_node = CHECK_NOTNULL(build.SearchEntityByName<World>(options_.world_name));
+  EntityNodeBT<World> *world_node = CHECK_NOTNULL(
+    scene_build_.SearchEntityByName<World>(options_.world_name));
   auto *world = world_node->Get();
   
   //auto *integrator = world->GetIntegrator(); 
@@ -186,17 +217,17 @@ struct CPUEngineImpl : public EngineCommon {
   
   Developer& GetDeveloper(void) override {return developer_;}
   
-  void Render(SceneBuilder &build) override;
+  void Render(void) override;
   
   DeveloperCPU developer_;
 };
 
-void CPUEngineImpl::Render(SceneBuilder &build) {
+void CPUEngineImpl::Render(void) {
   Size size = options_.size;
   BuildSceneParams params;
   params.cuda = false;
   params.world_name = options_.world_name;
-  Scene scene = build.BuildScene(params);
+  Scene scene = scene_build_.BuildScene(params);
   
   const Camera *camera = scene.GetCamera();
   SampleFrame film(size);
@@ -205,16 +236,11 @@ void CPUEngineImpl::Render(SceneBuilder &build) {
   if (num_threads < 0) {num_threads = std::thread::hardware_concurrency();}
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options_.aa);
-  
-  auto *world_node = CHECK_NOTNULL(build.SearchEntityByName<World>(options_.world_name));
+  auto *world_node = CHECK_NOTNULL(scene_build_.SearchEntityByName<World>(options_.world_name));
   auto *world = world_node->Get();
   auto *integrator = world->data_host_.integrator;
-  //auto *developer = world->data_host_.developer;
-  //developer->Init(size);
   developer_.Init(size);
-  
   for (const auto &aa : aa_filters) {
-  
     std::atomic<int> row_cursor(0);
     auto RunThread = [&](void) {
       while(true) {

@@ -37,7 +37,21 @@ namespace qjulia {
 
 struct CachePixel {
   Spectrum spectrum;
-  float w = 0;
+  Float depth;
+  Float w = 0;
+  Float depth_w = 0;
+};
+
+struct DevOptions {
+  
+  bool flag_save_exposure_map = false;
+  
+  bool flag_save_depth_map = false;
+  
+  std::string exposure_map_filename;
+  
+  std::string depth_map_filename;
+  
 };
 
 /// @brief A Developer process a film into an image
@@ -54,9 +68,11 @@ class Developer {
   
   void ProduceImage(RGBImage &image);
   
-  //virtual void Parse(const Args &args);
+  void Parse(const Args &args);
   
   Array2D<CachePixel> cache_;
+  
+  DevOptions options_;
 };
 
 class DeveloperGPU : public Developer {

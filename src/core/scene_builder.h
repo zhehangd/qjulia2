@@ -177,6 +177,8 @@ class SceneBuilder {
   template <typename ST>
   const RegRecord* Register(std::string stype_name = {});
   
+  const std::vector<RegRecord>& GetRegTable(void) {return reg_table_;}
+  
  private:
   
   /// @brief Info of all registered types
