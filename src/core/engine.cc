@@ -67,11 +67,13 @@ class EngineCommon : public Engine {
   
   void Parse(QJSDescription &descr) override;
   
-  Float LastRenderTime(void) const override {return (Float)0;} 
+  Float LastRenderTime(void) const override {return last_render_time_;} 
   
   RenderOptions options_;
   
   SceneBuilder scene_build_;
+  
+  Float last_render_time_ = 0;
 };
 
 EngineCommon::EngineCommon(void) {
@@ -100,6 +102,12 @@ void EngineCommon::Parse(QJSDescription &descr) {
       for (const auto &statement : block.statements) {
         GetDeveloper().Parse(statement);
       }
+    } else if (block.name == "DOFSimulator") {
+      for (const auto &statement : block.statements) {
+        GetDeveloper().GetDOFSimulator().Parse(statement);
+      }
+    } else {
+      LOG(FATAL) << "Unknown engine object: " << block.name;
     }
   }
 }
@@ -156,6 +164,8 @@ KERNEL void GPUKernel(SampleFrame film, Scene scene, AAFilter aa) {
 }
 
 void CUDAEngineImpl::Render(void) {
+  Timer timer;
+  timer.Start();
   Size size = options_.size;
   const int film_data_bytes = size.Total() * sizeof(Sample);
   if (!cu_film_data_ || (cu_film_data_size_ != size.Total())) {
@@ -206,6 +216,7 @@ void CUDAEngineImpl::Render(void) {
   }
   developer_.Finish();
   cudaDeviceSynchronize();
+  last_render_time_ = timer.End();
 }
 
 #endif
@@ -223,6 +234,8 @@ struct CPUEngineImpl : public EngineCommon {
 };
 
 void CPUEngineImpl::Render(void) {
+  Timer timer;
+  timer.Start();
   Size size = options_.size;
   BuildSceneParams params;
   params.cuda = false;
@@ -272,6 +285,7 @@ void CPUEngineImpl::Render(void) {
     developer_.ProcessSampleFrame(film, aa.w);
   }
   developer_.Finish();
+  last_render_time_ = timer.End();
 }
 
 std::unique_ptr<Engine> CreateCPUEngine(void) {

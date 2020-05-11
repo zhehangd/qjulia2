@@ -28,6 +28,7 @@ SOFTWARE.
 #define QJULIA_DEVELOPER_H_
 
 #include "base.h"
+#include "dof_simulator.h"
 #include "film.h"
 #include "image.h"
 #include "vector.h"
@@ -48,6 +49,8 @@ struct DevOptions {
   
   bool flag_save_depth_map = false;
   
+  bool flag_use_dof = false;
+  
   std::string exposure_map_filename;
   
   std::string depth_map_filename;
@@ -62,17 +65,45 @@ struct DevOptions {
 /// information in the film.
 class Developer {
  public:
+   
+  /// @brief Informs the developer that a new rendering begins
   void Init(Size size);
   
+  /// @brief Informs the devloper that the rendering is done
   void Finish(void);
+  
+  /// @brief Save the raw exposure map to the file
+  /// 
+  /// If filename is not empty, the raw exposure map will be saved to the file
+  /// once the rendering is done. If filename is empty, will not save anything.
+  void SetExposureExport(std::string filename);
+  
+  /// @brief Save the raw depth map to the file
+  ///
+  /// If filename is not empty, the raw depth map is saved to the file
+  /// once the rendering is done. If filename is empty, will not save anything.
+  void SetDepthExport(std::string filename);
+  
+  void EnableDOF(bool enable);
   
   void ProduceImage(RGBImage &image);
   
   void Parse(const Args &args);
   
+  DOFSimulator& GetDOFSimulator(void) {return dof_;}
+  
+ protected:
+   
+  void ProcessSampleFrameImpl(SampleFrame &film, float w);
+  
   Array2D<CachePixel> cache_;
   
+  RGBFloatImage exposure_cache_;
+  GrayscaleFloatImage depth_cache_;
+  
   DevOptions options_;
+  
+  DOFSimulatorCPU dof_;
 };
 
 class DeveloperGPU : public Developer {

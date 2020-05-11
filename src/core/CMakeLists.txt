@@ -38,6 +38,7 @@ set(SHARED_SOURCE_FILES
   material.cc
   camera.cc
   developer.cc
+  dof_simulator.cc
   object.cc
   scene.cc
   world.cc

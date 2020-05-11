@@ -31,6 +31,6 @@ target_link_libraries(qjulia2-cli
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
-  set_target_properties(qjulia2-cli
-    PROPERTIES CUDA_SEPARABLE_COMPILATION ON
-  )
+set_target_properties(qjulia2-cli
+  PROPERTIES CUDA_SEPARABLE_COMPILATION ON
+)

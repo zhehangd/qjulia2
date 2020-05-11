@@ -138,7 +138,14 @@ class Array2D {
   CPU_AND_CUDA int Height(void) const {return size_.height;}
   CPU_AND_CUDA Size ArraySize(void) const {return size_;}
   CPU_AND_CUDA SizeType NumElems() const {return size_.Total();}
+  
+  /// @brief Number of bytes a row uses
   CPU_AND_CUDA SizeType BytesPerRow() const {return size_.width * sizeof(T);}
+  
+  /// @brief Number of bytes the whole image uses
+  CPU_AND_CUDA SizeType DataBytes() const {return NumElems() * sizeof(T);}
+  
+  /// @brief Pointer to the data memory
   CPU_AND_CUDA T* Data(void) {return data_;}
   CPU_AND_CUDA const T* Data(void) const {return data_;}
   
