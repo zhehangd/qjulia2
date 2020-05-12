@@ -62,7 +62,7 @@ CPU_AND_CUDA FractalTestRet Julia3DIntersectKernel::SearchIntersection(
     Float q_norm = q.Norm(); // TODO: cover 0
     Float qp_norm = qp.Norm();
     Float d = 0.5 * q_norm * std::log(q_norm) / qp_norm;
-    if (d < precision_) {
+    if (d < precision_ || n == max_iterations_) {
       ret.has_intersection = true;
       ret.isect_position = p;
       ret.dist = (p - start).Norm();
