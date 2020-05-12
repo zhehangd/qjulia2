@@ -99,8 +99,13 @@ float ControlBar::TickToValue(int tick) const {
 }
 
 int ControlBar::ValueToTick(float value) const {
-  if (value > vend_) {value = vend_;}
-  if (value < vsrt_) {value = vsrt_;}
+  if (vsrt_ <= vend_) {
+    if (value > vend_) {value = vend_;}
+    if (value < vsrt_) {value = vsrt_;}
+  } else {
+    if (value < vend_) {value = vend_;}
+    if (value > vsrt_) {value = vsrt_;}
+  }
   if (use_log_) {
     float k = std::log(value / vsrt_) / std::log(vend_ / vsrt_);
     int t = k * (tend_ - tsrt_) + tsrt_;
