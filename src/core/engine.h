@@ -51,6 +51,8 @@ class Engine {
   
   virtual void SetAAOption(AAOption aa) = 0;
   
+  virtual void SetNumThreads(int num_threads) = 0;
+  
   virtual void Parse(QJSDescription &descr) = 0;
   
   virtual void Render(void) = 0;

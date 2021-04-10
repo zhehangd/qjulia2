@@ -60,6 +60,8 @@ bool Run(int argc, char **argv) {
   cxxopts_options.add_options()
   ("a,antialias", "Antialiasing mode {0, 1, 2, 3}",\
     cxxopts::value<int>()->default_value("1"))
+  ("n,threads", "Number of threads (-1 default)",
+    cxxopts::value<int>()->default_value("-1"))
   ("s,size", "Output image size",
     cxxopts::value<std::string>()->default_value("640x360"))
   ("o,output_file", "Output image filename",

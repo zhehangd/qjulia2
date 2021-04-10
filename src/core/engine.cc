@@ -65,6 +65,8 @@ class EngineCommon : public Engine {
   
   void SetAAOption(AAOption aa) override;
   
+  void SetNumThreads(int num_threads) override;
+  
   void Parse(QJSDescription &descr) override;
   
   Float LastRenderTime(void) const override {return last_render_time_;} 
@@ -86,6 +88,10 @@ void EngineCommon::SetResolution(Size size) {
 
 void EngineCommon::SetAAOption(AAOption aa) {
   options_.aa = aa;
+}
+
+void EngineCommon::SetNumThreads(int num_threads) {
+  options_.num_threads = num_threads;
 }
 
 SceneBuilder& EngineCommon::GetSceneBuilder(void) {
