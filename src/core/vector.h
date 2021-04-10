@@ -52,7 +52,7 @@ class Vec_ {
   CPU_AND_CUDA Vec_(T v0, T v1, T v2) {v(0) = v0; v(1) = v1; v(2) = v2;}
   CPU_AND_CUDA Vec_(T v0, T v1, T v2, T v3) {assert(C >= 4); v(0) = v0; v(1) = v1; v(2) = v2; v(3) = v3;}
   
-  CPU_AND_CUDA Vec_(const Vec_<T, C> &src) {std::memcpy(vals, src.vals, sizeof(T) * C);}
+  CPU_AND_CUDA Vec_(const Vec_<T, C> &src) {*this = src;}
   
   CPU_AND_CUDA const T& operator[](int i) const {return v(i);}
   CPU_AND_CUDA T& operator[](int i) {return v(i);}
