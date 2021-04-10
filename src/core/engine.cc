@@ -294,8 +294,13 @@ std::unique_ptr<Engine> CreateCPUEngine(void) {
 }
 
 std::unique_ptr<Engine> CreateCUDAEngine(void) {
+#ifdef WITH_CUDA
   auto engine = std::make_unique<CUDAEngineImpl>();
   return engine;
+#else
+  return {};
+#endif
+  
 }
 
 }

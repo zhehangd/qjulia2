@@ -8,6 +8,8 @@
 
 namespace qjulia {
 
+#ifdef WITH_CUDA
+
 void DeveloperGPU::ProcessSampleFrame(SampleFrame &cu_film, float w) {
   // For now GPU impl just copy the data to the host and use the implementation
   // for the host. In the future everything should be implemented in CUDA.
@@ -17,6 +19,8 @@ void DeveloperGPU::ProcessSampleFrame(SampleFrame &cu_film, float w) {
   cudaDeviceSynchronize();
   ProcessSampleFrameImpl(film, w);
 }
+
+#endif
 
 void DeveloperCPU::ProcessSampleFrame(SampleFrame &film, float w) {
   ProcessSampleFrameImpl(film, w);
