@@ -30,9 +30,14 @@ Camera.Perspective camera {
   SetFocus 1.8
 }
 
+Integrator.DefaultIntegrator integrator {
+}
+
+
 World scene {
   SetCamera camera
   AddObject fractal
   AddLight sun
   AddLight lamp
+  SetIntegrator integrator
 }

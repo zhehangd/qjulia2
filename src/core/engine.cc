@@ -256,8 +256,8 @@ void CPUEngineImpl::Render(void) {
   
   std::vector<AAFilter> aa_filters = GenerateSSAAFilters(options_.aa);
   auto *world_node = CHECK_NOTNULL(scene_build_.SearchEntityByName<World>(options_.world_name));
-  auto *world = world_node->Get();
-  auto *integrator = world->data_host_.integrator;
+  auto *world = CHECK_NOTNULL(world_node->Get());
+  auto *integrator = CHECK_NOTNULL(world->data_host_.integrator);
   developer_.Init(size);
   for (const auto &aa : aa_filters) {
     std::atomic<int> row_cursor(0);

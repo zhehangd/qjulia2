@@ -85,6 +85,9 @@ Camera.Perspective camera_1 {
 
 # -------------- Scenes -----------------
 
+Integrator.DefaultIntegrator integrator {
+}
+
 World scene1 {
   SetCamera camera_1
   AddObject fractal_1
@@ -93,4 +96,5 @@ World scene1 {
   AddObject wall3
   AddLight sun
   AddLight bulb
+  SetIntegrator integrator
 }

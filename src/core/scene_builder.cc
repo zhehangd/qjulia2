@@ -88,7 +88,9 @@ QJSContext SceneBuilder::SaveSceneDescr(void) {
   
 EntityNode* SceneBuilder::CreateEntity(
     std::string btype, std::string stype, std::string name) {
-  if (btype == EntityTrait<Camera>::name) {
+  if (btype == EntityTrait<Integrator>::name) {
+    return CreateEntity<Integrator>(stype, name);
+  } else if (btype == EntityTrait<Camera>::name) {
     return CreateEntity<Camera>(stype, name);
   } else if (btype == EntityTrait<Light>::name) {
     return CreateEntity<Light>(stype, name);
