@@ -59,6 +59,8 @@ class Vec_ {
   CPU_AND_CUDA const T& operator()(int i) const {return v(i);}
   CPU_AND_CUDA T& operator()(int i) {return v(i);}
   
+  CPU_AND_CUDA Vec_<T, C>& operator=(const Vec_<T, C> &src);
+  
   CPU_AND_CUDA const T& v(int i) const {return vals[i];} // for internal access
   CPU_AND_CUDA T& v(int i) {return vals[i];}
   
@@ -104,6 +106,12 @@ class Vec_ {
   //T vals[C] = {}; // data
   T vals[C] = {};
 };
+
+template<typename T, int C> inline
+CPU_AND_CUDA Vec_<T, C>& Vec_<T, C>::operator=(const Vec_<T, C> &src) {
+  std::memcpy(vals, src.vals, sizeof(T) * C);
+  return*this;
+}
 
 // - v
 template<typename T, int C> inline
